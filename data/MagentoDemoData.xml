@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<entity-engine-xml>
+    <Enumeration description="Magento Sales Channel" enumCode="MAGENTO_CHANNEL" enumId="MAGENTO_SALE_CHANNEL" sequenceId="01" enumTypeId="ORDER_SALES_CHANNEL"/>
+    <MagentoConfiguration productStoreId="" enumId="MAGENTO_SALE_CHANNEL" xmlRpcUserName="magentoadmin" password="magento" serverUrl="http://localhost/api/xmlrpc/"/>
+
+    <!--Default FacilityLocation for migrated products-->
+    <FacilityLocation facilityId="WebStoreWarehouse" locationSeqId="TLTLTLLL05" locationTypeEnumId="FLT_PICKLOC" areaId="TL" aisleId="TL" sectionId="TL" levelId="LL" positionId="05"/>
+    <FacilityLocation facilityId="WebStoreWarehouse" locationSeqId="TLTLTLUL05" locationTypeEnumId="FLT_BULK" areaId="TL" aisleId="TL" sectionId="TL" levelId="UL" positionId="05"/>
+
+</entity-engine-xml>
