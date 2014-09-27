@@ -196,12 +196,15 @@ public class MagentoHelper {
                         //is already reduced and after full fulfilling order in ofbiz it reduces again. Hence we have to make inventory count in ofbiz equal
                         //to initial value of it in magento.
                     }
+
+                    //TODO: Need to get information, to check, whether the order is back order or not.
+                    /*
                     if (UtilValidate.isNotEmpty(item.get("isBackOrder"))) {
                         Integer isBackOrder = (Integer) ObjectType.simpleTypeConvert(item.get("isBackOrder"), "Integer", null, locale);
                         if(isBackOrder != 0) {
                             productData.put("requireInventory", "N");
                         }
-                    }
+                    }*/
                     Map<String, Object> product = dispatcher.runSync("createProduct", productData);
                     if (ServiceUtil.isSuccess(product)) {
                         if (UtilValidate.isNotEmpty(parentItem) && "configurable".equals(parentItem.get("product_type"))) {
