@@ -248,18 +248,21 @@ public class MagentoHelper {
                         }
                         if(inventoryCount > 0) {
                             String facilityId = (delegator.findOne("ProductStore", UtilMisc.toMap("productStoreId", productStoreId), true)).getString("inventoryFacilityId");
+                            GenericValue facilityLocation = EntityUtil.getFirst(delegator.findList("FacilityLocation", EntityCondition.makeCondition("faciltityId", facilityId), null, null, null, false));
+                            if (UtilValidate.isNotEmpty(facilityLocation)) {
                             HashMap<String, Object> serviceContext = new HashMap<String, Object>();
                             serviceContext.put("userLogin", system);
                             serviceContext.put("facilityId", facilityId);
                             serviceContext.put("productId", product.get("productId"));
-                            serviceContext.put("locationSeqId", "TLTLTLLL05");
+                            serviceContext.put("locationSeqId", facilityLocation.getString("locationSeqId"));
                             dispatcher.runSync("createProductFacilityLocation", serviceContext);
 
-                            serviceContext.put("locationSeqId", "TLTLTLLL05");
+                            serviceContext.put("locationSeqId", facilityLocation.getString("locationSeqId"));
                             serviceContext.put("quantityAccepted", inventoryCount);
                             serviceContext.put("inventoryItemTypeId", "NON_SERIAL_INV_ITEM");
                             dispatcher.runSync("receiveInventoryProductFromMagento",serviceContext);
                             serviceContext.clear();
+                            }
                         }
                     }
                 }
