@@ -122,4 +122,34 @@ public class MagentoClient {
         }
         return result;
     }
+
+    public Object[] getCatalogInventoryStockItemList (String sku) {
+        Object[] result = null;
+        try {
+            XmlRpcClient xmlrpc = getMagentoConnection();
+            String magentoSessionId = getMagentoSession();
+            List params = new ArrayList();
+            params.add(sku);
+            result = (Object[]) xmlrpc.execute("call", new Object[] { magentoSessionId, new String("cataloginventory_stock_item.list"), params});
+        } catch (XmlRpcException e) {
+            e.printStackTrace();
+            Debug.logError("Error in order import (XmlRpcException) " + e.getMessage(), module);
+        }
+        return result;
+    }
+
+    public Object[] getDirectoryRegionList(String countryGeoCode) {
+        Object[] result = null;
+        try {
+            XmlRpcClient xmlrpc = getMagentoConnection();
+            String magentoSessionId = getMagentoSession();
+            List params = new ArrayList();
+            params.add(countryGeoCode);
+            result = (Object[]) xmlrpc.execute("call", new Object[] { magentoSessionId, new String("directory_region.list"), params});
+        } catch (XmlRpcException e) {
+            e.printStackTrace();
+            Debug.logError("Error in order import (XmlRpcException) " + e.getMessage(), module);
+        }
+        return result;
+    }
 }

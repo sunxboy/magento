@@ -21,7 +21,7 @@ under the License.
 <services xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
         xsi:noNamespaceSchemaLocation="http://ofbiz.apache.org/dtds/services.xsd">
         
-    <service name="importOrdersFromMagento" engine="java" auth="true"
+    <service name="importOrdersFromMagento" engine="java" auth="true" transaction-timeout="7200"
             location="org.ofbizus.magento.MagentoServices" invoke="importOrdersFromMagento">
         <description></description>
         <attribute name="orderId" mode="IN" type="String" optional="true"/>
@@ -29,4 +29,38 @@ under the License.
         <attribute name="thruDate" type="java.sql.Timestamp" mode="IN" optional="true"/>
         <attribute name="statusId" type="String" mode="IN" optional="true"/>
     </service>
+    <service name="createOrderFromMagento" engine="java" auth="true"
+            location="org.ofbizus.magento.MagentoServices" invoke="createOrderFromMagento">
+        <description></description>
+        <attribute name="orderInfo" mode="IN" type="Map"/>
+    </service>
+    <service name="cancelOrderFromMagento" engine="java" auth="true"
+            location="org.ofbizus.magento.MagentoServices" invoke="cancelOrderFromMagento">
+        <description></description>
+        <attribute name="externalId" mode="IN" type="String"/>
+        <attribute name="orderStatus" mode="IN" type="String"/>
+    </service>
+    <service name="receiveInventoryProductFromMagento" engine="simple" transaction-timeout="600"
+            location="component://magento/script/org/ofbizus/magento/MagentoServices.xml" invoke="receiveInventoryProduct" auth="true">
+        <description>Receive Inventory In Ofbiz From Magento</description>
+        <permission-service service-name="facilityGenericPermission" main-action="CREATE"/>
+        <auto-attributes entity-name="InventoryItem" include="nonpk" mode="IN" optional="true">
+            <exclude field-name="availableToPromiseTotal"/>
+            <exclude field-name="quantityOnHandTotal"/>
+        </auto-attributes>
+        <auto-attributes entity-name="InventoryItemDetail" include="nonpk" mode="IN" optional="true"/>
+        <auto-attributes entity-name="ShipmentReceipt" include="nonpk" mode="IN" optional="true"/>
+        <attribute name="inventoryItemDetailSeqId" type="String" mode="IN" optional="true"/>
+        <attribute name="priorityOrderId" type="String" mode="IN" optional="true"/>
+        <attribute name="priorityOrderItemSeqId" type="String" mode="IN" optional="true"/>
+        <attribute name="currentInventoryItemId" type="String" mode="IN" optional="true"><!-- allow this to be passed in to update an existing InventoryItem, and all else is the same; if not passed in a new one will be created --></attribute>
+        <attribute name="inventoryItemId" type="String" mode="OUT" optional="true"></attribute>
+        <attribute name="orderCurrencyUnitPrice" type="String" mode="IN" optional="true"/>
+        <override name="quantityAccepted" optional="true"/>
+        <override name="quantityRejected" optional="false" default-value="0"/>
+        <override name="inventoryItemTypeId" optional="false"/>
+        <override name="productId" optional="false"/>
+        <override name="facilityId" optional="false"/>
+    </service>
+
 </services>

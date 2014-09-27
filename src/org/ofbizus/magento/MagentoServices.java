@@ -25,6 +25,7 @@ import org.ofbiz.service.DispatchContext;
 import org.ofbiz.service.GenericServiceException;
 import org.ofbiz.service.LocalDispatcher;
 import org.ofbiz.service.ServiceUtil;
+import org.ofbizus.magento.MagentoHelper;
 
 public class MagentoServices {
     public static final String module = MagentoClient.class.getName();
@@ -32,6 +33,7 @@ public class MagentoServices {
     // Import orders from magento
     public Map<String, Object> importOrdersFromMagento(DispatchContext dctx, Map<String, ?> context) {
         Map<String, Object> result = ServiceUtil.returnSuccess();
+        Map<String, Object> serviceResp = null;
         LocalDispatcher dispatcher = dctx.getDispatcher();
         Delegator delegator = dctx.getDelegator();
         String magOrderId = (String) context.get("orderId");
@@ -39,7 +41,7 @@ public class MagentoServices {
 
         Timestamp fromDate = (Timestamp) context.get("fromDate");
         Timestamp thruDate = (Timestamp) context.get("thruDate");
-
+        try {
         DateFormat df = new SimpleDateFormat("yyyy-mm-dd HH:mm:ss");
         Date from = (Date) fromDate;
         Date thru = (Date) thruDate;
@@ -76,18 +78,93 @@ public class MagentoServices {
         }
         MagentoClient magentoClient = new MagentoClient(dispatcher, delegator);
         Object[] responseMessage = magentoClient.getSalesOrderList(condMap);
-
+        List<String> errorMessageList = new ArrayList<String>();
+        GenericValue system = delegator.findOne("UserLogin", false, UtilMisc.toMap("userLoginId", "system"));
         for (Object orderInformation : responseMessage) {
             Map<String, Object> orderInfo = (Map<String, Object>)orderInformation;
             Object salesOrderInformation = magentoClient.getSalesOrderInfo((String)orderInfo.get("increment_id"));
             Map<String, Object> salesOrderInfo = (Map<String, Object>)salesOrderInformation;
-            String externalId = (String) salesOrderInfo.get("externalId");
+            String externalId = (String) salesOrderInfo.get("order_id");
             if (UtilValidate.isNotEmpty(externalId)) {
-                    // Check if order already imported.
-            } else {
-                //Create new order.
+                // Check if order already imported
+                GenericValue orderHeader = EntityUtil.getFirst(delegator.findByAnd("OrderHeader", UtilMisc.toMap("externalId", externalId, "salesChannelEnumId", "MAGENTO_SALE_CHANNEL", "orderTypeId", "SALES_ORDER"), null, false));
+                String magentoOrderStatus = (String) salesOrderInfo.get("status");
+                if (UtilValidate.isNotEmpty(orderHeader)) {
+                    String orderStatusId = orderHeader.getString("statusId");
+                    if (("canceled".equals(magentoOrderStatus)) && !("ORDER_CANCELLED".equals(orderStatusId))) {
+                        Map<String, Object> cancelOrderFromMagentoCtx = new HashMap<String, Object>();
+                        cancelOrderFromMagentoCtx.put("externalId", externalId);
+                        cancelOrderFromMagentoCtx.put("orderStatus", magentoOrderStatus);
+                        cancelOrderFromMagentoCtx.put("userLogin", system);
+                        serviceResp = dispatcher.runSync("cancelOrderFromMagento", cancelOrderFromMagentoCtx);
+                        if (ServiceUtil.isSuccess(serviceResp)) {
+                        } else {
+                            errorMessageList.add((String) ServiceUtil.getErrorMessage(serviceResp));
+                        }
+                    } else {
+                        //Ignore if order already imported
+                        continue;
+                    }
+                } else {
+                    Map<String, Object> createOrderCtx = new HashMap<String, Object>();
+                    createOrderCtx.put("orderInfo", salesOrderInfo);
+                    createOrderCtx.put("userLogin", system);
+                    serviceResp = dispatcher.runSync("createOrderFromMagento", createOrderCtx, 120, true);
+                    if (ServiceUtil.isSuccess(serviceResp)) {
+                        if ("canceled".equals(magentoOrderStatus)) {
+                            Map<String, Object> cancelOrderCtx = new HashMap<String, Object>();
+                            cancelOrderCtx.put("externalId", externalId);
+                            cancelOrderCtx.put("orderStatus", magentoOrderStatus);
+                            cancelOrderCtx.put("userLogin", system);
+                            Map cancelOrderResp = dispatcher.runSync("cancelOrderFromMagento", cancelOrderCtx);
+                            if (!ServiceUtil.isSuccess(cancelOrderResp)) {
+                                errorMessageList.add((String) ServiceUtil.getErrorMessage(serviceResp));
+                            }
+                        }
+                    } else {
+                        errorMessageList.add((String) ServiceUtil.getErrorMessage(serviceResp));
+                    }
+                }
             }
         }
+        } catch (GenericEntityException gee) {
+            gee.printStackTrace();
+            Debug.logError("Error in order import (GenericEntityException) "+ gee.getMessage(), module);
+        } catch (GenericServiceException gse) {
+            gse.printStackTrace();
+            Debug.logError("Error in order import (GenericServiceException) "+gse.getMessage(), module);
+        }
         return result;
+    }
+    public static Map<String, Object> createOrderFromMagento(DispatchContext dctx, Map<String, ?> context) {
+        Map<String, Object> response = ServiceUtil.returnSuccess();
+        Locale locale = (Locale) context.get("locale");
+        Delegator delegator = dctx.getDelegator();
+        LocalDispatcher dispatcher = dctx.getDispatcher();
+        Map orderInfo = (Map)context.get("orderInfo");
+        if (UtilValidate.isNotEmpty(context)) {
+            try {
+                String result = MagentoHelper.createOrder(orderInfo, locale, delegator, dispatcher);
+                if (!result.equals("success")) {
+                    response = ServiceUtil.returnError(result);
+                }
+            } catch (GeneralException ge) {
+                Debug.logError(ge ,module);
+            }
+        }
+        return response;
+    }
+    public static Map<String, Object> cancelOrderFromMagento(DispatchContext dctx, Map<String, ?> context) {
+        Map<String, Object> response = ServiceUtil.returnSuccess();
+        Delegator delegator = dctx.getDelegator();
+        LocalDispatcher dispatcher = dctx.getDispatcher();
+        if (context != null) {
+            try {
+                MagentoHelper.processStateChange(context, delegator, dispatcher);
+            } catch (GeneralException e) {
+                Debug.logError(e ,module);
+            }
+        }
+        return response;
     }
 }
