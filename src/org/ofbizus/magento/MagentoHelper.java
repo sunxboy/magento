@@ -1,7 +1,6 @@
 package org.ofbizus.magento;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -30,7 +29,6 @@ import org.ofbiz.order.shoppingcart.ShoppingCart;
 import org.ofbiz.order.shoppingcart.ShoppingCartItem;
 import org.ofbiz.service.LocalDispatcher;
 import org.ofbiz.service.ServiceUtil;
-import org.ofbiz.widget.form.ModelFormField.EntityOptions;
 
 public class MagentoHelper {
     public static final String SALES_CHANNEL = "MAGENTO_SALE_CHANNEL";
