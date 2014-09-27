@@ -87,8 +87,8 @@ public class MagentoHelper {
         Map<String, Object> shippingAddress = (Map<String, Object>) orderInformation.get("shipping_address");
         Map<String, Object> billingAddress = (Map<String, Object>) orderInformation.get("billing_address");
 
-        MagentoClient helper = new MagentoClient(dispatcher, delegator);
-        Object[] directoryRegionList = helper.getDirectoryRegionList((String)shippingAddress.get("country_id"));
+        MagentoClient magentoClient = new MagentoClient(dispatcher, delegator);
+        Object[] directoryRegionList = magentoClient.getDirectoryRegionList((String)shippingAddress.get("country_id"));
         for (Object directoryRegion : directoryRegionList) {
             Map<String, Object> region = (Map<String, Object>)directoryRegion;
             if (((String)region.get("region_id")).equals(shippingAddress.get("region_id"))) {
@@ -184,7 +184,7 @@ public class MagentoHelper {
                     productData.put("quantity", item.get("qty_ordered").toString());
                 } else {
                     Integer inventoryCount = null;
-                    Object[] catalogInventoryStockItemList = helper.getCatalogInventoryStockItemList((String)item.get("sku"));
+                    Object[] catalogInventoryStockItemList = magentoClient.getCatalogInventoryStockItemList((String)item.get("sku"));
                     Map<String, Object> itemStock = (Map<String, Object>)catalogInventoryStockItemList[0];
                     if (UtilValidate.isNotEmpty(itemStock.get("qty")) && UtilValidate.isNotEmpty(item.get("qty_ordered"))) {
                         Integer quantity = (Integer) ObjectType.simpleTypeConvert(item.get("qty_ordered"), "Integer", null, locale);
