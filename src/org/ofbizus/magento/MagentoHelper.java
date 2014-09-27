@@ -1,13 +1,10 @@
 package org.ofbizus.magento;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-
-import javolution.util.FastMap;
 
 import org.ofbiz.base.util.Debug;
 import org.ofbiz.base.util.GeneralException;
@@ -90,8 +87,8 @@ public class MagentoHelper {
         Map<String, Object> shippingAddress = (Map<String, Object>) orderInformation.get("shipping_address");
         Map<String, Object> billingAddress = (Map<String, Object>) orderInformation.get("billing_address");
 
-        MagentoClient helper = new MagentoClient(dispatcher, delegator);
-        Object[] directoryRegionList = helper.getDirectoryRegionList((String)shippingAddress.get("country_id"));
+        MagentoClient magentoClient = new MagentoClient(dispatcher, delegator);
+        Object[] directoryRegionList = magentoClient.getDirectoryRegionList((String)shippingAddress.get("country_id"));
         for (Object directoryRegion : directoryRegionList) {
             Map<String, Object> region = (Map<String, Object>)directoryRegion;
             if (((String)region.get("region_id")).equals(shippingAddress.get("region_id"))) {
@@ -187,7 +184,7 @@ public class MagentoHelper {
                     productData.put("quantity", item.get("qty_ordered").toString());
                 } else {
                     Integer inventoryCount = null;
-                    Object[] catalogInventoryStockItemList = helper.getCatalogInventoryStockItemList((String)item.get("sku"));
+                    Object[] catalogInventoryStockItemList = magentoClient.getCatalogInventoryStockItemList((String)item.get("sku"));
                     Map<String, Object> itemStock = (Map<String, Object>)catalogInventoryStockItemList[0];
                     if (UtilValidate.isNotEmpty(itemStock.get("qty")) && UtilValidate.isNotEmpty(item.get("qty_ordered"))) {
                         Integer quantity = (Integer) ObjectType.simpleTypeConvert(item.get("qty_ordered"), "Integer", null, locale);
@@ -197,12 +194,15 @@ public class MagentoHelper {
                         //is already reduced and after full fulfilling order in ofbiz it reduces again. Hence we have to make inventory count in ofbiz equal
                         //to initial value of it in magento.
                     }
+
+                    //TODO: Need to get information, to check, whether the order is back order or not.
+                    /*
                     if (UtilValidate.isNotEmpty(item.get("isBackOrder"))) {
                         Integer isBackOrder = (Integer) ObjectType.simpleTypeConvert(item.get("isBackOrder"), "Integer", null, locale);
                         if(isBackOrder != 0) {
                             productData.put("requireInventory", "N");
                         }
-                    }
+                    }*/
                     Map<String, Object> product = dispatcher.runSync("createProduct", productData);
                     if (ServiceUtil.isSuccess(product)) {
                         if (UtilValidate.isNotEmpty(parentItem) && "configurable".equals(parentItem.get("product_type"))) {
@@ -246,18 +246,21 @@ public class MagentoHelper {
                         }
                         if(inventoryCount > 0) {
                             String facilityId = (delegator.findOne("ProductStore", UtilMisc.toMap("productStoreId", productStoreId), true)).getString("inventoryFacilityId");
-                            HashMap<String, Object> serviceContext = new HashMap<String, Object>();
-                            serviceContext.put("userLogin", system);
-                            serviceContext.put("facilityId", facilityId);
-                            serviceContext.put("productId", product.get("productId"));
-                            serviceContext.put("locationSeqId", "TLTLTLLL05");
-                            dispatcher.runSync("createProductFacilityLocation", serviceContext);
+                            GenericValue facilityLocation = EntityUtil.getFirst(delegator.findList("FacilityLocation", EntityCondition.makeCondition("faciltityId", facilityId), null, null, null, false));
+                            if (UtilValidate.isNotEmpty(facilityLocation)) {
+                                HashMap<String, Object> serviceContext = new HashMap<String, Object>();
+                                serviceContext.put("userLogin", system);
+                                serviceContext.put("facilityId", facilityId);
+                                serviceContext.put("productId", product.get("productId"));
+                                serviceContext.put("locationSeqId", facilityLocation.getString("locationSeqId"));
+                                dispatcher.runSync("createProductFacilityLocation", serviceContext);
 
-                            serviceContext.put("locationSeqId", "TLTLTLLL05");
-                            serviceContext.put("quantityAccepted", inventoryCount);
-                            serviceContext.put("inventoryItemTypeId", "NON_SERIAL_INV_ITEM");
-                            dispatcher.runSync("receiveInventoryProductFromMagento",serviceContext);
-                            serviceContext.clear();
+                                serviceContext.put("locationSeqId", facilityLocation.getString("locationSeqId"));
+                                serviceContext.put("quantityAccepted", inventoryCount);
+                                serviceContext.put("inventoryItemTypeId", "NON_SERIAL_INV_ITEM");
+                                dispatcher.runSync("receiveInventoryProductFromMagento",serviceContext);
+                                serviceContext.clear();
+                            }
                         }
                     }
                 }
@@ -286,7 +289,7 @@ public class MagentoHelper {
                 EntityCondition condition = EntityCondition.makeCondition(
                         EntityCondition.makeCondition("roleTypeId", "CARRIER"),
                         EntityCondition.makeCondition("partyId", carrierPartyId),
-                        EntityCondition.makeCondition("carrierServiceCode", carrierServiceCode)
+                        EntityCondition.makeCondition(EntityFunction.UPPER_FIELD("carrierServiceCode"), EntityOperator.EQUALS ,carrierServiceCode)
                         );
                 GenericValue carrierShipmentMethod = EntityUtil.getFirst(delegator.findList("CarrierShipmentMethod", condition, UtilMisc.toSet("shipmentMethodTypeId"), null, null, false));
                 if (UtilValidate.isNotEmpty(carrierShipmentMethod)) {
@@ -368,7 +371,7 @@ public class MagentoHelper {
         String toName = ((String)addr.get("firstname"))+" "+((String)addr.get("lastname"));
         GenericValue system = delegator.findOne("UserLogin", false, UtilMisc.toMap("userLoginId", "system"));
         // prepare the create address map
-        Map<String, Object> addrMap = FastMap.newInstance();
+        Map<String, Object> addrMap = new HashMap<String, Object>();
         addrMap.put("partyId", partyId);
         addrMap.put("toName", toName);
         addrMap.put("address1", addr.get("street"));
@@ -408,7 +411,7 @@ public class MagentoHelper {
         
         List<GenericValue> values = delegator.findList("PartyContactMechPurpose", condition, null, null, null, false);
         if (values == null || values.size() == 0) {
-            Map<String, Object> addPurposeMap = FastMap.newInstance();
+            Map<String, Object> addPurposeMap = new HashMap<String, Object>();
             addPurposeMap.put("contactMechId", contactMechId);
             addPurposeMap.put("partyId", partyId);     
             addPurposeMap.put("contactMechPurposeTypeId", contactMechPurposeTypeId);
@@ -435,7 +438,7 @@ public class MagentoHelper {
     }
     
     public static void setContactInfo(ShoppingCart cart, String contactMechPurposeTypeId, String infoString, Delegator delegator, LocalDispatcher dispatcher) throws GeneralException {
-        Map<String, Object> lookupMap = FastMap.newInstance();
+        Map<String, Object> lookupMap = new HashMap<String, Object>();
         String cmId = null;
         String entityName = "PartyAndContactMech";
         GenericValue cmLookup = null;
@@ -502,21 +505,21 @@ public class MagentoHelper {
     public static void addAdjustments(ShoppingCart cart, Map<String,?> adjustment, Delegator delegator) {
         // handle shipping
         BigDecimal shipAmount = new BigDecimal(adjustment.get("orderShippingAmount").toString());
-        GenericValue shipAdj = delegator.makeValue("OrderAdjustment", FastMap.newInstance());
+        GenericValue shipAdj = delegator.makeValue("OrderAdjustment", new HashMap<String, Object>());
         shipAdj.set("orderAdjustmentTypeId", "SHIPPING_CHARGES");
         shipAdj.set("amount", shipAmount);
         cart.addAdjustment(shipAdj);
 
         // handle tax
         BigDecimal taxAmount = new BigDecimal(adjustment.get("orderTaxAmount").toString());
-        GenericValue taxAdj = delegator.makeValue("OrderAdjustment", FastMap.newInstance());
+        GenericValue taxAdj = delegator.makeValue("OrderAdjustment", new HashMap<String, Object>());
         taxAdj.set("orderAdjustmentTypeId", "SALES_TAX");
         taxAdj.set("amount", taxAmount);
         cart.addAdjustment(taxAdj);
 
         // handle DISCOUNT
         BigDecimal discountAmount = new BigDecimal(adjustment.get("orderDiscountAmount").toString());
-        GenericValue discountAdj = delegator.makeValue("OrderAdjustment", FastMap.newInstance());
+        GenericValue discountAdj = delegator.makeValue("OrderAdjustment", new HashMap<String, Object>());
         discountAdj.set("orderAdjustmentTypeId", "DISCOUNT_ADJUSTMENT");
         discountAdj.set("amount", discountAmount);
         cart.addAdjustment(discountAdj);
