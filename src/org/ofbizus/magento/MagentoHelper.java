@@ -6,8 +6,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-import javolution.util.FastMap;
-
 import org.ofbiz.base.util.Debug;
 import org.ofbiz.base.util.GeneralException;
 import org.ofbiz.base.util.ObjectType;
@@ -373,7 +371,7 @@ public class MagentoHelper {
         String toName = ((String)addr.get("firstname"))+" "+((String)addr.get("lastname"));
         GenericValue system = delegator.findOne("UserLogin", false, UtilMisc.toMap("userLoginId", "system"));
         // prepare the create address map
-        Map<String, Object> addrMap = FastMap.newInstance();
+        Map<String, Object> addrMap = new HashMap<String, Object>();
         addrMap.put("partyId", partyId);
         addrMap.put("toName", toName);
         addrMap.put("address1", addr.get("street"));
@@ -413,7 +411,7 @@ public class MagentoHelper {
         
         List<GenericValue> values = delegator.findList("PartyContactMechPurpose", condition, null, null, null, false);
         if (values == null || values.size() == 0) {
-            Map<String, Object> addPurposeMap = FastMap.newInstance();
+            Map<String, Object> addPurposeMap = new HashMap<String, Object>();
             addPurposeMap.put("contactMechId", contactMechId);
             addPurposeMap.put("partyId", partyId);     
             addPurposeMap.put("contactMechPurposeTypeId", contactMechPurposeTypeId);
@@ -440,7 +438,7 @@ public class MagentoHelper {
     }
     
     public static void setContactInfo(ShoppingCart cart, String contactMechPurposeTypeId, String infoString, Delegator delegator, LocalDispatcher dispatcher) throws GeneralException {
-        Map<String, Object> lookupMap = FastMap.newInstance();
+        Map<String, Object> lookupMap = new HashMap<String, Object>();
         String cmId = null;
         String entityName = "PartyAndContactMech";
         GenericValue cmLookup = null;
@@ -507,21 +505,21 @@ public class MagentoHelper {
     public static void addAdjustments(ShoppingCart cart, Map<String,?> adjustment, Delegator delegator) {
         // handle shipping
         BigDecimal shipAmount = new BigDecimal(adjustment.get("orderShippingAmount").toString());
-        GenericValue shipAdj = delegator.makeValue("OrderAdjustment", FastMap.newInstance());
+        GenericValue shipAdj = delegator.makeValue("OrderAdjustment", new HashMap<String, Object>());
         shipAdj.set("orderAdjustmentTypeId", "SHIPPING_CHARGES");
         shipAdj.set("amount", shipAmount);
         cart.addAdjustment(shipAdj);
 
         // handle tax
         BigDecimal taxAmount = new BigDecimal(adjustment.get("orderTaxAmount").toString());
-        GenericValue taxAdj = delegator.makeValue("OrderAdjustment", FastMap.newInstance());
+        GenericValue taxAdj = delegator.makeValue("OrderAdjustment", new HashMap<String, Object>());
         taxAdj.set("orderAdjustmentTypeId", "SALES_TAX");
         taxAdj.set("amount", taxAmount);
         cart.addAdjustment(taxAdj);
 
         // handle DISCOUNT
         BigDecimal discountAmount = new BigDecimal(adjustment.get("orderDiscountAmount").toString());
-        GenericValue discountAdj = delegator.makeValue("OrderAdjustment", FastMap.newInstance());
+        GenericValue discountAdj = delegator.makeValue("OrderAdjustment", new HashMap<String, Object>());
         discountAdj.set("orderAdjustmentTypeId", "DISCOUNT_ADJUSTMENT");
         discountAdj.set("amount", discountAmount);
         cart.addAdjustment(discountAdj);
