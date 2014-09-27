@@ -30,6 +30,7 @@ import org.ofbiz.order.shoppingcart.ShoppingCart;
 import org.ofbiz.order.shoppingcart.ShoppingCartItem;
 import org.ofbiz.service.LocalDispatcher;
 import org.ofbiz.service.ServiceUtil;
+import org.ofbiz.widget.form.ModelFormField.EntityOptions;
 
 public class MagentoHelper {
     public static final String SALES_CHANNEL = "MAGENTO_SALE_CHANNEL";
@@ -286,7 +287,7 @@ public class MagentoHelper {
                 EntityCondition condition = EntityCondition.makeCondition(
                         EntityCondition.makeCondition("roleTypeId", "CARRIER"),
                         EntityCondition.makeCondition("partyId", carrierPartyId),
-                        EntityCondition.makeCondition("carrierServiceCode", carrierServiceCode)
+                        EntityCondition.makeCondition(EntityFunction.UPPER_FIELD("carrierServiceCode"), EntityOperator.EQUALS ,carrierServiceCode)
                         );
                 GenericValue carrierShipmentMethod = EntityUtil.getFirst(delegator.findList("CarrierShipmentMethod", condition, UtilMisc.toSet("shipmentMethodTypeId"), null, null, false));
                 if (UtilValidate.isNotEmpty(carrierShipmentMethod)) {
