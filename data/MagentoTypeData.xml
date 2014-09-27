@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<entity-engine-xml>
+
+<!-- Mapping of magento shipping methods to Evolving-Ofbiz shipmentMethodTypeId -->
+
+    <!-- Mapping for USPS shipping carrier. -->
+
+    <!-- Mapping for FEDEX shipping carrier. -->
+    <SystemProperty systemResourceId="Magento" systemPropertyId="FEDEX_GROUND" systemPropertyValue="GROUND"/>
+    <SystemProperty systemResourceId="Magento" systemPropertyId="GROUND_HOME_DELIVERY" systemPropertyValue="GROUND_HOME"/>
+    <SystemProperty systemResourceId="Magento" systemPropertyId="PRIORITY_OVERNIGHT" systemPropertyValue="PR_OVERNIGHT"/>
+    <SystemProperty systemResourceId="Magento" systemPropertyId="STANDARD_OVERNIGHT" systemPropertyValue="ST_OVERNIGHT"/>
+    <SystemProperty systemResourceId="Magento" systemPropertyId="FIRST_OVERNIGHT" systemPropertyValue="FI_OVERNIGHT"/>
+    
+    <!-- Mapping for USPS carrier. -->
+    <SystemProperty systemResourceId="Magento" systemPropertyId="GND" systemPropertyValue="GROUND"/>
+    
+    <!-- Mapping for DHL carrier. -->
+    <SystemProperty systemResourceId="Magento" systemPropertyId="XPR" systemPropertyValue="EXPRESS"/>
+
+</entity-engine-xml>

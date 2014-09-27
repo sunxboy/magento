@@ -2,7 +2,7 @@
 
 <entity-engine-xml>
     <Enumeration description="Magento Sales Channel" enumCode="MAGENTO_CHANNEL" enumId="MAGENTO_SALE_CHANNEL" sequenceId="01" enumTypeId="ORDER_SALES_CHANNEL"/>
-    <MagentoConfiguration productStoreId="" enumId="MAGENTO_SALE_CHANNEL" xmlRpcUserName="magentoadmin" password="magento" serverUrl="http://localhost/api/xmlrpc/"/>
+    <MagentoConfiguration productStoreId="" enumId="MAGENTO_SALE_CHANNEL" xmlRpcUserName="shivajai" password="123456" serverUrl="http://shivaja.server.hwm/magento/api/xmlrpc/"/>
 
     <!--Default FacilityLocation for migrated products-->
     <FacilityLocation facilityId="WebStoreWarehouse" locationSeqId="TLTLTLLL05" locationTypeEnumId="FLT_PICKLOC" areaId="TL" aisleId="TL" sectionId="TL" levelId="LL" positionId="05"/>
