@@ -19,4 +19,11 @@
     <!-- Mapping for DHL carrier. -->
     <SystemProperty systemResourceId="Magento" systemPropertyId="XPR" systemPropertyValue="EXPRESS"/>
 
+    <Party partyId="_NA_" partyTypeId="PARTY_GROUP"/>
+    <PartyRole partyId="_NA_" roleTypeId="CARRIER"/>
+    <ShipmentMethodType description="Flat Rate" shipmentMethodTypeId="FLAT_RATE"/>
+    <CarrierShipmentMethod partyId="_NA_" roleTypeId="CARRIER" shipmentMethodTypeId="FLAT_RATE" sequenceNumber="10" carrierServiceCode=""/>
+
+    <SystemProperty systemResourceId="Magento" systemPropertyId="flatrate" systemPropertyValue="FLAT_RATE"/>
+
 </entity-engine-xml>
