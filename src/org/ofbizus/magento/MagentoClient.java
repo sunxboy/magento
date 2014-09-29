@@ -152,4 +152,18 @@ public class MagentoClient {
         }
         return result;
     }
+    public boolean cancelSalesOrder(String orderIncrementId) {
+        boolean isCancelled = false;
+        try {
+            XmlRpcClient xmlrpc = getMagentoConnection();
+            String magentoSessionId = getMagentoSession();
+            List params = new ArrayList();
+            params.add(orderIncrementId);
+            isCancelled = (Boolean) xmlrpc.execute("call", new Object[] { magentoSessionId, new String("sales_order.cancel"), params});
+        } catch (XmlRpcException e) {
+            e.printStackTrace();
+            Debug.logError("Error in order import (XmlRpcException) " + e.getMessage(), module);
+        }
+        return isCancelled;
+    }
 }

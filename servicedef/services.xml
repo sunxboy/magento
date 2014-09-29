@@ -40,6 +40,11 @@ under the License.
         <attribute name="externalId" mode="IN" type="String"/>
         <attribute name="orderStatus" mode="IN" type="String"/>
     </service>
+    <service name="cancelOrderInMagento" engine="java" auth="true"
+            location="org.ofbizus.magento.MagentoServices" invoke="cancelOrderInMagento">
+        <description>Cancel order in magento.</description>
+        <attribute name="orderId" mode="IN" type="String"/>
+    </service>
     <service name="receiveInventoryProductFromMagento" engine="simple" transaction-timeout="600"
             location="component://magento/script/org/ofbizus/magento/MagentoServices.xml" invoke="receiveInventoryProduct" auth="true">
         <description>Receive Inventory In Ofbiz From Magento</description>

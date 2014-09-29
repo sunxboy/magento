@@ -1,0 +1,7 @@
+<service-eca xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="http://ofbiz.apache.org/dtds/service-eca.xsd">
+
+    <eca service="changeOrderStatus" event="commit" run-on-error="false">
+        <action service="cancelOrderInMagento" mode="sync" run-as-user="system"/>
+    </eca>
+</service-eca>
