@@ -9,7 +9,7 @@
             - DEJ20070822: something to consider for the future: maybe instead of this funny looping maybe for serialized items we should only allow a quantity of 1, ie return an error if it is not 1
         -->
         <if-empty field="parameters.quantityAccepted">
-            <add-error><fail-property resource="WarehouseUiLabels" property="WarehouseEnterQuantity"/></add-error>
+            <add-error><fail-property resource="MagentoUiLabels" property="MagentoPleaseEnterQuantity"/></add-error>
         </if-empty>
         <if>
             <condition>
@@ -24,11 +24,11 @@
                 </and>
             </condition>
             <then>
-                <add-error><fail-property resource="WarehouseUiLabels" property="WarehouseQtyRecRejCanNotBeZero"/></add-error>
+                <add-error><fail-property resource="MagentoUiLabels" property="MagentoQtyRecRejCanNotBeZero"/></add-error>
             </then>
         </if>
         <if-empty field="parameters.locationSeqId">
-            <add-error><fail-property resource="WarehouseUiLabels" property="WarehouseEnterFacilityLocation"/></add-error>
+            <add-error><fail-property resource="MagentoUiLabels" property="MagentoPleaseEnterFacilityLocation"/></add-error>
         </if-empty>
         <set field="loops" value="1" type="Double"/>
         <if-compare value="SERIALIZED_INV_ITEM" operator="equals" field="parameters.inventoryItemTypeId">

@@ -84,7 +84,7 @@ public class MagentoServices {
             Map<String, Object> orderInfo = (Map<String, Object>)orderInformation;
             Object salesOrderInformation = magentoClient.getSalesOrderInfo((String)orderInfo.get("increment_id"));
             Map<String, Object> salesOrderInfo = (Map<String, Object>)salesOrderInformation;
-            String externalId = (String) salesOrderInfo.get("order_id");
+            String externalId = (String) salesOrderInfo.get("increment_id");
             if (UtilValidate.isNotEmpty(externalId)) {
                 // Check if order already imported
                 GenericValue orderHeader = EntityUtil.getFirst(delegator.findByAnd("OrderHeader", UtilMisc.toMap("externalId", externalId, "salesChannelEnumId", "MAGENTO_SALE_CHANNEL", "orderTypeId", "SALES_ORDER"), null, false));
