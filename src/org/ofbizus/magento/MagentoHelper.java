@@ -50,7 +50,7 @@ public class MagentoHelper {
         }
         
         // get the magento order number
-        String externalId = (String) orderInformation.get("order_id");
+        String externalId = (String) orderInformation.get("increment_id");
 
         // check and make sure if order with externalId already exist
         List<GenericValue> existingOrder = delegator.findList("OrderHeader", EntityCondition.makeCondition("externalId", externalId), null, null, null, false);
