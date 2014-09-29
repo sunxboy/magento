@@ -31,7 +31,6 @@ import org.ofbiz.service.ServiceUtil;
 public class MagentoHelper {
     public static final String SALES_CHANNEL = "MAGENTO_SALE_CHANNEL";
     public static final String ORDER_TYPE = "SALES_ORDER";
-    public static final String PAYMENT_METHOD = "EXT_OFFLINE";
 
     public static final int SHIPPING_ADDRESS = 10;
     public static final int BILLING_ADDRESS = 50;
@@ -246,21 +245,29 @@ public class MagentoHelper {
                         }
                         if(inventoryCount > 0) {
                             String facilityId = (delegator.findOne("ProductStore", UtilMisc.toMap("productStoreId", productStoreId), true)).getString("inventoryFacilityId");
-                            GenericValue facilityLocation = EntityUtil.getFirst(delegator.findList("FacilityLocation", EntityCondition.makeCondition("faciltityId", facilityId), null, null, null, false));
-                            if (UtilValidate.isNotEmpty(facilityLocation)) {
                                 HashMap<String, Object> serviceContext = new HashMap<String, Object>();
                                 serviceContext.put("userLogin", system);
                                 serviceContext.put("facilityId", facilityId);
                                 serviceContext.put("productId", product.get("productId"));
+
+                            cond = EntityCondition.makeCondition(
+                                    EntityCondition.makeCondition("productId", product.get("productId")),
+                                    EntityCondition.makeCondition("facilityId", facilityId)
+                                    );
+                            GenericValue productFacilityLocation = EntityUtil.getFirst(delegator.findList("ProductFacilityLocation", cond, null, null, null, false));
+                            if (UtilValidate.isEmpty(productFacilityLocation)) {
+                            GenericValue facilityLocation = EntityUtil.getFirst(delegator.findList("FacilityLocation", EntityCondition.makeCondition("facilityId", facilityId), null, null, null, false));
+                            if (UtilValidate.isNotEmpty(facilityLocation)) {
                                 serviceContext.put("locationSeqId", facilityLocation.getString("locationSeqId"));
                                 dispatcher.runSync("createProductFacilityLocation", serviceContext);
-
-                                serviceContext.put("locationSeqId", facilityLocation.getString("locationSeqId"));
+                            }
+                            } else {
+                                serviceContext.put("locationSeqId", productFacilityLocation.getString("locationSeqId"));
+                            }
                                 serviceContext.put("quantityAccepted", inventoryCount);
                                 serviceContext.put("inventoryItemTypeId", "NON_SERIAL_INV_ITEM");
                                 dispatcher.runSync("receiveInventoryProductFromMagento",serviceContext);
                                 serviceContext.clear();
-                            }
                         }
                     }
                 }
@@ -307,8 +314,9 @@ public class MagentoHelper {
                 addShipInfo(cart, UtilMisc.toMap("carrierPartyId" , carrierPartyId, "shipmentMethodTypeId", shipmentMethodTypeId), partyInfo[1]);
             }
         }
+        String paymentMethod = EntityUtilProperties.getPropertyValue("MagentoConfig.properties", "magento.payment.method", "EXT_OFFLINE", delegator);
         // set the cart payment method
-        cart.addPaymentAmount(PAYMENT_METHOD, new BigDecimal((String) orderInformation.get("grand_total")));
+        cart.addPaymentAmount(paymentMethod, new BigDecimal((String) orderInformation.get("grand_total")));
         // validate the payment methods
         CheckOutHelper coh = new CheckOutHelper(dispatcher, delegator, cart);
         Map validateResp = coh.validatePaymentMethods();
