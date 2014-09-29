@@ -245,10 +245,10 @@ public class MagentoHelper {
                         }
                         if(inventoryCount > 0) {
                             String facilityId = (delegator.findOne("ProductStore", UtilMisc.toMap("productStoreId", productStoreId), true)).getString("inventoryFacilityId");
-                                HashMap<String, Object> serviceContext = new HashMap<String, Object>();
-                                serviceContext.put("userLogin", system);
-                                serviceContext.put("facilityId", facilityId);
-                                serviceContext.put("productId", product.get("productId"));
+                            HashMap<String, Object> serviceContext = new HashMap<String, Object>();
+                            serviceContext.put("userLogin", system);
+                            serviceContext.put("facilityId", facilityId);
+                            serviceContext.put("productId", product.get("productId"));
 
                             cond = EntityCondition.makeCondition(
                                     EntityCondition.makeCondition("productId", product.get("productId")),
@@ -256,18 +256,18 @@ public class MagentoHelper {
                                     );
                             GenericValue productFacilityLocation = EntityUtil.getFirst(delegator.findList("ProductFacilityLocation", cond, null, null, null, false));
                             if (UtilValidate.isEmpty(productFacilityLocation)) {
-                            GenericValue facilityLocation = EntityUtil.getFirst(delegator.findList("FacilityLocation", EntityCondition.makeCondition("facilityId", facilityId), null, null, null, false));
-                            if (UtilValidate.isNotEmpty(facilityLocation)) {
-                                serviceContext.put("locationSeqId", facilityLocation.getString("locationSeqId"));
-                                dispatcher.runSync("createProductFacilityLocation", serviceContext);
-                            }
+                                GenericValue facilityLocation = EntityUtil.getFirst(delegator.findList("FacilityLocation", EntityCondition.makeCondition("facilityId", facilityId), null, null, null, false));
+                                if (UtilValidate.isNotEmpty(facilityLocation)) {
+                                    serviceContext.put("locationSeqId", facilityLocation.getString("locationSeqId"));
+                                    dispatcher.runSync("createProductFacilityLocation", serviceContext);
+                                }
                             } else {
                                 serviceContext.put("locationSeqId", productFacilityLocation.getString("locationSeqId"));
                             }
-                                serviceContext.put("quantityAccepted", inventoryCount);
-                                serviceContext.put("inventoryItemTypeId", "NON_SERIAL_INV_ITEM");
-                                dispatcher.runSync("receiveInventoryProductFromMagento",serviceContext);
-                                serviceContext.clear();
+                            serviceContext.put("quantityAccepted", inventoryCount);
+                            serviceContext.put("inventoryItemTypeId", "NON_SERIAL_INV_ITEM");
+                            dispatcher.runSync("receiveInventoryProductFromMagento",serviceContext);
+                            serviceContext.clear();
                         }
                     }
                 }
