@@ -80,12 +80,10 @@ public class MagentoHelper {
         Debug.logInfo("-- Locale : " + locale.toString(), module);
         Debug.logInfo("-- Magento Order # : " + externalId, module);
 
-        
         // set the customer information
-
         Map<String, Object> shippingAddress = (Map<String, Object>) orderInformation.get("shipping_address");
         Map<String, Object> billingAddress = (Map<String, Object>) orderInformation.get("billing_address");
-
+        
         MagentoClient magentoClient = new MagentoClient(dispatcher, delegator);
         Object[] directoryRegionList = magentoClient.getDirectoryRegionList((String)shippingAddress.get("country_id"));
         for (Object directoryRegion : directoryRegionList) {
@@ -106,23 +104,23 @@ public class MagentoHelper {
         cart.setShippingContactMechId(0, partyInfo[1]);
         // contact info
         if (UtilValidate.isNotEmpty(shippingAddress)) {
-            String shippingEmail = (String) shippingAddress.get("email");
-            if (UtilValidate.isNotEmpty(shippingEmail)) {
+            if (UtilValidate.isNotEmpty(shippingAddress.get("email"))) {
+                String shippingEmail = (String) shippingAddress.get("email");
                 setContactInfo(cart, "PRIMARY_EMAIL", shippingEmail, delegator, dispatcher);
             }
-            String shippingPhone = shippingAddress.get("telephone").toString();
-            if (UtilValidate.isNotEmpty(shippingPhone)) {
+            if (UtilValidate.isNotEmpty(shippingAddress.get("telephone"))) {
+                String shippingPhone = shippingAddress.get("telephone").toString();
                 setContactInfo(cart, "PHONE_SHIPPING", shippingPhone, delegator, dispatcher);
             }
         }
         if (UtilValidate.isNotEmpty(billingAddress)) {
-            String billingEmail = billingAddress.get("email").toString();
-            if (UtilValidate.isNotEmpty(billingEmail)) {
+            if(UtilValidate.isNotEmpty(billingAddress.get("email"))) {
+                String billingEmail = billingAddress.get("email").toString();
                 setContactInfo(cart, "BILLING_EMAIL", billingEmail, delegator, dispatcher);
-            }
+        }
+        if (UtilValidate.isNotEmpty(billingAddress.get("telephone"))) {
             String billingPhone = billingAddress.get("telephone").toString();
-            if (UtilValidate.isNotEmpty(billingPhone)) {
-                setContactInfo(cart, "PHONE_BILLING", billingPhone, delegator, dispatcher);
+            setContactInfo(cart, "PHONE_BILLING", billingPhone, delegator, dispatcher);
             }
         }
         // set the order items
