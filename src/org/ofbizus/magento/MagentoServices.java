@@ -1,10 +1,7 @@
 package org.ofbizus.magento;
 
 import java.sql.Timestamp;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -35,8 +32,6 @@ public class MagentoServices {
         Delegator delegator = dctx.getDelegator();
         
         String magOrderId = (String) context.get("orderId");
-        String statusId = (String) context.get("statusId");
-
         Timestamp fromDate = (Timestamp) context.get("fromDate");
         Timestamp thruDate = (Timestamp) context.get("thruDate");
         
@@ -54,40 +49,14 @@ public class MagentoServices {
             if (UtilValidate.isNotEmpty(externalId)) {
                 // Check if order already imported
                 GenericValue orderHeader = EntityUtil.getFirst(delegator.findByAnd("OrderHeader", UtilMisc.toMap("externalId", externalId, "salesChannelEnumId", "MAGENTO_SALE_CHANNEL", "orderTypeId", "SALES_ORDER"), null, false));
-                String magentoOrderStatus = (String) salesOrderInfo.get("status");
                 if (UtilValidate.isNotEmpty(orderHeader)) {
-                    String orderStatusId = orderHeader.getString("statusId");
-                    if (("canceled".equals(magentoOrderStatus)) && !("ORDER_CANCELLED".equals(orderStatusId))) {
-                        Map<String, Object> cancelOrderFromMagentoCtx = new HashMap<String, Object>();
-                        cancelOrderFromMagentoCtx.put("externalId", externalId);
-                        cancelOrderFromMagentoCtx.put("orderStatus", magentoOrderStatus);
-                        cancelOrderFromMagentoCtx.put("userLogin", system);
-                        serviceResp = dispatcher.runSync("cancelOrderFromMagento", cancelOrderFromMagentoCtx);
-                        if (ServiceUtil.isSuccess(serviceResp)) {
-                        } else {
-                            errorMessageList.add((String) ServiceUtil.getErrorMessage(serviceResp));
-                        }
-                    } else {
-                        //Ignore if order already imported
-                        continue;
-                    }
+                    continue;
                 } else {
                     Map<String, Object> createOrderCtx = new HashMap<String, Object>();
                     createOrderCtx.put("orderInfo", salesOrderInfo);
                     createOrderCtx.put("userLogin", system);
                     serviceResp = dispatcher.runSync("createOrderFromMagento", createOrderCtx, 120, true);
-                    if (ServiceUtil.isSuccess(serviceResp)) {
-                        if ("canceled".equals(magentoOrderStatus)) {
-                            Map<String, Object> cancelOrderCtx = new HashMap<String, Object>();
-                            cancelOrderCtx.put("externalId", externalId);
-                            cancelOrderCtx.put("orderStatus", magentoOrderStatus);
-                            cancelOrderCtx.put("userLogin", system);
-                            Map cancelOrderResp = dispatcher.runSync("cancelOrderFromMagento", cancelOrderCtx);
-                            if (!ServiceUtil.isSuccess(cancelOrderResp)) {
-                                errorMessageList.add((String) ServiceUtil.getErrorMessage(serviceResp));
-                            }
-                        }
-                    } else {
+                    if (!ServiceUtil.isSuccess(serviceResp)) {
                         errorMessageList.add((String) ServiceUtil.getErrorMessage(serviceResp));
                     }
                 }
