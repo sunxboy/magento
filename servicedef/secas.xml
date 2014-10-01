@@ -2,6 +2,7 @@
         xsi:noNamespaceSchemaLocation="http://ofbiz.apache.org/dtds/service-eca.xsd">
 
     <eca service="changeOrderStatus" event="commit" run-on-error="false">
+        <condition operator="equals" field-name="statusId" value="ORDER_CANCELLED"/>
         <action service="cancelOrderInMagento" mode="sync" run-as-user="system"/>
     </eca>
 </service-eca>
