@@ -10,9 +10,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-import javolution.util.FastMap;
-
-import org.apache.xmlrpc.XmlRpcException;
 import org.ofbiz.base.util.Debug;
 import org.ofbiz.base.util.GeneralException;
 import org.ofbiz.base.util.UtilMisc;
@@ -59,14 +56,14 @@ public class MagentoServices {
             Map<String, String> orderIdCondMap = UtilMisc.toMap("eq", magOrderId);
             condMap.put("increment_id", orderIdCondMap);
         }
-        Map<String, String> statusCondMap = FastMap.newInstance();
+        Map<String, String> statusCondMap = new HashMap<String, String>();
         if (UtilValidate.isNotEmpty(statusId)) {
             statusCondMap = UtilMisc.toMap("eq", statusId);
         } else {
             statusCondMap = UtilMisc.toMap("eq", "pending");
         }
         condMap.put("status", statusCondMap);
-        Map<String, String> createdDateCondMap = FastMap.newInstance();
+        Map<String, String> createdDateCondMap = new HashMap<String, String>();
         if (UtilValidate.isNotEmpty(createdFrom)) {
             createdDateCondMap = UtilMisc.toMap("from", createdFrom);
         }
