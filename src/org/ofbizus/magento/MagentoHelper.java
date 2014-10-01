@@ -1,6 +1,10 @@
 package org.ofbizus.magento;
 
 import java.math.BigDecimal;
+import java.sql.Timestamp;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -610,6 +614,42 @@ public class MagentoHelper {
         }
         // assign the item to its ship group
         cart.setItemShipGroupQty(cartItem, qty, groupIdx);
+    }
+    public static Map<String, Object> prepareSalesOrderCondition(String magOrderId, String statusId, Timestamp fromDate, Timestamp thruDate) {
+        DateFormat df = new SimpleDateFormat("yyyy-mm-dd HH:mm:ss");
+        Map<String, Object> condMap = new HashMap<String, Object>();
+        String createdFrom = null;
+        String createdTo = null;
+        
+        if (UtilValidate.isNotEmpty(fromDate)) {
+            Date from = (Date) fromDate;
+            createdFrom = df.format(from);
+        }
+        if (UtilValidate.isNotEmpty(thruDate)) {
+            Date thru = (Date) thruDate;
+            createdTo = df.format(thru);
+        }
+
+        if (UtilValidate.isNotEmpty(magOrderId)) {
+            Map<String, String> orderIdCondMap = UtilMisc.toMap("eq", magOrderId);
+            condMap.put("increment_id", orderIdCondMap);
+        }
+        Map<String, String> statusCondMap = new HashMap<String, String>();
+        if (UtilValidate.isNotEmpty(statusId)) {
+            statusCondMap = UtilMisc.toMap("eq", statusId);
+        }
+        condMap.put("status", statusCondMap);
+        Map<String, String> createdDateCondMap = new HashMap<String, String>();
+        if (UtilValidate.isNotEmpty(createdFrom)) {
+            createdDateCondMap = UtilMisc.toMap("from", createdFrom);
+        }
+        if (UtilValidate.isNotEmpty(createdTo)) {
+            createdDateCondMap = UtilMisc.toMap("to", createdTo);
+        }
+        if (UtilValidate.isNotEmpty(createdFrom) || UtilValidate.isNotEmpty(createdTo)) {
+            condMap.put("created_at", createdDateCondMap);
+        }
+        return condMap;
     }
 
 }

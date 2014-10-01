@@ -21,13 +21,12 @@ under the License.
 <services xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
         xsi:noNamespaceSchemaLocation="http://ofbiz.apache.org/dtds/services.xsd">
         
-    <service name="importOrdersFromMagento" engine="java" auth="true" transaction-timeout="7200"
-            location="org.ofbizus.magento.MagentoServices" invoke="importOrdersFromMagento">
+    <service name="createPendingOrdersFromMagento" engine="java" auth="true" transaction-timeout="7200"
+            location="org.ofbizus.magento.MagentoServices" invoke="createPendingOrdersFromMagento">
         <description></description>
         <attribute name="orderId" mode="IN" type="String" optional="true"/>
         <attribute name="fromDate" type="java.sql.Timestamp" mode="IN" optional="true"/>
         <attribute name="thruDate" type="java.sql.Timestamp" mode="IN" optional="true"/>
-        <attribute name="statusId" type="String" mode="IN" optional="true"/>
     </service>
     <service name="createOrderFromMagento" engine="java" auth="true"
             location="org.ofbizus.magento.MagentoServices" invoke="createOrderFromMagento">

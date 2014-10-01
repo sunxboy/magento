@@ -28,51 +28,20 @@ public class MagentoServices {
     public static final String module = MagentoClient.class.getName();
 
     // Import orders from magento
-    public Map<String, Object> importOrdersFromMagento(DispatchContext dctx, Map<String, ?> context) {
+    public Map<String, Object> createPendingOrdersFromMagento(DispatchContext dctx, Map<String, ?> context) {
         Map<String, Object> result = ServiceUtil.returnSuccess();
         Map<String, Object> serviceResp = null;
         LocalDispatcher dispatcher = dctx.getDispatcher();
         Delegator delegator = dctx.getDelegator();
+        
         String magOrderId = (String) context.get("orderId");
         String statusId = (String) context.get("statusId");
 
         Timestamp fromDate = (Timestamp) context.get("fromDate");
         Timestamp thruDate = (Timestamp) context.get("thruDate");
+        
         try {
-        DateFormat df = new SimpleDateFormat("yyyy-mm-dd HH:mm:ss");
-        Date from = (Date) fromDate;
-        Date thru = (Date) thruDate;
-        String createdFrom = null;
-        String createdTo = null;
-        if (UtilValidate.isNotEmpty(from)) {
-            createdFrom = df.format(from);
-        }
-        if (UtilValidate.isNotEmpty(thru)) {
-            createdTo = df.format(thru);
-        }
-
-        Map<String, Object> condMap = new HashMap<String, Object>();
-        if (UtilValidate.isNotEmpty(magOrderId)) {
-            Map<String, String> orderIdCondMap = UtilMisc.toMap("eq", magOrderId);
-            condMap.put("increment_id", orderIdCondMap);
-        }
-        Map<String, String> statusCondMap = new HashMap<String, String>();
-        if (UtilValidate.isNotEmpty(statusId)) {
-            statusCondMap = UtilMisc.toMap("eq", statusId);
-        } else {
-            statusCondMap = UtilMisc.toMap("eq", "pending");
-        }
-        condMap.put("status", statusCondMap);
-        Map<String, String> createdDateCondMap = new HashMap<String, String>();
-        if (UtilValidate.isNotEmpty(createdFrom)) {
-            createdDateCondMap = UtilMisc.toMap("from", createdFrom);
-        }
-        if (UtilValidate.isNotEmpty(createdTo)) {
-            createdDateCondMap = UtilMisc.toMap("to", createdTo);
-        }
-        if (UtilValidate.isNotEmpty(createdFrom) || UtilValidate.isNotEmpty(createdTo)) {
-            condMap.put("created_at", createdDateCondMap);
-        }
+        Map<String, Object> condMap = MagentoHelper.prepareSalesOrderCondition(magOrderId, "pending", fromDate, thruDate);
         MagentoClient magentoClient = new MagentoClient(dispatcher, delegator);
         Object[] responseMessage = magentoClient.getSalesOrderList(condMap);
         List<String> errorMessageList = new ArrayList<String>();
