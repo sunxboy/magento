@@ -571,7 +571,7 @@ public class MagentoHelper {
         String externalId = info.get("externalId").toString();
         GenericValue order = null;
         GenericValue system = delegator.findOne("UserLogin", false, UtilMisc.toMap("userLoginId", "system"));
-        if ("CANCELED".equals(info.get("orderStatus").toString().toUpperCase())) {
+        if ("ORDER_CANCELLED".equals(info.get("orderStatus").toString().toUpperCase())) {
             try {
                 EntityCondition cond = EntityCondition.makeCondition(
                         EntityCondition.makeCondition("externalId", externalId),

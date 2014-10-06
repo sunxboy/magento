@@ -24,7 +24,7 @@ under the License.
     <service name="createPendingOrdersFromMagento" engine="java" auth="true" transaction-timeout="7200"
             location="org.ofbizus.magento.MagentoServices" invoke="createPendingOrdersFromMagento">
         <description></description>
-        <attribute name="orderId" mode="IN" type="String" optional="true"/>
+        <attribute name="externalId" mode="IN" type="String" optional="true"/>
         <attribute name="fromDate" type="java.sql.Timestamp" mode="IN" optional="true"/>
         <attribute name="thruDate" type="java.sql.Timestamp" mode="IN" optional="true"/>
     </service>
@@ -36,8 +36,9 @@ under the License.
     <service name="cancelOrderFromMagento" engine="java" auth="true"
             location="org.ofbizus.magento.MagentoServices" invoke="cancelOrderFromMagento">
         <description></description>
-        <attribute name="externalId" mode="IN" type="String"/>
-        <attribute name="orderStatus" mode="IN" type="String"/>
+        <attribute name="externalId" mode="IN" type="String" optional="true"/>
+        <attribute name="fromDate" type="java.sql.Timestamp" mode="IN" optional="true"/>
+        <attribute name="thruDate" type="java.sql.Timestamp" mode="IN" optional="true"/>
     </service>
     <service name="cancelOrderInMagento" engine="java" auth="true"
             location="org.ofbizus.magento.MagentoServices" invoke="cancelOrderInMagento">
