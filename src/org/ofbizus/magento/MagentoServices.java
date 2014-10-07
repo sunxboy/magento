@@ -84,7 +84,7 @@ public class MagentoServices {
                     response = ServiceUtil.returnError(result);
                 }
             } catch (GeneralException ge) {
-                Debug.logError(ge ,module);
+                Debug.logError(ge.getMessage() ,module);
             }
         }
         return response;
@@ -165,7 +165,8 @@ public class MagentoServices {
                 }
             }
         } catch (GenericEntityException gee) {
-            Debug.logError(gee, module);
+            Debug.logError(gee.getMessage(), module);
+            return ServiceUtil.returnError(gee.getMessage());
         }
         return response;
     }
@@ -190,7 +191,8 @@ public class MagentoServices {
                 }
             }
         } catch (GenericEntityException gee) {
-            Debug.logError(gee, module);
+            Debug.logError(gee.getMessage(), module);
+            return ServiceUtil.returnError(gee.getMessage());
         }
         return response;
     }
