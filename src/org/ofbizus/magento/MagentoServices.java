@@ -34,34 +34,34 @@ public class MagentoServices {
         String magOrderId = (String) context.get("orderId");
         Timestamp fromDate = (Timestamp) context.get("fromDate");
         Timestamp thruDate = (Timestamp) context.get("thruDate");
-        
+
         try {
-        Map<String, Object> condMap = MagentoHelper.prepareSalesOrderCondition(magOrderId, "pending", fromDate, thruDate);
-        MagentoClient magentoClient = new MagentoClient(dispatcher, delegator);
-        Object[] responseMessage = magentoClient.getSalesOrderList(condMap);
-        List<String> errorMessageList = new ArrayList<String>();
-        GenericValue system = delegator.findOne("UserLogin", false, UtilMisc.toMap("userLoginId", "system"));
-        for (Object orderInformation : responseMessage) {
-            Map<String, Object> orderInfo = (Map<String, Object>)orderInformation;
-            Object salesOrderInformation = magentoClient.getSalesOrderInfo((String)orderInfo.get("increment_id"));
-            Map<String, Object> salesOrderInfo = (Map<String, Object>)salesOrderInformation;
-            String externalId = (String) salesOrderInfo.get("increment_id");
-            if (UtilValidate.isNotEmpty(externalId)) {
-                // Check if order already imported
-                GenericValue orderHeader = EntityUtil.getFirst(delegator.findByAnd("OrderHeader", UtilMisc.toMap("externalId", externalId, "salesChannelEnumId", "MAGENTO_SALE_CHANNEL", "orderTypeId", "SALES_ORDER"), null, false));
-                if (UtilValidate.isNotEmpty(orderHeader)) {
-                    continue;
-                } else {
-                    Map<String, Object> createOrderCtx = new HashMap<String, Object>();
-                    createOrderCtx.put("orderInfo", salesOrderInfo);
-                    createOrderCtx.put("userLogin", system);
-                    serviceResp = dispatcher.runSync("createOrderFromMagento", createOrderCtx, 120, true);
-                    if (!ServiceUtil.isSuccess(serviceResp)) {
-                        errorMessageList.add((String) ServiceUtil.getErrorMessage(serviceResp));
+            Map<String, Object> condMap = MagentoHelper.prepareSalesOrderCondition(magOrderId, "pending", fromDate, thruDate);
+            MagentoClient magentoClient = new MagentoClient(dispatcher, delegator);
+            Object[] responseMessage = magentoClient.getSalesOrderList(condMap);
+            List<String> errorMessageList = new ArrayList<String>();
+            GenericValue system = delegator.findOne("UserLogin", false, UtilMisc.toMap("userLoginId", "system"));
+            for (Object orderInformation : responseMessage) {
+                Map<String, Object> orderInfo = (Map<String, Object>)orderInformation;
+                Object salesOrderInformation = magentoClient.getSalesOrderInfo((String)orderInfo.get("increment_id"));
+                Map<String, Object> salesOrderInfo = (Map<String, Object>)salesOrderInformation;
+                String externalId = (String) salesOrderInfo.get("increment_id");
+                if (UtilValidate.isNotEmpty(externalId)) {
+                    // Check if order already imported
+                    GenericValue orderHeader = EntityUtil.getFirst(delegator.findByAnd("OrderHeader", UtilMisc.toMap("externalId", externalId, "salesChannelEnumId", "MAGENTO_SALE_CHANNEL", "orderTypeId", "SALES_ORDER"), null, false));
+                    if (UtilValidate.isNotEmpty(orderHeader)) {
+                        continue;
+                    } else {
+                        Map<String, Object> createOrderCtx = new HashMap<String, Object>();
+                        createOrderCtx.put("orderInfo", salesOrderInfo);
+                        createOrderCtx.put("userLogin", system);
+                        serviceResp = dispatcher.runSync("createOrderFromMagento", createOrderCtx, 120, true);
+                        if (!ServiceUtil.isSuccess(serviceResp)) {
+                            errorMessageList.add((String) ServiceUtil.getErrorMessage(serviceResp));
+                        }
                     }
                 }
             }
-        }
         } catch (GenericEntityException gee) {
             gee.printStackTrace();
             Debug.logError("Error in order import (GenericEntityException) "+ gee.getMessage(), module);
