@@ -70,7 +70,7 @@ public class MagentoClient {
         String responseMessage = null;
         try {
             XmlRpcClient xmlrpc = getMagentoConnection();
-            List messageParams = new ArrayList();
+            List<Object> messageParams = new ArrayList<Object>();
             messageParams.add(xmlRpcUserName);
             messageParams.add(xmlRpcPassword);
 
@@ -90,7 +90,7 @@ public class MagentoClient {
         try {
             XmlRpcClient xmlrpc = getMagentoConnection();
             String magentoSessionId = getMagentoSession();
-            List params = new ArrayList();
+            List<Object> params = new ArrayList<Object>();
             if (UtilValidate.isNotEmpty(filters)) {
                 params.add(filters);
             }
@@ -111,7 +111,7 @@ public class MagentoClient {
             Map<String, Object> condMap = new HashMap<String, Object>();
             Map<String, String> orderIncrementIdMap = UtilMisc.toMap("eq", orderIncrementId);
             condMap.put("orderIncrementId", orderIncrementIdMap);
-            List params = new ArrayList();
+            List<Object> params = new ArrayList<Object>();
             if (UtilValidate.isNotEmpty(condMap)) {
                 params.add(condMap);
             }
@@ -128,7 +128,7 @@ public class MagentoClient {
         try {
             XmlRpcClient xmlrpc = getMagentoConnection();
             String magentoSessionId = getMagentoSession();
-            List params = new ArrayList();
+            List<Object> params = new ArrayList<Object>();
             params.add(sku);
             result = (Object[]) xmlrpc.execute("call", new Object[] { magentoSessionId, new String("cataloginventory_stock_item.list"), params});
         } catch (XmlRpcException e) {
@@ -143,7 +143,7 @@ public class MagentoClient {
         try {
             XmlRpcClient xmlrpc = getMagentoConnection();
             String magentoSessionId = getMagentoSession();
-            List params = new ArrayList();
+            List<Object> params = new ArrayList<Object>();
             params.add(countryGeoCode);
             result = (Object[]) xmlrpc.execute("call", new Object[] { magentoSessionId, new String("directory_region.list"), params});
         } catch (XmlRpcException e) {
@@ -157,7 +157,7 @@ public class MagentoClient {
         try {
             XmlRpcClient xmlrpc = getMagentoConnection();
             String magentoSessionId = getMagentoSession();
-            List params = new ArrayList();
+            List<Object> params = new ArrayList<Object>();
             params.add(orderIncrementId);
             isCancelled = (Boolean) xmlrpc.execute("call", new Object[] { magentoSessionId, new String("sales_order.cancel"), params});
         } catch (XmlRpcException e) {
@@ -171,7 +171,7 @@ public class MagentoClient {
         try {
             XmlRpcClient xmlrpc = getMagentoConnection();
             String magentoSessionId = getMagentoSession();
-            List params = new ArrayList();
+            List<Object> params = new ArrayList<Object>();
             params.add(orderIncrementId);
             shipmentIncrementId = (String) xmlrpc.execute("call", new Object[] { magentoSessionId, new String("order_shipment.create"), params});
         } catch (XmlRpcException e) {
@@ -185,7 +185,7 @@ public class MagentoClient {
         try {
             XmlRpcClient xmlrpc = getMagentoConnection();
             String magentoSessionId = getMagentoSession();
-            List params = new ArrayList();
+            List<Object> params = new ArrayList<Object>();
             params.add(orderIncrementId);
             invoiceIncrementId = (String) xmlrpc.execute("call", new Object[] { magentoSessionId, new String("order_invoice.create"), params});
 
