@@ -26,4 +26,5 @@
 
     <SystemProperty systemResourceId="Magento" systemPropertyId="flatrate" systemPropertyValue="FLAT_RATE"/>
 
+    <SystemProperty systemResourceId="Magento" systemPropertyId="magento.payment.method" systemPropertyValue="EXT_OFFLINE"/>
 </entity-engine-xml>

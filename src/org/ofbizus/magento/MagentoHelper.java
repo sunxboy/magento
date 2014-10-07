@@ -316,7 +316,7 @@ public class MagentoHelper {
                 addShipInfo(cart, UtilMisc.toMap("carrierPartyId" , carrierPartyId, "shipmentMethodTypeId", shipmentMethodTypeId), partyInfo[1]);
             }
         }
-        String paymentMethod = EntityUtilProperties.getPropertyValue("MagentoConfig.properties", "magento.payment.method", "EXT_OFFLINE", delegator);
+        String paymentMethod = EntityUtilProperties.getPropertyValue("Magento.properties", "magento.payment.method", "EXT_OFFLINE", delegator);
         // set the cart payment method
         cart.addPaymentAmount(paymentMethod, new BigDecimal((String) orderInformation.get("grand_total")));
         // validate the payment methods
