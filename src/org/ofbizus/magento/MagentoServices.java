@@ -169,4 +169,29 @@ public class MagentoServices {
         }
         return response;
     }
+    public static Map<String, Object> completeOrderInMagento(DispatchContext dctx, Map<String, ?> context) {
+        Map<String, Object> response = ServiceUtil.returnSuccess();
+        Delegator delegator = dctx.getDelegator();
+        LocalDispatcher dispatcher = dctx.getDispatcher();
+        String orderIncrementId = null;
+        String orderId = (String) context.get("orderId");
+        try {
+            GenericValue orderHeader = delegator.findOne("OrderHeader", false, UtilMisc.toMap("orderId", orderId));
+            if (UtilValidate.isNotEmpty(orderHeader) && !"ORDER_COMPLETED".equals(orderHeader.getString("syncStatusId")) && UtilValidate.isNotEmpty(orderHeader.getString("externalId"))) {
+                orderIncrementId = orderHeader.getString("externalId");
+                MagentoClient magentoClient = new MagentoClient(dispatcher, delegator);
+                String shipmentIncrementId = (String)magentoClient.createShipment(orderIncrementId);
+                if (UtilValidate.isNotEmpty(shipmentIncrementId)) {
+                    Debug.log("============order #"+orderIncrementId+"=======shipmentIncrementId="+shipmentIncrementId+"==========================");
+                }
+                String invoiceIncrementId = (String)magentoClient.createInvoice(orderIncrementId);
+                if (UtilValidate.isNotEmpty(invoiceIncrementId)) {
+                    Debug.log("============order #"+orderIncrementId+"=======invoiceIncrementId="+invoiceIncrementId+"==========================");
+                }
+            }
+        } catch (GenericEntityException gee) {
+            Debug.logError(gee, module);
+        }
+        return response;
+    }
 }

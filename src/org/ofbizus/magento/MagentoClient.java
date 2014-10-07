@@ -166,4 +166,33 @@ public class MagentoClient {
         }
         return isCancelled;
     }
+    public String createShipment(String orderIncrementId) {
+        String shipmentIncrementId = null;
+        try {
+            XmlRpcClient xmlrpc = getMagentoConnection();
+            String magentoSessionId = getMagentoSession();
+            List params = new ArrayList();
+            params.add(orderIncrementId);
+            shipmentIncrementId = (String) xmlrpc.execute("call", new Object[] { magentoSessionId, new String("order_shipment.create"), params});
+        } catch (XmlRpcException e) {
+            e.printStackTrace();
+            Debug.logError("Error in order import (XmlRpcException) " + e.getMessage(), module);
+        }
+        return shipmentIncrementId;
+    }
+    public String createInvoice(String orderIncrementId) {
+        String invoiceIncrementId = null;
+        try {
+            XmlRpcClient xmlrpc = getMagentoConnection();
+            String magentoSessionId = getMagentoSession();
+            List params = new ArrayList();
+            params.add(orderIncrementId);
+            invoiceIncrementId = (String) xmlrpc.execute("call", new Object[] { magentoSessionId, new String("order_invoice.create"), params});
+
+        } catch (XmlRpcException e) {
+            e.printStackTrace();
+            Debug.logError("Error in order import (XmlRpcException) " + e.getMessage(), module);
+        }
+        return invoiceIncrementId;
+    }
 }
