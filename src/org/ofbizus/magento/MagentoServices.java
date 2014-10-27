@@ -13,18 +13,20 @@ import magento.SalesOrderListEntity;
 
 import org.ofbiz.base.util.Debug;
 import org.ofbiz.base.util.GeneralException;
+import org.ofbiz.base.util.ObjectType;
 import org.ofbiz.base.util.UtilMisc;
 import org.ofbiz.base.util.UtilValidate;
 import org.ofbiz.entity.Delegator;
 import org.ofbiz.entity.GenericEntityException;
 import org.ofbiz.entity.GenericValue;
+import org.ofbiz.entity.condition.EntityCondition;
+import org.ofbiz.entity.condition.EntityOperator;
 import org.ofbiz.entity.util.EntityUtil;
 import org.ofbiz.service.DispatchContext;
 import org.ofbiz.service.GenericServiceException;
 import org.ofbiz.service.LocalDispatcher;
 import org.ofbiz.service.ModelService;
 import org.ofbiz.service.ServiceUtil;
-import org.ofbizus.magento.MagentoHelper;
 
 public class MagentoServices {
     public static final String module = MagentoClient.class.getName();
@@ -226,5 +228,57 @@ public class MagentoServices {
         }
         return ServiceUtil.returnSuccess("Configuration has been done successfully.");
     }
+    public static Map<String, Object> updateInventoryCountInMagento(DispatchContext dctx, Map<String, ?> context) {
+        Map<String, Object> response = ServiceUtil.returnSuccess();
+        Delegator delegator = dctx.getDelegator();
+        LocalDispatcher dispatcher = dctx.getDispatcher();
+        String productId = (String) context.get("productId");
+        GenericValue goodIdentification = null;
+        String inventoryFacilityId = null;
+        int isStockItemUpdated = 0;
+        try {
+            if (UtilValidate.isNotEmpty(productId)) {
+                // Handling Magento's Product Id.
+                EntityCondition cond = EntityCondition.makeCondition(
+                        EntityCondition.makeCondition("productId", productId),
+                        EntityCondition.makeCondition("goodIdentificationTypeId", "MAGENTO_ID")
+                        );
+                List<GenericValue> goodIdentifications = delegator.findList("GoodIdentification", cond, null, null, null, false);
+                if (UtilValidate.isEmpty(goodIdentifications)) {
+                    // nothing to do
+                    Debug.logInfo("Not a magento product, doing nothing "+productId, module);
+                    return response;
+                }
+                goodIdentification = EntityUtil.getFirst(goodIdentifications);
+                GenericValue system = delegator.findOne("UserLogin", false, UtilMisc.toMap("userLoginId", "system"));
+                GenericValue magentoConfiguration = EntityUtil.getFirst(delegator.findList("MagentoConfiguration", EntityCondition.makeCondition("enumId", EntityOperator.EQUALS, "MAGENTO_SALE_CHANNEL"), null, null, null, false));
+                if (UtilValidate.isNotEmpty(magentoConfiguration) && UtilValidate.isNotEmpty(magentoConfiguration.getString("productStoreId"))) {
+                    GenericValue productStore = delegator.findOne("ProductStore", false, UtilMisc.toMap("productStoreId", magentoConfiguration.getString("productStoreId")));
+                    inventoryFacilityId = productStore.getString("inventoryFacilityId");
+                }
+                Map<String, Object> serviceContext = new HashMap<String, Object>();
+                serviceContext.put("productId", productId);
+                serviceContext.put("facilityId", inventoryFacilityId);
+                serviceContext.put("userLogin", system);
 
+                Map<String, Object> serviceResult = dispatcher.runSync("getInventoryAvailableByFacility", serviceContext);
+                if (ServiceUtil.isSuccess(serviceResult)) {
+                    // Call magento api method for updating inventory count order
+                    String inventoryCount = (String) ObjectType.simpleTypeConvert(serviceResult.get("quantityOnHandTotal"), "String", null, null);
+                    MagentoClient magentoClient = new MagentoClient(dispatcher, delegator);
+                    isStockItemUpdated = magentoClient.catalogInventoryStockItemUpdate(goodIdentification.getString("idValue"), inventoryCount);
+                    if (isStockItemUpdated == 0) {
+                        Debug.logInfo("Getting error while updating inventory of product with id: "+goodIdentification.getString("idValue")+" in magento.", module);
+                    } else {
+                        Debug.logInfo("Inventory count of product with id: "+goodIdentification.getString("idValue")+" has been updated succesfully in magento.", module);
+                    }
+                }
+            }
+        } catch (GenericEntityException gee) {
+            Debug.logError("Getting error while updating inventory count in magento "+gee.getMessage() ,module);
+        } catch (Exception e) {
+            Debug.logError("Getting error while updating inventory count in magento "+e.getMessage() ,module);
+        }
+        return response;
+    }
 }

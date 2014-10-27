@@ -7,6 +7,9 @@ import magento.ArrayOfString;
 import magento.CatalogInventoryStockItemEntityArray;
 import magento.CatalogInventoryStockItemListRequestParam;
 import magento.CatalogInventoryStockItemListResponseParam;
+import magento.CatalogInventoryStockItemUpdateEntity;
+import magento.CatalogInventoryStockItemUpdateRequestParam;
+import magento.CatalogInventoryStockItemUpdateResponseParam;
 import magento.DirectoryRegionEntity;
 import magento.DirectoryRegionEntityArray;
 import magento.DirectoryRegionListRequestParam;
@@ -191,5 +194,22 @@ public class MagentoClient {
         SalesOrderInvoiceCreateResponseParam salesOrderInvoiceCreateResponseParam = port.salesOrderInvoiceCreate(salesOrderInvoiceCreateRequestParam);
         invoiceIncrementId = salesOrderInvoiceCreateResponseParam.getResult();
         return invoiceIncrementId;
+    }
+    public int catalogInventoryStockItemUpdate (String productId, String inventoryCount) {
+        int isStockItemUpdated = 0;
+        String magentoSessionId = getMagentoSession();
+        CatalogInventoryStockItemUpdateRequestParam requestParam = new CatalogInventoryStockItemUpdateRequestParam();
+        requestParam.setSessionId(magentoSessionId);
+        requestParam.setProductId(productId);
+
+        CatalogInventoryStockItemUpdateEntity catalogInventoryStockItemUpdateEntity = new CatalogInventoryStockItemUpdateEntity();
+        catalogInventoryStockItemUpdateEntity.setQty(inventoryCount);
+        requestParam.setData(catalogInventoryStockItemUpdateEntity);
+
+        MagentoService mage = new MagentoService();
+        MageApiModelServerWsiHandlerPortType port = mage.getMageApiModelServerWsiHandlerPort();
+        CatalogInventoryStockItemUpdateResponseParam responseParam = port.catalogInventoryStockItemUpdate(requestParam);
+        isStockItemUpdated = responseParam.getResult();
+        return isStockItemUpdated;
     }
 }

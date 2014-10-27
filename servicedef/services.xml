@@ -50,6 +50,12 @@ under the License.
         <description>Complete order in magento.</description>
         <attribute name="orderId" mode="IN" type="String"/>
     </service>
+    <service name="updateInventoryCountInMagento" engine="java" export="true" validate="false"
+            location="org.ofbizus.magento.MagentoServices" invoke="updateInventoryCountInMagento">
+        <description>Srvice used to update inventory count in magento.</description>
+        <attribute name="productId" mode="IN" type="String" optional="false"/>
+    </service>
+    
     <service name="receiveInventoryProductFromMagento" engine="simple" transaction-timeout="600"
             location="component://magento/script/org/ofbizus/magento/MagentoServices.xml" invoke="receiveInventoryProduct" auth="true">
         <description>Receive Inventory In Ofbiz From Magento</description>
@@ -72,5 +78,4 @@ under the License.
         <override name="productId" optional="false"/>
         <override name="facilityId" optional="false"/>
     </service>
-
 </services>

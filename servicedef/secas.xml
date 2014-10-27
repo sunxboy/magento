@@ -9,4 +9,7 @@
         <condition operator="equals" field-name="statusId" value="ORDER_COMPLETED"/>
         <action service="completeOrderInMagento" mode="sync" run-as-user="system"/>
     </eca>
+    <eca service="receiveInventoryProduct" event="commit" run-on-error="false">
+        <action service="updateInventoryCountInMagento" mode="async" run-as-user="system"/>
+    </eca>
 </service-eca>
