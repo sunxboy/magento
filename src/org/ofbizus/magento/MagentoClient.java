@@ -1,16 +1,37 @@
 package org.ofbizus.magento;
 
-import java.net.URL;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
-import org.apache.xmlrpc.XmlRpcException;
-import org.apache.xmlrpc.client.XmlRpcClient;
-import org.apache.xmlrpc.client.XmlRpcClientConfigImpl;
+import magento.ArrayOfString;
+import magento.CatalogInventoryStockItemEntityArray;
+import magento.CatalogInventoryStockItemListRequestParam;
+import magento.CatalogInventoryStockItemListResponseParam;
+import magento.DirectoryRegionEntity;
+import magento.DirectoryRegionEntityArray;
+import magento.DirectoryRegionListRequestParam;
+import magento.DirectoryRegionListResponseParam;
+import magento.Filters;
+import magento.LoginParam;
+import magento.LoginResponseParam;
+import magento.MageApiModelServerWsiHandlerPortType;
+import magento.MagentoService;
+import magento.OrderItemIdQtyArray;
+import magento.SalesOrderCancelRequestParam;
+import magento.SalesOrderCancelResponseParam;
+import magento.SalesOrderEntity;
+import magento.SalesOrderInfoRequestParam;
+import magento.SalesOrderInfoResponseParam;
+import magento.SalesOrderInvoiceCreateRequestParam;
+import magento.SalesOrderInvoiceCreateResponseParam;
+import magento.SalesOrderListEntity;
+import magento.SalesOrderListEntityArray;
+import magento.SalesOrderListRequestParam;
+import magento.SalesOrderListResponseParam;
+import magento.SalesOrderShipmentCreateRequestParam;
+import magento.SalesOrderShipmentCreateResponseParam;
+
 import org.ofbiz.base.util.Debug;
-import org.ofbiz.base.util.UtilMisc;
 import org.ofbiz.base.util.UtilValidate;
 import org.ofbiz.entity.Delegator;
 import org.ofbiz.entity.GenericEntityException;
@@ -20,9 +41,8 @@ import org.ofbiz.service.LocalDispatcher;
 
 public class MagentoClient {
     public static final String module = MagentoClient.class.getName();
-    private static String xmlRpcUrl;
-    private static String xmlRpcUserName;
-    private static String xmlRpcPassword;
+    private static String soapUserName;
+    private static String soapPassword;
 
     protected LocalDispatcher dispatcher;
     protected Delegator delegator;
@@ -36,9 +56,8 @@ public class MagentoClient {
             system = delegator.findOne("UserLogin", true, "userLoginId", "system");
             GenericValue magentoConfiguration = EntityUtil.getFirst((delegator.findList("MagentoConfiguration", null, null, null, null, false))); 
             if (UtilValidate.isNotEmpty(magentoConfiguration)) { 
-                xmlRpcUrl = (String) magentoConfiguration.get("serverUrl");
-                xmlRpcUserName = (String) magentoConfiguration.get("xmlRpcUserName");
-                xmlRpcPassword = (String) magentoConfiguration.get("password");
+                soapUserName = (String) magentoConfiguration.get("xmlRpcUserName");
+                soapPassword = (String) magentoConfiguration.get("password");
             }
         } catch (GenericEntityException gee) {
             Debug.logError(gee, module);
@@ -49,150 +68,128 @@ public class MagentoClient {
         }
     }
 
-    public static XmlRpcClient getMagentoConnection() {
-        XmlRpcClientConfigImpl config = new XmlRpcClientConfigImpl();
-        XmlRpcClient xmlrpc = new XmlRpcClient();
-        // Server URL
-        try {
-            config.setServerURL(new URL(xmlRpcUrl));
-            config.setEnabledForExtensions(true);
-            // create an instance of XmlRpcClient
-            xmlrpc.setConfig(config);
-            xmlrpc.setTypeFactory(new NilParser(xmlrpc));
-        } catch (Exception e) {
-            e.printStackTrace();
-            Debug.logError("Error in connection=====" + e.getMessage(), module);
-        }
-        return xmlrpc;
-    }
-
     public static String getMagentoSession() {
-        String responseMessage = null;
+        String session = null;
         try {
-            XmlRpcClient xmlrpc = getMagentoConnection();
-            List<Object> messageParams = new ArrayList<Object>();
-            messageParams.add(xmlRpcUserName);
-            messageParams.add(xmlRpcPassword);
+            LoginParam loginParams = new LoginParam();
+            loginParams.setUsername(soapUserName);
+            loginParams.setApiKey(soapPassword);
+            MagentoService mage = new MagentoService();
+            MageApiModelServerWsiHandlerPortType port = mage.getMageApiModelServerWsiHandlerPort();
+            LoginResponseParam loginResponseParam = port.login(loginParams);
 
-            responseMessage = (String) xmlrpc.execute("login", messageParams);
-            Debug.logInfo("The result details is ======== " + responseMessage, module);
+            session = loginResponseParam.getResult();
+            Debug.logInfo("===========Got Magento session  with sessionId:" +session, module);
         } catch (Exception e) {
             e.printStackTrace();
-            Debug.logError("Error in getting magento session=====" + e.getMessage(), module);
+            Debug.logError("===========Error in getting magento session=====" + e.getMessage(), module);
             return "error";
         }
-        return responseMessage;
+        return session;
     }
 
     // Fetches sales order List from magento
-    public Object[] getSalesOrderList(Map<String, Object> filters) {
-        Object[] result = null;
-        try {
-            XmlRpcClient xmlrpc = getMagentoConnection();
-            String magentoSessionId = getMagentoSession();
-            List<Object> params = new ArrayList<Object>();
-            if (UtilValidate.isNotEmpty(filters)) {
-                params.add(filters);
-            }
-            result = (Object[]) xmlrpc.execute("call", new Object[] { magentoSessionId, new String("sales_order.list"), params});
-        } catch (XmlRpcException e) {
-            e.printStackTrace();
-            Debug.logError("Error in order import (XmlRpcException) " + e.getMessage(), module);
-        }
-        return result;
+    public List<SalesOrderListEntity> getSalesOrderList(Filters filters) {
+        List<SalesOrderListEntity> salesOrderList = new ArrayList<SalesOrderListEntity>();
+
+        String magentoSessionId = getMagentoSession();
+        SalesOrderListRequestParam salesOrderListRequestParam = new SalesOrderListRequestParam();
+        salesOrderListRequestParam.setSessionId(magentoSessionId);
+        salesOrderListRequestParam.setFilters(filters);
+        MagentoService mage = new MagentoService();
+        MageApiModelServerWsiHandlerPortType port = mage.getMageApiModelServerWsiHandlerPort();
+        SalesOrderListResponseParam salesOrderListResponseParam = port.salesOrderList(salesOrderListRequestParam);
+        SalesOrderListEntityArray salesOrderListEntityArray = salesOrderListResponseParam.getResult();
+        salesOrderList = salesOrderListEntityArray.getComplexObjectArray();
+        return salesOrderList;
     }
 
     // Fetches sales order info from magento
-    public Object getSalesOrderInfo(String orderIncrementId) {
-        Object result = null;
-        try {
-            XmlRpcClient xmlrpc = getMagentoConnection();
-            String magentoSessionId = getMagentoSession();
-            Map<String, Object> condMap = new HashMap<String, Object>();
-            Map<String, String> orderIncrementIdMap = UtilMisc.toMap("eq", orderIncrementId);
-            condMap.put("orderIncrementId", orderIncrementIdMap);
-            List<Object> params = new ArrayList<Object>();
-            if (UtilValidate.isNotEmpty(condMap)) {
-                params.add(condMap);
-            }
-            result = (Object) xmlrpc.execute("call", new Object[] { magentoSessionId, new String("sales_order.info"), params});
-        } catch (XmlRpcException e) {
-            e.printStackTrace();
-            Debug.logError("Error in order import (XmlRpcException) " + e.getMessage(), module);
-        }
-        return result;
+    public SalesOrderEntity getSalesOrderInfo(String orderIncrementId) {
+        String magentoSessionId = getMagentoSession();
+        SalesOrderInfoRequestParam salesOrderInfoRequestParam = new SalesOrderInfoRequestParam();
+        salesOrderInfoRequestParam.setSessionId(magentoSessionId);
+        salesOrderInfoRequestParam.setOrderIncrementId(orderIncrementId);
+
+        MagentoService mage = new MagentoService();
+        MageApiModelServerWsiHandlerPortType port = mage.getMageApiModelServerWsiHandlerPort();
+        SalesOrderInfoResponseParam salesOrderListResponseParam = port.salesOrderInfo(salesOrderInfoRequestParam);
+        SalesOrderEntity salesOrder = salesOrderListResponseParam.getResult();
+        return salesOrder;
     }
 
-    public Object[] getCatalogInventoryStockItemList (String sku) {
-        Object[] result = null;
-        try {
-            XmlRpcClient xmlrpc = getMagentoConnection();
-            String magentoSessionId = getMagentoSession();
-            List<Object> params = new ArrayList<Object>();
-            params.add(sku);
-            result = (Object[]) xmlrpc.execute("call", new Object[] { magentoSessionId, new String("cataloginventory_stock_item.list"), params});
-        } catch (XmlRpcException e) {
-            e.printStackTrace();
-            Debug.logError("Error in order import (XmlRpcException) " + e.getMessage(), module);
-        }
-        return result;
+    public CatalogInventoryStockItemEntityArray getCatalogInventoryStockItemList (String sku) {
+        String magentoSessionId = getMagentoSession();
+        MagentoService mage = new MagentoService();
+        CatalogInventoryStockItemListRequestParam catalogInventoryStockItemListRequestParam = new CatalogInventoryStockItemListRequestParam();
+        catalogInventoryStockItemListRequestParam.setSessionId(magentoSessionId);
+        ArrayOfString productIds = new ArrayOfString();
+        productIds.getComplexObjectArray().add(sku);
+        catalogInventoryStockItemListRequestParam.setProductIds(productIds);
+        MageApiModelServerWsiHandlerPortType port = mage.getMageApiModelServerWsiHandlerPort();
+        CatalogInventoryStockItemListResponseParam catalogInventoryStockItemListResponseParam = port.catalogInventoryStockItemList(catalogInventoryStockItemListRequestParam);
+        CatalogInventoryStockItemEntityArray catalogInventoryStockItemEntityArray = catalogInventoryStockItemListResponseParam.getResult();
+        return catalogInventoryStockItemEntityArray;
     }
 
-    public Object[] getDirectoryRegionList(String countryGeoCode) {
-        Object[] result = null;
-        try {
-            XmlRpcClient xmlrpc = getMagentoConnection();
-            String magentoSessionId = getMagentoSession();
-            List<Object> params = new ArrayList<Object>();
-            params.add(countryGeoCode);
-            result = (Object[]) xmlrpc.execute("call", new Object[] { magentoSessionId, new String("directory_region.list"), params});
-        } catch (XmlRpcException e) {
-            e.printStackTrace();
-            Debug.logError("Error in order import (XmlRpcException) " + e.getMessage(), module);
-        }
-        return result;
+    public List<DirectoryRegionEntity> getDirectoryRegionList(String countryGeoCode) {
+        List<DirectoryRegionEntity> directoryRegionList = new ArrayList<DirectoryRegionEntity>();
+        String magentoSessionId = getMagentoSession();
+        DirectoryRegionListRequestParam directoryRegionListRequestParam = new DirectoryRegionListRequestParam();
+        directoryRegionListRequestParam.setSessionId(magentoSessionId);
+        directoryRegionListRequestParam.setCountry(countryGeoCode);
+
+        MagentoService mage = new MagentoService();
+        MageApiModelServerWsiHandlerPortType port = mage.getMageApiModelServerWsiHandlerPort();
+        DirectoryRegionListResponseParam directoryRegionListResponseParam = port.directoryRegionList(directoryRegionListRequestParam);
+        DirectoryRegionEntityArray directorRegionEntityArray = directoryRegionListResponseParam.getResult();
+        directoryRegionList = directorRegionEntityArray.getComplexObjectArray();
+        return directoryRegionList;
     }
-    public boolean cancelSalesOrder(String orderIncrementId) {
-        boolean isCancelled = false;
-        try {
-            XmlRpcClient xmlrpc = getMagentoConnection();
-            String magentoSessionId = getMagentoSession();
-            List<Object> params = new ArrayList<Object>();
-            params.add(orderIncrementId);
-            isCancelled = (Boolean) xmlrpc.execute("call", new Object[] { magentoSessionId, new String("sales_order.cancel"), params});
-        } catch (XmlRpcException e) {
-            e.printStackTrace();
-            Debug.logError("Error in order import (XmlRpcException) " + e.getMessage(), module);
-        }
+    public int cancelSalesOrder(String orderIncrementId) {
+        int isCancelled = 0;
+        String magentoSessionId = getMagentoSession();
+        SalesOrderCancelRequestParam salesOrderCancelRequestParam = new SalesOrderCancelRequestParam();
+        salesOrderCancelRequestParam.setSessionId(magentoSessionId);
+        salesOrderCancelRequestParam.setOrderIncrementId(orderIncrementId);
+
+        MagentoService mage = new MagentoService();
+        MageApiModelServerWsiHandlerPortType port = mage.getMageApiModelServerWsiHandlerPort();
+        SalesOrderCancelResponseParam salesOrderCancelResponseParam = port.salesOrderCancel(salesOrderCancelRequestParam);
+        isCancelled = salesOrderCancelResponseParam.getResult();
+
         return isCancelled;
     }
     public String createShipment(String orderIncrementId) {
         String shipmentIncrementId = null;
-        try {
-            XmlRpcClient xmlrpc = getMagentoConnection();
-            String magentoSessionId = getMagentoSession();
-            List<Object> params = new ArrayList<Object>();
-            params.add(orderIncrementId);
-            shipmentIncrementId = (String) xmlrpc.execute("call", new Object[] { magentoSessionId, new String("order_shipment.create"), params});
-        } catch (XmlRpcException e) {
-            e.printStackTrace();
-            Debug.logError("Error in order import (XmlRpcException) " + e.getMessage(), module);
-        }
+        String magentoSessionId = getMagentoSession();
+        SalesOrderShipmentCreateRequestParam salesOrderShipmentCreateRequestParam = new SalesOrderShipmentCreateRequestParam();
+        OrderItemIdQtyArray orderItemIdQtyArray = new OrderItemIdQtyArray();
+        salesOrderShipmentCreateRequestParam.setSessionId(magentoSessionId);
+        salesOrderShipmentCreateRequestParam.setOrderIncrementId(orderIncrementId);
+        salesOrderShipmentCreateRequestParam.setEmail(1);
+        salesOrderShipmentCreateRequestParam.setItemsQty(orderItemIdQtyArray);
+
+        MagentoService mage = new MagentoService();
+        MageApiModelServerWsiHandlerPortType port = mage.getMageApiModelServerWsiHandlerPort();
+        SalesOrderShipmentCreateResponseParam salesOrderShipmentCreateResponseParam = port.salesOrderShipmentCreate(salesOrderShipmentCreateRequestParam);
+        shipmentIncrementId = salesOrderShipmentCreateResponseParam.getResult();
         return shipmentIncrementId;
     }
     public String createInvoice(String orderIncrementId) {
         String invoiceIncrementId = null;
-        try {
-            XmlRpcClient xmlrpc = getMagentoConnection();
-            String magentoSessionId = getMagentoSession();
-            List<Object> params = new ArrayList<Object>();
-            params.add(orderIncrementId);
-            invoiceIncrementId = (String) xmlrpc.execute("call", new Object[] { magentoSessionId, new String("order_invoice.create"), params});
+        String magentoSessionId = getMagentoSession();
+        OrderItemIdQtyArray orderItemIdQtyArray = new OrderItemIdQtyArray();
+        SalesOrderInvoiceCreateRequestParam salesOrderInvoiceCreateRequestParam = new SalesOrderInvoiceCreateRequestParam();
+        salesOrderInvoiceCreateRequestParam.setSessionId(magentoSessionId);
+        salesOrderInvoiceCreateRequestParam.setInvoiceIncrementId(orderIncrementId);
+        salesOrderInvoiceCreateRequestParam.setEmail("true");
+        salesOrderInvoiceCreateRequestParam.setItemsQty(orderItemIdQtyArray);
 
-        } catch (XmlRpcException e) {
-            e.printStackTrace();
-            Debug.logError("Error in order import (XmlRpcException) " + e.getMessage(), module);
-        }
+        MagentoService mage = new MagentoService();
+        MageApiModelServerWsiHandlerPortType port = mage.getMageApiModelServerWsiHandlerPort();
+        SalesOrderInvoiceCreateResponseParam salesOrderInvoiceCreateResponseParam = port.salesOrderInvoiceCreate(salesOrderInvoiceCreateRequestParam);
+        invoiceIncrementId = salesOrderInvoiceCreateResponseParam.getResult();
         return invoiceIncrementId;
     }
 }
