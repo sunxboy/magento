@@ -10,6 +10,18 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import magento.AssociativeEntity;
+import magento.CatalogInventoryStockItemEntity;
+import magento.CatalogInventoryStockItemEntityArray;
+import magento.ComplexFilter;
+import magento.ComplexFilterArray;
+import magento.DirectoryRegionEntity;
+import magento.Filters;
+import magento.SalesOrderAddressEntity;
+import magento.SalesOrderEntity;
+import magento.SalesOrderItemEntity;
+import magento.SalesOrderItemEntityArray;
+
 import org.ofbiz.base.util.Debug;
 import org.ofbiz.base.util.GeneralException;
 import org.ofbiz.base.util.ObjectType;
@@ -41,20 +53,14 @@ public class MagentoHelper {
 
     public static final String module = MagentoHelper.class.getName();
     @SuppressWarnings("unchecked")
-    public static String createOrder(Map<String, ?> orderInformation, Locale locale, Delegator delegator, LocalDispatcher dispatcher) throws GeneralException {
+    public static String createOrder(SalesOrderEntity orderInformation, Locale locale, Delegator delegator, LocalDispatcher dispatcher) throws GeneralException {
         GenericValue magentoConfiguration = null;
         String productStoreId = null;
         String websiteId = null;
         String prodCatalogId = null;
-        for (Map.Entry<String, ?> entry: orderInformation.entrySet()) {
-            Object cKey = entry.getKey();
-            Object value = entry.getValue();
 
-            System.out.println("----Sent by Xml Rpc SVC-CONTEXT: " + cKey + " => " + value);
-        }
-        
         // get the magento order number
-        String externalId = (String) orderInformation.get("increment_id");
+        String externalId = orderInformation.getIncrementId();
 
         // check and make sure if order with externalId already exist
         List<GenericValue> existingOrder = delegator.findList("OrderHeader", EntityCondition.makeCondition("externalId", externalId), null, null, null, false);
@@ -68,7 +74,7 @@ public class MagentoHelper {
         if (UtilValidate.isNotEmpty(magentoConfiguration)) {
             productStoreId = magentoConfiguration.getString("productStoreId");
         }
-        String currencyUom = (String) orderInformation.get("order_currency_code");
+        String currencyUom = orderInformation.getOrderCurrencyCode();
 
      // Initialize the shopping cart
         ShoppingCart cart = new ShoppingCart(delegator, productStoreId, websiteId, locale, currencyUom);
@@ -85,21 +91,27 @@ public class MagentoHelper {
         Debug.logInfo("-- Magento Order # : " + externalId, module);
 
         // set the customer information
-        Map<String, Object> shippingAddress = (Map<String, Object>) orderInformation.get("shipping_address");
-        Map<String, Object> billingAddress = (Map<String, Object>) orderInformation.get("billing_address");
+        SalesOrderAddressEntity shippingAddress = orderInformation.getShippingAddress();
+        SalesOrderAddressEntity billingAddress = orderInformation.getBillingAddress();
         
         MagentoClient magentoClient = new MagentoClient(dispatcher, delegator);
-        Object[] directoryRegionList = magentoClient.getDirectoryRegionList((String)shippingAddress.get("country_id"));
-        for (Object directoryRegion : directoryRegionList) {
-            Map<String, Object> region = (Map<String, Object>)directoryRegion;
-            if (((String)region.get("region_id")).equals(shippingAddress.get("region_id"))) {
-                shippingAddress.put("region_code", (String)region.get("code"));
-                billingAddress.put("region_code", (String)region.get("code"));
+        List<DirectoryRegionEntity> shippingDirectoryRegionList = magentoClient.getDirectoryRegionList(shippingAddress.getCountryId());
+        for (DirectoryRegionEntity region : shippingDirectoryRegionList) {
+            if ((region.getRegionId()).equals(shippingAddress.getRegionId())) {
+                shippingAddress.setRegion(region.getCode());
                 break;
             }
         }
 
-        String[] partyInfo = setPartyInfo(orderInformation.get("customer_email").toString(), shippingAddress, billingAddress, delegator, dispatcher);
+        List<DirectoryRegionEntity> billingDirectoryRegionList = magentoClient.getDirectoryRegionList(shippingAddress.getCountryId());
+        for (DirectoryRegionEntity region : billingDirectoryRegionList) {
+            if ((region.getRegionId()).equals(shippingAddress.getRegionId())) {
+                billingAddress.setRegion(region.getCode());
+                break;
+            }
+        }
+
+        String[] partyInfo = setPartyInfo(orderInformation.getCustomerEmail(), shippingAddress, billingAddress, delegator, dispatcher);
         if (partyInfo == null || partyInfo.length != 3) {
             throw new GeneralException("Unable to parse/create party information, invalid number of parameters returned");
         }
@@ -108,47 +120,39 @@ public class MagentoHelper {
         cart.setShippingContactMechId(0, partyInfo[1]);
         // contact info
         if (UtilValidate.isNotEmpty(shippingAddress)) {
-            if (UtilValidate.isNotEmpty(shippingAddress.get("email"))) {
-                String shippingEmail = (String) shippingAddress.get("email");
+            if (UtilValidate.isNotEmpty(orderInformation.getCustomerEmail())) {
+                String shippingEmail = orderInformation.getCustomerEmail();
                 setContactInfo(cart, "PRIMARY_EMAIL", shippingEmail, delegator, dispatcher);
             }
-            if (UtilValidate.isNotEmpty(shippingAddress.get("telephone"))) {
-                String shippingPhone = shippingAddress.get("telephone").toString();
+            if (UtilValidate.isNotEmpty(shippingAddress.getTelephone())) {
+                String shippingPhone = shippingAddress.getTelephone();
                 setContactInfo(cart, "PHONE_SHIPPING", shippingPhone, delegator, dispatcher);
             }
         }
         if (UtilValidate.isNotEmpty(billingAddress)) {
-            if(UtilValidate.isNotEmpty(billingAddress.get("email"))) {
-                String billingEmail = billingAddress.get("email").toString();
+            if(UtilValidate.isNotEmpty(orderInformation.getCustomerEmail())) {
+                String billingEmail = orderInformation.getCustomerEmail();
                 setContactInfo(cart, "BILLING_EMAIL", billingEmail, delegator, dispatcher);
-        }
-        if (UtilValidate.isNotEmpty(billingAddress.get("telephone"))) {
-            String billingPhone = billingAddress.get("telephone").toString();
-            setContactInfo(cart, "PHONE_BILLING", billingPhone, delegator, dispatcher);
+            }
+            if (UtilValidate.isNotEmpty(billingAddress.getTelephone())) {
+                String billingPhone = billingAddress.getTelephone();
+                setContactInfo(cart, "PHONE_BILLING", billingPhone, delegator, dispatcher);
             }
         }
         // set the order items
-        //List<Map<String,?>> orderItems =  (List<Map<String,?>>) orderInformation.get("orderItems");
-        Object[] orderItems =  (Object[]) orderInformation.get("items");
-        HashMap<String, Object> items = new HashMap<String, Object>();
-        for (Object orderItem : orderItems) {
-            Map<String,?> item = (Map<String,?>) orderItem;
-            items.put((String)item.get("item_id"), item);
-        }
+        SalesOrderItemEntityArray salesOrderItemEntityArray = orderInformation.getItems();
+        List<SalesOrderItemEntity> orderItems = salesOrderItemEntityArray.getComplexObjectArray();
         HashMap<String, Object> productData = null;
         GenericValue magentoProduct = null;
         BigDecimal price = null;
-        for (Object orderItem : orderItems) {
-            Map<String,?> item = (Map<String,?>) orderItem;
+        for (SalesOrderItemEntity item : orderItems) {
             try {
                 productData = new HashMap<String, Object>();
                 productData.put("productTypeId", "FINISHED_GOOD");
-                productData.put("internalName", item.get("name"));
-                productData.put("productName", item.get("name"));
-                productData.put("description", item.get("shortDescription"));
-                productData.put("longDescription", item.get("description"));
+                productData.put("internalName", item.getName());
+                productData.put("productName", item.getName());
                 productData.put("userLogin", system);
-                String idValue = (String) item.get("product_id");
+                String idValue = item.getProductId();
 
                 // Handling Magento's Product Id.
                 EntityCondition cond = EntityCondition.makeCondition(
@@ -156,40 +160,29 @@ public class MagentoHelper {
                         EntityCondition.makeCondition("goodIdentificationTypeId", "MAGENTO_ID")
                         );
                 List<GenericValue> goodIdentification = delegator.findList("GoodIdentification", cond, null, null, null, false);
-                Map<String, Object> parentItem = new HashMap<String, Object>();
-                if ("bundle".equals(item.get("product_type"))) {
+                if ("bundle".equals(item.getProductType())) {
                     continue;
+                } else if ("configurable".equals(item.getProductType())) {
+                    price =  new BigDecimal(item.getPrice());
+                    continue;
+                } else if (!"simple".equals(item.getProductType())) {
+                    price =  new BigDecimal(item.getPrice());
                 }
-                if ("simple".equals(item.get("product_type")) && UtilValidate.isNotEmpty(item.get("parent_item_id"))) {
-                    parentItem = (Map<String, Object>) items.get(item.get("parent_item_id"));
-                    // Check if simple product is child of any configurable product, if yes then create it as a variant product.
-                    if (UtilValidate.isNotEmpty(parentItem) && "configurable".equals(parentItem.get("product_type"))) {
-                        price = new BigDecimal(parentItem.get("price").toString());
-                        productData.put("isVariant", "Y");
-                    } else {
-                        price =  new BigDecimal(item.get("price").toString());
-                    }
-                } else if ("configurable".equals(item.get("product_type"))) {
-                    // We have considered Magento Configurable products as Virtual Product in our system.
-                    price =  new BigDecimal(item.get("price").toString());
-                    productData.put("isVirtual", "Y");
-                } else {
-                    price =  new BigDecimal(item.get("price").toString());
-                }
-                if (UtilValidate.isNotEmpty(goodIdentification) && "configurable".equals(item.get("product_type"))) {
+                if (UtilValidate.isNotEmpty(goodIdentification) && "configurable".equals(item.getProductType())) {
                     continue;
                 } else if (UtilValidate.isNotEmpty(goodIdentification)) {
                     magentoProduct = EntityUtil.getFirst(goodIdentification);
                     productData.put("productId", magentoProduct.get("productId"));
                     productData.put("price", price);
-                    productData.put("quantity", item.get("qty_ordered").toString());
+                    productData.put("quantity", item.getQtyOrdered());
                 } else {
                     Integer inventoryCount = null;
-                    Object[] catalogInventoryStockItemList = magentoClient.getCatalogInventoryStockItemList((String)item.get("sku"));
-                    Map<String, Object> itemStock = (Map<String, Object>)catalogInventoryStockItemList[0];
-                    if (UtilValidate.isNotEmpty(itemStock.get("qty")) && UtilValidate.isNotEmpty(item.get("qty_ordered"))) {
-                        Integer quantity = (Integer) ObjectType.simpleTypeConvert(item.get("qty_ordered"), "Integer", null, locale);
-                        inventoryCount = (Integer) ObjectType.simpleTypeConvert(itemStock.get("qty"), "Integer", null, locale);
+                    CatalogInventoryStockItemEntityArray catalogInventoryStockItemEntityArray = magentoClient.getCatalogInventoryStockItemList(item.getSku());
+                    List<CatalogInventoryStockItemEntity>stockItemList = catalogInventoryStockItemEntityArray.getComplexObjectArray();
+                    CatalogInventoryStockItemEntity itemStock = stockItemList.get(0);
+                    if (UtilValidate.isNotEmpty(itemStock.getQty()) && UtilValidate.isNotEmpty(item.getQtyOrdered())) {
+                        Integer quantity = (Integer) ObjectType.simpleTypeConvert(item.getQtyOrdered(), "Integer", null, locale);
+                        inventoryCount = (Integer) ObjectType.simpleTypeConvert(itemStock.getQty(), "Integer", null, locale);
                         inventoryCount = inventoryCount + quantity;
                         //Here we need to add quantity of the product in inventory count because the value of it that we get from magento
                         //is already reduced and after full fulfilling order in ofbiz it reduces again. Hence we have to make inventory count in ofbiz equal
@@ -206,43 +199,26 @@ public class MagentoHelper {
                     }*/
                     Map<String, Object> product = dispatcher.runSync("createProduct", productData);
                     if (ServiceUtil.isSuccess(product)) {
-                        if (UtilValidate.isNotEmpty(parentItem) && "configurable".equals(parentItem.get("product_type"))) {
-                            EntityCondition condition = EntityCondition.makeCondition(
-                                    EntityCondition.makeCondition("idValue", parentItem.get("product_id")),
-                                    EntityCondition.makeCondition("goodIdentificationTypeId", "MAGENTO_ID")
-                                    );
-                            GenericValue virtualGoodIdentification = EntityUtil.getFirst(delegator.findList("GoodIdentification", condition, null, null, null, false));
-                            if (UtilValidate.isNotEmpty(virtualGoodIdentification)) {
-                                Map<String, Object> productAssocCtx = new HashMap<String, Object>();
-                                productAssocCtx.put("productId", virtualGoodIdentification.getString("productId"));
-                                productAssocCtx.put("productIdTo", product.get("productId"));
-                                productAssocCtx.put("productAssocTypeId", "PRODUCT_VARIANT");
-                                productAssocCtx.put("fromDate", UtilDateTime.nowTimestamp());
-                                productAssocCtx.put("userLogin", system);
-                                dispatcher.runSync("createProductAssoc", productAssocCtx);
-                                //TODO : Need to find a way to get ProductFeatures from Magento and provide its support as well.
-                            }
-                        }
                         productData.clear();
                         productData.put("productId", product.get("productId"));
                         productData.put("price" , price);
                         productData.put("productPriceTypeId", "DEFAULT_PRICE");
                         productData.put("productPricePurposeId", "PURCHASE");
-                        productData.put("currencyUomId", orderInformation.get("order_currency_code"));
+                        productData.put("currencyUomId", orderInformation.getOrderCurrencyCode());
                         productData.put("productStoreGroupId" , "_NA_");
                         productData.put("fromDate" , UtilDateTime.nowTimestamp());
                         productData.put("userLogin", system);
                         dispatcher.runSync("createProductPrice",productData );
                         productData.put("productPriceTypeId", "LIST_PRICE");
                         dispatcher.runSync("createProductPrice",productData );
-                        productData.put("quantity", new BigDecimal(item.get("qty_ordered").toString()));
+                        productData.put("quantity", new BigDecimal(item.getQtyOrdered()));
 
                         GenericValue goodIdentificationRecord = delegator.makeValue("GoodIdentification");
                         goodIdentificationRecord.set("goodIdentificationTypeId", "MAGENTO_ID");
                         goodIdentificationRecord.set("productId", product.get("productId"));
-                        goodIdentificationRecord.set("idValue", item.get("product_id"));
+                        goodIdentificationRecord.set("idValue", item.getProductId());
                         delegator.createOrStore(goodIdentificationRecord);
-                        if ("configurable".equals(item.get("product_type"))) {
+                        if ("configurable".equals(item.getProductType())) {
                             continue;
                         }
                         if(inventoryCount > 0) {
@@ -275,19 +251,19 @@ public class MagentoHelper {
                 }
                 addItem(cart, productData, prodCatalogId, 0, delegator, dispatcher);
             } catch (ItemNotFoundException e) {
-                Debug.logError("Unable to obtain GoodIdentification entity value of the Magento id for product [" + orderInformation.get("id") + "]: " + e.getMessage(), module);
+                Debug.logError("Unable to obtain GoodIdentification entity value of the Magento id for product [" + orderInformation.getParentId() + "]: " + e.getMessage(), module);
             }
         }
         // handle the adjustments
         HashMap<String,String> adjustment = new HashMap<String, String>();
-        adjustment.put("orderTaxAmount", (String) orderInformation.get("tax_amount"));
-        adjustment.put("orderDiscountAmount", (String) orderInformation.get("discount_amount"));
-        adjustment.put("orderShippingAmount", (String) orderInformation.get("shipping_amount"));
-        if (UtilValidate.isNotEmpty(adjustment)){
+        adjustment.put("orderTaxAmount", orderInformation.getTaxAmount());
+        adjustment.put("orderDiscountAmount", orderInformation.getDiscountAmount());
+        adjustment.put("orderShippingAmount", orderInformation.getShippingAmount());
+        if (UtilValidate.isNotEmpty(adjustment)) {
             addAdjustments(cart, adjustment, delegator);
             // ship group info
-            if (UtilValidate.isNotEmpty(orderInformation.get("shipping_method"))) {
-                String ShippingMethod = orderInformation.get("shipping_method").toString();
+            if (UtilValidate.isNotEmpty(orderInformation.getShippingMethod())) {
+                String ShippingMethod = orderInformation.getShippingMethod();
                 String carrierPartyId = ShippingMethod.substring(0, ShippingMethod.indexOf("_")).toUpperCase();
                 if("FLATRATE".equalsIgnoreCase(carrierPartyId)) {
                     carrierPartyId = "_NA_";
@@ -318,7 +294,7 @@ public class MagentoHelper {
         }
         String paymentMethod = EntityUtilProperties.getPropertyValue("Magento.properties", "magento.payment.method", "EXT_OFFLINE", delegator);
         // set the cart payment method
-        cart.addPaymentAmount(paymentMethod, new BigDecimal((String) orderInformation.get("grand_total")));
+        cart.addPaymentAmount(paymentMethod, new BigDecimal(orderInformation.getGrandTotal()));
         // validate the payment methods
         CheckOutHelper coh = new CheckOutHelper(dispatcher, delegator, cart);
         Map validateResp = coh.validatePaymentMethods();
@@ -333,7 +309,7 @@ public class MagentoHelper {
         return "success";
     }
 
-    public static String[] setPartyInfo(String emailAddress, Map<String, ?> shipAddr, Map<String, ?> billAddr, Delegator delegator, LocalDispatcher dispatcher) throws GeneralException {
+    public static String[] setPartyInfo(String emailAddress, SalesOrderAddressEntity shipAddr, SalesOrderAddressEntity billAddr, Delegator delegator, LocalDispatcher dispatcher) throws GeneralException {
         String shipCmId = null;
         String billCmId = null;
         String partyId = null;
@@ -341,8 +317,8 @@ public class MagentoHelper {
         Map<String, Object> serviceCtx = new HashMap<String, Object>();
         // create new party
         if (partyId == null) {
-            serviceCtx.put("firstName", shipAddr.get("firstname"));
-            serviceCtx.put("lastName", shipAddr.get("lastname"));
+            serviceCtx.put("firstName", shipAddr.getFirstname());
+            serviceCtx.put("lastName", shipAddr.getLastname());
             serviceCtx.put("userLogin", system);
             Map<String, Object> personResp = dispatcher.runSync("createPerson", serviceCtx);
             if (!ServiceUtil.isSuccess(personResp)) {
@@ -369,25 +345,25 @@ public class MagentoHelper {
         return new String[] { partyId, shipCmId, billCmId };
     }
 
-    public static String createPartyAddress(String partyId, Map<String,?> addr, Delegator delegator, LocalDispatcher dispatcher) throws GeneralException {
+    public static String createPartyAddress(String partyId, SalesOrderAddressEntity addr, Delegator delegator, LocalDispatcher dispatcher) throws GeneralException {
         // check for zip+4
-        String postalCode = addr.get("postcode").toString();
+        String postalCode = addr.getPostcode();
         String postalCodeExt = null;
         if (postalCode.length() == 10 && postalCode.indexOf("-") != -1) {
             String[] strSplit = postalCode.split("-", 2);
             postalCode = strSplit[0];
             postalCodeExt = strSplit[1];
         }
-        String toName = ((String)addr.get("firstname"))+" "+((String)addr.get("lastname"));
+        String toName = (addr.getFirstname()+" "+(String)addr.getLastname());
         GenericValue system = delegator.findOne("UserLogin", false, UtilMisc.toMap("userLoginId", "system"));
         // prepare the create address map
         Map<String, Object> addrMap = new HashMap<String, Object>();
         addrMap.put("partyId", partyId);
         addrMap.put("toName", toName);
-        addrMap.put("address1", addr.get("street"));
-        addrMap.put("city", addr.get("city"));
-        addrMap.put("stateProvinceGeoId", addr.get("region_code").toString());
-        addrMap.put("countryGeoId", getCountryGeoId(addr.get("country_id").toString(), delegator));
+        addrMap.put("address1", addr.getStreet());
+        addrMap.put("city", addr.getCity());
+        addrMap.put("stateProvinceGeoId", addr.getRegion());
+        addrMap.put("countryGeoId", getCountryGeoId(addr.getCountryId(), delegator));
         addrMap.put("postalCode", postalCode);
         addrMap.put("postalCodeExt", postalCodeExt);
         addrMap.put("allowSolicitation", "Y");
@@ -615,12 +591,15 @@ public class MagentoHelper {
         // assign the item to its ship group
         cart.setItemShipGroupQty(cartItem, qty, groupIdx);
     }
-    public static Map<String, Object> prepareSalesOrderCondition(String magOrderId, String statusId, Timestamp fromDate, Timestamp thruDate) {
+    public static Filters prepareSalesOrderFilters(String magOrderId, String statusId, Timestamp fromDate, Timestamp thruDate) {
         DateFormat df = new SimpleDateFormat("yyyy-mm-dd HH:mm:ss");
-        Map<String, Object> condMap = new HashMap<String, Object>();
         String createdFrom = null;
         String createdTo = null;
-        
+
+        Filters filters = new Filters();
+        ComplexFilterArray complexFilterArray = new ComplexFilterArray();
+        ComplexFilter complexFilter = new ComplexFilter();
+
         if (UtilValidate.isNotEmpty(fromDate)) {
             Date from = (Date) fromDate;
             createdFrom = df.format(from);
@@ -630,26 +609,36 @@ public class MagentoHelper {
             createdTo = df.format(thru);
         }
 
-        if (UtilValidate.isNotEmpty(magOrderId)) {
-            Map<String, String> orderIdCondMap = UtilMisc.toMap("eq", magOrderId);
-            condMap.put("increment_id", orderIdCondMap);
-        }
-        Map<String, String> statusCondMap = new HashMap<String, String>();
-        if (UtilValidate.isNotEmpty(statusId)) {
-            statusCondMap = UtilMisc.toMap("eq", statusId);
-        }
-        condMap.put("status", statusCondMap);
-        Map<String, String> createdDateCondMap = new HashMap<String, String>();
+        AssociativeEntity statusCond = new AssociativeEntity();
+        statusCond.setKey("eq");
+        statusCond.setValue(statusId);
+        complexFilter.setKey("status");
+        complexFilter.setValue(statusCond);
+
+        AssociativeEntity createdDateCond = new AssociativeEntity();
         if (UtilValidate.isNotEmpty(createdFrom)) {
-            createdDateCondMap = UtilMisc.toMap("from", createdFrom);
+            createdDateCond.setKey("from");
+            createdDateCond.setValue(createdFrom);
         }
         if (UtilValidate.isNotEmpty(createdTo)) {
-            createdDateCondMap = UtilMisc.toMap("to", createdTo);
+            createdDateCond.setKey("to");
+            createdDateCond.setValue(createdTo);
         }
         if (UtilValidate.isNotEmpty(createdFrom) || UtilValidate.isNotEmpty(createdTo)) {
-            condMap.put("created_at", createdDateCondMap);
+            complexFilter.setKey("created_at");
+            complexFilter.setValue(createdDateCond);
         }
-        return condMap;
-    }
 
+        if (UtilValidate.isNotEmpty(magOrderId)) {
+            AssociativeEntity orderIncrementIdCond = new AssociativeEntity();
+            orderIncrementIdCond.setKey("eq");
+            orderIncrementIdCond.setValue(magOrderId);
+            complexFilter.setKey("increment_id");
+            complexFilter.setValue(orderIncrementIdCond);
+        }
+        complexFilterArray.getComplexObjectArray().add(complexFilter);
+        filters.setComplexFilter(complexFilterArray);
+
+        return filters;
+    }
 }
