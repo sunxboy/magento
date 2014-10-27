@@ -21,8 +21,8 @@ under the License.
 <services xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
         xsi:noNamespaceSchemaLocation="http://ofbiz.apache.org/dtds/services.xsd">
         
-    <service name="createPendingOrdersFromMagento" engine="java" auth="true" transaction-timeout="7200"
-            location="org.ofbizus.magento.MagentoServices" invoke="createPendingOrdersFromMagento">
+    <service name="importPendingOrdersFromMagento" engine="java" auth="true" transaction-timeout="7200"
+            location="org.ofbizus.magento.MagentoServices" invoke="importPendingOrdersFromMagento">
         <description></description>
         <attribute name="externalId" mode="IN" type="String" optional="true"/>
         <attribute name="fromDate" type="java.sql.Timestamp" mode="IN" optional="true"/>
@@ -31,10 +31,10 @@ under the License.
     <service name="createOrderFromMagento" engine="java" auth="true"
             location="org.ofbizus.magento.MagentoServices" invoke="createOrderFromMagento">
         <description></description>
-        <attribute name="orderInfo" mode="IN" type="Map"/>
+        <attribute name="orderInfo" mode="IN" type="Object"/>
     </service>
-    <service name="cancelOrderFromMagento" engine="java" auth="true"
-            location="org.ofbizus.magento.MagentoServices" invoke="cancelOrderFromMagento">
+    <service name="importCancelledOrdersFromMagento" engine="java" auth="true"
+            location="org.ofbizus.magento.MagentoServices" invoke="importCancelledOrdersFromMagento">
         <description></description>
         <attribute name="externalId" mode="IN" type="String" optional="true"/>
         <attribute name="fromDate" type="java.sql.Timestamp" mode="IN" optional="true"/>
