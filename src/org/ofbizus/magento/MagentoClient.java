@@ -2,6 +2,7 @@ package org.ofbizus.magento;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import magento.ArrayOfString;
 import magento.CatalogInventoryStockItemEntityArray;
@@ -19,6 +20,7 @@ import magento.LoginParam;
 import magento.LoginResponseParam;
 import magento.MageApiModelServerWsiHandlerPortType;
 import magento.MagentoService;
+import magento.OrderItemIdQty;
 import magento.OrderItemIdQtyArray;
 import magento.SalesOrderCancelRequestParam;
 import magento.SalesOrderCancelResponseParam;
@@ -31,6 +33,8 @@ import magento.SalesOrderListEntity;
 import magento.SalesOrderListEntityArray;
 import magento.SalesOrderListRequestParam;
 import magento.SalesOrderListResponseParam;
+import magento.SalesOrderShipmentAddTrackRequestParam;
+import magento.SalesOrderShipmentAddTrackResponseParam;
 import magento.SalesOrderShipmentCreateRequestParam;
 import magento.SalesOrderShipmentCreateResponseParam;
 
@@ -163,11 +167,21 @@ public class MagentoClient {
 
         return isCancelled;
     }
-    public String createShipment(String orderIncrementId) {
+    public String createShipment(String orderIncrementId, Map<Integer, Double> orderItemQtyMap) {
         String shipmentIncrementId = null;
         String magentoSessionId = getMagentoSession();
         SalesOrderShipmentCreateRequestParam salesOrderShipmentCreateRequestParam = new SalesOrderShipmentCreateRequestParam();
+
         OrderItemIdQtyArray orderItemIdQtyArray = new OrderItemIdQtyArray();
+        if (UtilValidate.isNotEmpty(orderItemQtyMap)) {
+            OrderItemIdQty orderItemIdQty = new OrderItemIdQty();
+            for (int orderItemId : orderItemQtyMap.keySet()) {
+                orderItemIdQty.setOrderItemId(orderItemId);
+                orderItemIdQty.setQty(orderItemQtyMap.get(orderItemId));
+            }
+            orderItemIdQtyArray.getComplexObjectArray().add(orderItemIdQty);
+        }
+
         salesOrderShipmentCreateRequestParam.setSessionId(magentoSessionId);
         salesOrderShipmentCreateRequestParam.setOrderIncrementId(orderIncrementId);
         salesOrderShipmentCreateRequestParam.setEmail(1);
@@ -178,6 +192,22 @@ public class MagentoClient {
         SalesOrderShipmentCreateResponseParam salesOrderShipmentCreateResponseParam = port.salesOrderShipmentCreate(salesOrderShipmentCreateRequestParam);
         shipmentIncrementId = salesOrderShipmentCreateResponseParam.getResult();
         return shipmentIncrementId;
+    }
+    public int addTrack(String shipmentIncrementId, String carrierPartyId, String carrierTitle, String trackNumber) {
+        int isTrackingCodeAdded = 0;
+        String magentoSessionId = getMagentoSession();
+        SalesOrderShipmentAddTrackRequestParam requestParam = new SalesOrderShipmentAddTrackRequestParam();
+        requestParam.setSessionId(magentoSessionId);
+        requestParam.setShipmentIncrementId(shipmentIncrementId);
+        requestParam.setCarrier(carrierPartyId);
+        requestParam.setTitle(carrierTitle);
+        requestParam.setTrackNumber(trackNumber);
+
+        MagentoService mage = new MagentoService();
+        MageApiModelServerWsiHandlerPortType port = mage.getMageApiModelServerWsiHandlerPort();
+        SalesOrderShipmentAddTrackResponseParam responseParam = port.salesOrderShipmentAddTrack(requestParam);
+        isTrackingCodeAdded = responseParam.getResult();
+        return isTrackingCodeAdded;
     }
     public String createInvoice(String orderIncrementId) {
         String invoiceIncrementId = null;
