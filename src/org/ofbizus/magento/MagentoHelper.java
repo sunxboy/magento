@@ -152,6 +152,7 @@ public class MagentoHelper {
                 productData.put("internalName", item.getName());
                 productData.put("productName", item.getName());
                 productData.put("userLogin", system);
+                productData.put("orderItemId", item.getItemId());
                 String idValue = item.getProductId();
 
                 // Handling Magento's Product Id.
@@ -579,6 +580,7 @@ public class MagentoHelper {
         int idx = cart.addItemToEnd(productId, null, qty, null, null, attrs, prodCatalogId, null, dispatcher, Boolean.FALSE, Boolean.TRUE, Boolean.TRUE, Boolean.TRUE);
         ShoppingCartItem cartItem = cart.findCartItem(idx);
         cartItem.setQuantity(qty, dispatcher, cart, true, false);
+        cartItem.setExternalId((String)item.get("orderItemId"));
         // locate the price verify it matches the expected price
         BigDecimal cartPrice = cartItem.getBasePrice();
         cartPrice = cartPrice.setScale(ShoppingCart.scale, ShoppingCart.rounding);
