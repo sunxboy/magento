@@ -174,12 +174,12 @@ public class MagentoClient {
 
         OrderItemIdQtyArray orderItemIdQtyArray = new OrderItemIdQtyArray();
         if (UtilValidate.isNotEmpty(orderItemQtyMap)) {
-            OrderItemIdQty orderItemIdQty = new OrderItemIdQty();
             for (int orderItemId : orderItemQtyMap.keySet()) {
+                OrderItemIdQty orderItemIdQty = new OrderItemIdQty();
                 orderItemIdQty.setOrderItemId(orderItemId);
                 orderItemIdQty.setQty(orderItemQtyMap.get(orderItemId));
+                orderItemIdQtyArray.getComplexObjectArray().add(orderItemIdQty);
             }
-            orderItemIdQtyArray.getComplexObjectArray().add(orderItemIdQty);
         }
 
         salesOrderShipmentCreateRequestParam.setSessionId(magentoSessionId);
@@ -209,10 +209,19 @@ public class MagentoClient {
         isTrackingCodeAdded = responseParam.getResult();
         return isTrackingCodeAdded;
     }
-    public String createInvoice(String orderIncrementId) {
+    public String createInvoice(String orderIncrementId, Map<Integer, Double> orderItemQtyMap) {
         String invoiceIncrementId = null;
         String magentoSessionId = getMagentoSession();
         OrderItemIdQtyArray orderItemIdQtyArray = new OrderItemIdQtyArray();
+        if (UtilValidate.isNotEmpty(orderItemQtyMap)) {
+            for (int orderItemId : orderItemQtyMap.keySet()) {
+                OrderItemIdQty orderItemIdQty = new OrderItemIdQty();
+                orderItemIdQty.setOrderItemId(orderItemId);
+                orderItemIdQty.setQty(orderItemQtyMap.get(orderItemId));
+                orderItemIdQtyArray.getComplexObjectArray().add(orderItemIdQty);
+            }
+        }
+
         SalesOrderInvoiceCreateRequestParam salesOrderInvoiceCreateRequestParam = new SalesOrderInvoiceCreateRequestParam();
         salesOrderInvoiceCreateRequestParam.setSessionId(magentoSessionId);
         salesOrderInvoiceCreateRequestParam.setInvoiceIncrementId(orderIncrementId);
