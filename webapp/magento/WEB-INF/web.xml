@@ -5,11 +5,11 @@
 
     <context-param>
         <param-name>webSiteId</param-name>
-        <param-value>EXAMPLE</param-value>
+        <param-value>MAGENTO</param-value>
         <description>A unique ID used to look up the WebSite entity</description>
     </context-param>
     <context-param>
-        <param-name>localDispatcherName</param-name><param-value>example</param-value>
+        <param-name>localDispatcherName</param-name><param-value>magento</param-value>
         <description>A unique name used to identify/recognize the local dispatcher for the Service Engine</description>
     </context-param>
     <context-param>
@@ -18,7 +18,7 @@
     </context-param>
     <context-param>
         <param-name>mainDecoratorLocation</param-name>
-        <param-value>component://magento/widget/CommonScreens.xml</param-value>
+        <param-value>component://magento/widget/magento/CommonScreens.xml</param-value>
         <description>The location of the main-decorator screen to use for this webapp; referred to as a context variable in screen def XML files.</description>
     </context-param>
     <context-param>

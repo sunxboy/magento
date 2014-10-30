@@ -39,7 +39,7 @@ under the License.
     <webapp name="magento"
         title="Magento"
         server="default-server"
-        base-permission="MAGENTO"
+        base-permission="OFBTOOLS"
         location="webapp/magento"
         mount-point="/magento"/>
 </ofbiz-component>

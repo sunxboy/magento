@@ -78,4 +78,21 @@ under the License.
         <override name="productId" optional="false"/>
         <override name="facilityId" optional="false"/>
     </service>
+    <service name="createMagentoConfiguration" engine="entity-auto" default-entity-name="MagentoConfiguration" invoke="create" auth="true">
+        <description>Create Magento Configuration</description>
+        <auto-attributes mode="OUT" entity-name="MagentoConfiguration" include="pk" optional="false"/>
+        <auto-attributes mode="IN" entity-name="MagentoConfiguration" include="nonpk" optional="true"/>
+    </service>
+    <service name="updateMagentoConfiguration" engine="entity-auto" default-entity-name="MagentoConfiguration" invoke="update" auth="true">
+        <description>Create Magento Configuration</description>
+        <auto-attributes mode="IN" entity-name="MagentoConfiguration" include="pk" optional="false"/>
+        <auto-attributes mode="IN" entity-name="MagentoConfiguration" include="nonpk" optional="true"/>
+    </service>
+    <service name="createUpdateMagentoConfiguration" engine="java" auth="true"
+            location="org.ofbizus.magento.MagentoServices" invoke="createUpdateMagentoConfiguration">
+        <description>Create Update Magento Configuration</description>
+        <implements service="createMagentoConfiguration"/>
+        <implements service="updateMagentoConfiguration"/>
+        <override name="magentoConfigurationId" optional="true"/>
+    </service>
 </services>

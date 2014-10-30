@@ -1,5 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <resource xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <property key="MagentoApplication">
+        <value xml:lang="en">Magento Application</value>
+    </property>
+    <property key="MagentoCompanyName">
+        <value xml:lang="en">OFBiz: Magento</value>
+    </property>
+    <property key="MagentoCompanySubtitle">
+        <value xml:lang="en">Part of the Open For Business Family of Open Source Software</value>
+    </property>
+    <property key="MagentoMagentoConfiguration">
+        <value xml:lang="en">Magento Configuration</value>
+    </property>
     <property key="MagentoPleaseEnterFacilityLocation">
         <value xml:lang="en">Please enter facility location.</value>
     </property>
@@ -8,5 +20,11 @@
     </property>
     <property key="MagentoQtyRecRejCanNotBeZero">
         <value xml:lang="en">Both quantity to accept and quantity to reject cannot be zero.</value>
+    </property>
+    <property key="MagentoSoapUserName">
+        <value xml:lang="en">SOAP User Name</value>
+    </property>
+    <property key="MagentoStore">
+        <value xml:lang="en">Store</value>
     </property>
 </resource>

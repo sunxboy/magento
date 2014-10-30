@@ -23,4 +23,22 @@ under the License.
          can be found in the following xml file. A component can override the
          elements found in the common-controller.xml file. -->
     <include location="component://common/webcommon/WEB-INF/common-controller.xml"/>
+
+    <request-map uri="main">
+        <security https="true" auth="true"/>
+        <response name="success" type="view" value="MagentoConfiguration"/>
+    </request-map>
+    <request-map uri="MagentoConfiguration">
+        <security https="true" auth="true"/>
+        <response name="success" type="view" value="MagentoConfiguration"/>
+    </request-map>
+    <request-map uri="createUpdateMagentoConfiguration">
+        <security https="true" auth="true"/>
+        <event type="service" invoke="createUpdateMagentoConfiguration"/>
+        <response name="success" type="view" value="MagentoConfiguration"/>
+        <response name="error" type="view" value="MagentoConfiguration"/>
+    </request-map>
+
+    <view-map name="MagentoConfiguration" type="screen" page="component://magento/widget/magento/MagentoScreens.xml#MagentoConfiguration"/>
+
 </site-conf>
