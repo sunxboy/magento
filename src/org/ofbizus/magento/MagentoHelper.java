@@ -145,6 +145,15 @@ public class MagentoHelper {
         HashMap<String, Object> productData = null;
         GenericValue magentoProduct = null;
         BigDecimal price = null;
+
+        HashMap<String, SalesOrderItemEntity> items = new HashMap<String, SalesOrderItemEntity>();
+        for (SalesOrderItemEntity orderItem : orderItems) {
+            if ("configurable".equals(orderItem.getProductType())) {
+                items.put(orderItem.getSku(), orderItem);
+            }
+            
+        }
+
         for (SalesOrderItemEntity item : orderItems) {
             try {
                 productData = new HashMap<String, Object>();
@@ -152,7 +161,6 @@ public class MagentoHelper {
                 productData.put("internalName", item.getName());
                 productData.put("productName", item.getName());
                 productData.put("userLogin", system);
-                productData.put("orderItemId", item.getItemId());
                 String idValue = item.getProductId();
 
                 // Handling Magento's Product Id.
@@ -198,6 +206,8 @@ public class MagentoHelper {
                             productData.put("requireInventory", "N");
                         }
                     }*/
+                    
+                    
                     Map<String, Object> product = dispatcher.runSync("createProduct", productData);
                     if (ServiceUtil.isSuccess(product)) {
                         productData.clear();
@@ -250,6 +260,15 @@ public class MagentoHelper {
                         }
                     }
                 }
+                if ("simple".equals(item.getProductType())) {
+                    SalesOrderItemEntity orderItem = items.get(item.getSku());
+                    if (UtilValidate.isNotEmpty(orderItem)) {
+                        productData.put("orderItemId", orderItem.getItemId());
+                    } else {
+                productData.put("orderItemId", item.getItemId());
+                    }
+                }
+
                 addItem(cart, productData, prodCatalogId, 0, delegator, dispatcher);
             } catch (ItemNotFoundException e) {
                 Debug.logError("Unable to obtain GoodIdentification entity value of the Magento id for product [" + orderInformation.getParentId() + "]: " + e.getMessage(), module);
@@ -592,6 +611,74 @@ public class MagentoHelper {
         }
         // assign the item to its ship group
         cart.setItemShipGroupQty(cartItem, qty, groupIdx);
+    }
+    public static String completeOrderInMagento (LocalDispatcher dispatcher, Delegator delegator, String orderId) {
+        try {
+            GenericValue orderHeader = delegator.findOne("OrderHeader", false, UtilMisc.toMap("orderId", orderId));
+            if (UtilValidate.isNotEmpty(orderHeader)) {
+                String orderIncrementId = orderHeader.getString("externalId");
+                MagentoClient magentoClient = new MagentoClient(dispatcher, delegator);
+                List<GenericValue> orderShipmentList = delegator.findList("OrderShipment", EntityCondition.makeCondition("orderId", orderId), null, null, null, false);
+                if (UtilValidate.isNotEmpty(orderShipmentList)) {
+                    List<String> shipGroupSeqIdList = EntityUtil.getFieldListFromEntityList(orderShipmentList, "shipGroupSeqId", true);
+                    if (UtilValidate.isNotEmpty(shipGroupSeqIdList)) {
+                        for (String shipGroupSeqId : shipGroupSeqIdList) {
+                            String shipmentId = null;
+                            Map<Integer, Double> orderItemQtyMap = new HashMap<Integer, Double>();
+                            for (GenericValue orderShipment : orderShipmentList) {
+                                if ((orderShipment.getString("shipGroupSeqId")).equals(shipGroupSeqId)) {
+                                    if (UtilValidate.isEmpty(shipmentId)) {
+                                        shipmentId = orderShipment.getString("shipmentId");
+                                    }
+                                    GenericValue orderItem = delegator.findOne("OrderItem", false, UtilMisc.toMap("orderId", orderId, "orderItemSeqId", orderShipment.getString("orderItemSeqId")));
+                                    Integer externalId = (Integer) ObjectType.simpleTypeConvert(orderItem.get("externalId"), "Integer", null, null);
+                                    orderItemQtyMap.put(externalId, orderShipment.getDouble("quantity"));
+                                }
+                            }
+                            String shipmentIncrementId = magentoClient.createShipment(orderIncrementId, orderItemQtyMap);
+                            if (UtilValidate.isNotEmpty(shipmentIncrementId)) {
+                            }
+
+                            List<GenericValue> shipmentPackageRouteSegList = delegator.findList("ShipmentPackageRouteSeg", EntityCondition.makeCondition("shipmentId", shipmentId), UtilMisc.toSet("trackingCode"), null, null, false);
+                            if (UtilValidate.isNotEmpty(shipmentPackageRouteSegList)) {
+                                for (GenericValue shipmentPackageRouteSeg : shipmentPackageRouteSegList) {
+                                    GenericValue shipmentRoutSegment = delegator.findOne("ShipmentRouteSegment", false, UtilMisc.toMap("shipmentId", shipmentId, "shipmentRouteSegmentId", shipmentPackageRouteSeg.getString("shipmentRouteSegmentId")));
+                                    String trackingCode = shipmentRoutSegment.getString("trackingCode");
+                                    String carrierPartyId = shipmentRoutSegment.getString("carrierPartyId");
+                                    if (UtilValidate.isEmpty(trackingCode)) {
+                                        trackingCode = "_NA_";
+                                    }
+                                    if (UtilValidate.isNotEmpty(carrierPartyId)) {
+                                        carrierPartyId = "_NA_";
+                                    }
+                                    GenericValue carrier = delegator.findOne("PartyGroup", false, UtilMisc.toMap("partyId", carrierPartyId));
+                                    String carrierTitle = null;
+                                    if (UtilValidate.isNotEmpty(carrier)) {
+                                        carrierTitle = carrier.getString("groupName");
+                                    }
+                                    int istrackingCodeAdded = magentoClient.addTrack(shipmentIncrementId, carrierPartyId, carrierTitle, trackingCode);
+                                    if (1 == istrackingCodeAdded) {
+                                        Debug.logInfo("============Tracking code is added successfully in Magento side for shipment # "+shipmentId+".==============================", module);
+                                    }
+                                }
+                            }
+
+                            String invoiceIncrementId = magentoClient.createInvoice(orderIncrementId, orderItemQtyMap);
+                            if (UtilValidate.isNotEmpty(invoiceIncrementId)) {
+                                Debug.log("============order #"+orderIncrementId+"=======invoiceIncrementId="+invoiceIncrementId+"==========================");
+                            }
+                        }
+                    }
+                }
+            }
+        } catch (GenericEntityException gee) {
+            Debug.logError(gee.getMessage(), module);
+            return null;
+        } catch (GeneralException ge) {
+            Debug.logError(ge.getMessage(), module);
+            return null;
+        }
+        return "Success";
     }
     public static Filters prepareSalesOrderFilters(String magOrderId, String statusId, Timestamp fromDate, Timestamp thruDate) {
         DateFormat df = new SimpleDateFormat("yyyy-mm-dd HH:mm:ss");

@@ -29,7 +29,7 @@ import org.ofbiz.service.ModelService;
 import org.ofbiz.service.ServiceUtil;
 
 public class MagentoServices {
-    public static final String module = MagentoClient.class.getName();
+    public static final String module = MagentoServices.class.getName();
 
     // Import orders from magento
     public Map<String, Object> importPendingOrdersFromMagento(DispatchContext dctx, Map<String, ?> context) {
@@ -179,25 +179,31 @@ public class MagentoServices {
         Map<String, Object> response = ServiceUtil.returnSuccess();
         Delegator delegator = dctx.getDelegator();
         LocalDispatcher dispatcher = dctx.getDispatcher();
-        String orderIncrementId = null;
         String orderId = (String) context.get("orderId");
         try {
+            GenericValue system = delegator.findOne("UserLogin", false, UtilMisc.toMap("userLoginId", "system"));
+            if (UtilValidate.isNotEmpty(orderId)) {
             GenericValue orderHeader = delegator.findOne("OrderHeader", false, UtilMisc.toMap("orderId", orderId));
-            if (UtilValidate.isNotEmpty(orderHeader) && !"ORDER_COMPLETED".equals(orderHeader.getString("syncStatusId")) && UtilValidate.isNotEmpty(orderHeader.getString("externalId"))) {
-                orderIncrementId = orderHeader.getString("externalId");
-                MagentoClient magentoClient = new MagentoClient(dispatcher, delegator);
-                String shipmentIncrementId = magentoClient.createShipment(orderIncrementId);
-                if (UtilValidate.isNotEmpty(shipmentIncrementId)) {
-                    Debug.log("============order #"+orderIncrementId+"=======shipmentIncrementId="+shipmentIncrementId+"==========================");
+            if (UtilValidate.isEmpty(orderHeader) || !"MAGENTO_SALE_CHANNEL".equals(orderHeader.getString("salesChannelEnumId"))) {
+                Debug.logInfo("Not a Magento order, doing nothing with orderId #"+ orderId, module);
+                return response;
+            } else if ("ORDER_COMPLETED".equals(orderHeader.getString("statusId")) && "ORDER_COMPLETED".equals(orderHeader.getString("syncStatusId"))){
+                Debug.logInfo("Order with order Id # "+orderId+" is already marked as completed in Magento.", module);
+                return response;
+            } else {
+                String resp = MagentoHelper.completeOrderInMagento(dispatcher, delegator, orderId);
+                if (UtilValidate.isNotEmpty(resp)) {
+                    dispatcher.runSync("updateOrderHeader", UtilMisc.toMap("orderId", orderId, "syncStatusId", "ORDER_COMPLETED", "userLogin", system));
+                    Debug.logInfo("Order with orderId # "+orderId+" is successfully marked as completed in Magento.", module);
                 }
-                String invoiceIncrementId = magentoClient.createInvoice(orderIncrementId);
-                if (UtilValidate.isNotEmpty(invoiceIncrementId)) {
-                    Debug.log("============order #"+orderIncrementId+"=======invoiceIncrementId="+invoiceIncrementId+"==========================");
-                }
+            }
             }
         } catch (GenericEntityException gee) {
             Debug.logError(gee.getMessage(), module);
             return ServiceUtil.returnError(gee.getMessage());
+        } catch (GenericServiceException gse) {
+            Debug.logError(gse.getMessage(), module);
+            return ServiceUtil.returnError(gse.getMessage());
         }
         return response;
     }
