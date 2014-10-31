@@ -642,7 +642,7 @@ public class MagentoHelper {
                                     String carrierTitle = null;
                                     for (GenericValue shipmentPackageRouteSeg : shipmentPackageRouteSegList) {
                                         GenericValue shipmentRoutSegment = delegator.findOne("ShipmentRouteSegment", false, UtilMisc.toMap("shipmentId", shipmentId, "shipmentRouteSegmentId", shipmentPackageRouteSeg.getString("shipmentRouteSegmentId")));
-                                        String trackingCode = shipmentRoutSegment.getString("trackingCode");
+                                        String trackingCode = shipmentPackageRouteSeg.getString("trackingCode");
                                         String carrierPartyId = shipmentRoutSegment.getString("carrierPartyId");
                                         if (UtilValidate.isEmpty(trackingCode)) {
                                             continue;
