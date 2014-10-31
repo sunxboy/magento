@@ -637,8 +637,6 @@ public class MagentoHelper {
                             }
                             String shipmentIncrementId = magentoClient.createShipment(orderIncrementId, orderItemQtyMap);
                             if (UtilValidate.isNotEmpty(shipmentIncrementId)) {
-                            }
-
                             List<GenericValue> shipmentPackageRouteSegList = delegator.findList("ShipmentPackageRouteSeg", EntityCondition.makeCondition("shipmentId", shipmentId), UtilMisc.toSet("trackingCode"), null, null, false);
                             if (UtilValidate.isNotEmpty(shipmentPackageRouteSegList)) {
                                 for (GenericValue shipmentPackageRouteSeg : shipmentPackageRouteSegList) {
@@ -666,6 +664,7 @@ public class MagentoHelper {
                             String invoiceIncrementId = magentoClient.createInvoice(orderIncrementId, orderItemQtyMap);
                             if (UtilValidate.isNotEmpty(invoiceIncrementId)) {
                                 Debug.log("============order #"+orderIncrementId+"=======invoiceIncrementId="+invoiceIncrementId+"==========================");
+                            }
                             }
                         }
                     }
