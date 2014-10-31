@@ -637,34 +637,34 @@ public class MagentoHelper {
                             }
                             String shipmentIncrementId = magentoClient.createShipment(orderIncrementId, orderItemQtyMap);
                             if (UtilValidate.isNotEmpty(shipmentIncrementId)) {
-                            List<GenericValue> shipmentPackageRouteSegList = delegator.findList("ShipmentPackageRouteSeg", EntityCondition.makeCondition("shipmentId", shipmentId), UtilMisc.toSet("trackingCode"), null, null, false);
-                            if (UtilValidate.isNotEmpty(shipmentPackageRouteSegList)) {
-                                for (GenericValue shipmentPackageRouteSeg : shipmentPackageRouteSegList) {
-                                    GenericValue shipmentRoutSegment = delegator.findOne("ShipmentRouteSegment", false, UtilMisc.toMap("shipmentId", shipmentId, "shipmentRouteSegmentId", shipmentPackageRouteSeg.getString("shipmentRouteSegmentId")));
-                                    String trackingCode = shipmentRoutSegment.getString("trackingCode");
-                                    String carrierPartyId = shipmentRoutSegment.getString("carrierPartyId");
-                                    if (UtilValidate.isEmpty(trackingCode)) {
-                                        trackingCode = "_NA_";
-                                    }
-                                    if (UtilValidate.isNotEmpty(carrierPartyId)) {
-                                        carrierPartyId = "_NA_";
-                                    }
-                                    GenericValue carrier = delegator.findOne("PartyGroup", false, UtilMisc.toMap("partyId", carrierPartyId));
-                                    String carrierTitle = null;
-                                    if (UtilValidate.isNotEmpty(carrier)) {
-                                        carrierTitle = carrier.getString("groupName");
-                                    }
-                                    int istrackingCodeAdded = magentoClient.addTrack(shipmentIncrementId, carrierPartyId, carrierTitle, trackingCode);
-                                    if (1 == istrackingCodeAdded) {
-                                        Debug.logInfo("============Tracking code is added successfully in Magento side for shipment # "+shipmentId+".==============================", module);
+                                List<GenericValue> shipmentPackageRouteSegList = delegator.findList("ShipmentPackageRouteSeg", EntityCondition.makeCondition("shipmentId", shipmentId), UtilMisc.toSet("trackingCode"), null, null, false);
+                                if (UtilValidate.isNotEmpty(shipmentPackageRouteSegList)) {
+                                    for (GenericValue shipmentPackageRouteSeg : shipmentPackageRouteSegList) {
+                                        GenericValue shipmentRoutSegment = delegator.findOne("ShipmentRouteSegment", false, UtilMisc.toMap("shipmentId", shipmentId, "shipmentRouteSegmentId", shipmentPackageRouteSeg.getString("shipmentRouteSegmentId")));
+                                        String trackingCode = shipmentRoutSegment.getString("trackingCode");
+                                        String carrierPartyId = shipmentRoutSegment.getString("carrierPartyId");
+                                        if (UtilValidate.isEmpty(trackingCode)) {
+                                            trackingCode = "_NA_";
+                                        }
+                                        if (UtilValidate.isNotEmpty(carrierPartyId)) {
+                                            carrierPartyId = "_NA_";
+                                        }
+                                        GenericValue carrier = delegator.findOne("PartyGroup", false, UtilMisc.toMap("partyId", carrierPartyId));
+                                        String carrierTitle = null;
+                                        if (UtilValidate.isNotEmpty(carrier)) {
+                                            carrierTitle = carrier.getString("groupName");
+                                        }
+                                        int istrackingCodeAdded = magentoClient.addTrack(shipmentIncrementId, carrierPartyId, carrierTitle, trackingCode);
+                                        if (1 == istrackingCodeAdded) {
+                                            Debug.logInfo("============Tracking code is added successfully in Magento side for shipment # "+shipmentId+".==============================", module);
+                                        }
                                     }
                                 }
-                            }
 
-                            String invoiceIncrementId = magentoClient.createInvoice(orderIncrementId, orderItemQtyMap);
-                            if (UtilValidate.isNotEmpty(invoiceIncrementId)) {
-                                Debug.log("============order #"+orderIncrementId+"=======invoiceIncrementId="+invoiceIncrementId+"==========================");
-                            }
+                                String invoiceIncrementId = magentoClient.createInvoice(orderIncrementId, orderItemQtyMap);
+                                if (UtilValidate.isNotEmpty(invoiceIncrementId)) {
+                                    Debug.log("============order #"+orderIncrementId+"=======invoiceIncrementId="+invoiceIncrementId+"==========================");
+                                }
                             }
                         }
                     }
