@@ -254,8 +254,9 @@ public class MagentoHelper {
                                 serviceContext.put("locationSeqId", productFacilityLocation.getString("locationSeqId"));
                             }
                             serviceContext.put("quantityAccepted", inventoryCount);
+                            serviceContext.put("quantityRejected", 0);
                             serviceContext.put("inventoryItemTypeId", "NON_SERIAL_INV_ITEM");
-                            dispatcher.runSync("receiveInventoryProductFromMagento",serviceContext);
+                            dispatcher.runSync("receiveInventoryProduct",serviceContext);
                             serviceContext.clear();
                         }
                     }
