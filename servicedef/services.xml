@@ -55,29 +55,6 @@ under the License.
         <description>Srvice used to update inventory count in magento.</description>
         <attribute name="productId" mode="IN" type="String" optional="false"/>
     </service>
-    
-    <service name="receiveInventoryProductFromMagento" engine="simple" transaction-timeout="600"
-            location="component://magento/script/org/ofbizus/magento/MagentoServices.xml" invoke="receiveInventoryProduct" auth="true">
-        <description>Receive Inventory In Ofbiz From Magento</description>
-        <permission-service service-name="facilityGenericPermission" main-action="CREATE"/>
-        <auto-attributes entity-name="InventoryItem" include="nonpk" mode="IN" optional="true">
-            <exclude field-name="availableToPromiseTotal"/>
-            <exclude field-name="quantityOnHandTotal"/>
-        </auto-attributes>
-        <auto-attributes entity-name="InventoryItemDetail" include="nonpk" mode="IN" optional="true"/>
-        <auto-attributes entity-name="ShipmentReceipt" include="nonpk" mode="IN" optional="true"/>
-        <attribute name="inventoryItemDetailSeqId" type="String" mode="IN" optional="true"/>
-        <attribute name="priorityOrderId" type="String" mode="IN" optional="true"/>
-        <attribute name="priorityOrderItemSeqId" type="String" mode="IN" optional="true"/>
-        <attribute name="currentInventoryItemId" type="String" mode="IN" optional="true"><!-- allow this to be passed in to update an existing InventoryItem, and all else is the same; if not passed in a new one will be created --></attribute>
-        <attribute name="inventoryItemId" type="String" mode="OUT" optional="true"></attribute>
-        <attribute name="orderCurrencyUnitPrice" type="String" mode="IN" optional="true"/>
-        <override name="quantityAccepted" optional="true"/>
-        <override name="quantityRejected" optional="false" default-value="0"/>
-        <override name="inventoryItemTypeId" optional="false"/>
-        <override name="productId" optional="false"/>
-        <override name="facilityId" optional="false"/>
-    </service>
     <service name="createMagentoConfiguration" engine="entity-auto" default-entity-name="MagentoConfiguration" invoke="create" auth="true">
         <description>Create Magento Configuration</description>
         <auto-attributes mode="OUT" entity-name="MagentoConfiguration" include="pk" optional="false"/>
