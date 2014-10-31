@@ -637,22 +637,24 @@ public class MagentoHelper {
                             }
                             String shipmentIncrementId = magentoClient.createShipment(orderIncrementId, orderItemQtyMap);
                             if (UtilValidate.isNotEmpty(shipmentIncrementId)) {
-                                List<GenericValue> shipmentPackageRouteSegList = delegator.findList("ShipmentPackageRouteSeg", EntityCondition.makeCondition("shipmentId", shipmentId), UtilMisc.toSet("trackingCode"), null, null, false);
+                                List<GenericValue> shipmentPackageRouteSegList = delegator.findList("ShipmentPackageRouteSeg", EntityCondition.makeCondition("shipmentId", shipmentId), UtilMisc.toSet("shipmentRouteSegmentId", "trackingCode"), null, null, false);
                                 if (UtilValidate.isNotEmpty(shipmentPackageRouteSegList)) {
+                                    String carrierTitle = null;
                                     for (GenericValue shipmentPackageRouteSeg : shipmentPackageRouteSegList) {
                                         GenericValue shipmentRoutSegment = delegator.findOne("ShipmentRouteSegment", false, UtilMisc.toMap("shipmentId", shipmentId, "shipmentRouteSegmentId", shipmentPackageRouteSeg.getString("shipmentRouteSegmentId")));
                                         String trackingCode = shipmentRoutSegment.getString("trackingCode");
                                         String carrierPartyId = shipmentRoutSegment.getString("carrierPartyId");
                                         if (UtilValidate.isEmpty(trackingCode)) {
-                                            trackingCode = "_NA_";
+                                            continue;
                                         }
-                                        if (UtilValidate.isNotEmpty(carrierPartyId)) {
-                                            carrierPartyId = "_NA_";
-                                        }
+                                        if (UtilValidate.isEmpty(carrierPartyId) || "_NA_".equals(carrierPartyId)) {
+                                            carrierPartyId = "custom";
+                                            carrierTitle = "Flat Rate";
+                                        } else {
                                         GenericValue carrier = delegator.findOne("PartyGroup", false, UtilMisc.toMap("partyId", carrierPartyId));
-                                        String carrierTitle = null;
                                         if (UtilValidate.isNotEmpty(carrier)) {
                                             carrierTitle = carrier.getString("groupName");
+                                        }
                                         }
                                         int istrackingCodeAdded = magentoClient.addTrack(shipmentIncrementId, carrierPartyId, carrierTitle, trackingCode);
                                         if (1 == istrackingCodeAdded) {
