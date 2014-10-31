@@ -651,10 +651,10 @@ public class MagentoHelper {
                                             carrierPartyId = "custom";
                                             carrierTitle = "Flat Rate";
                                         } else {
-                                        GenericValue carrier = delegator.findOne("PartyGroup", false, UtilMisc.toMap("partyId", carrierPartyId));
-                                        if (UtilValidate.isNotEmpty(carrier)) {
-                                            carrierTitle = carrier.getString("groupName");
-                                        }
+                                            GenericValue carrier = delegator.findOne("PartyGroup", false, UtilMisc.toMap("partyId", carrierPartyId));
+                                            if (UtilValidate.isNotEmpty(carrier)) {
+                                                carrierTitle = carrier.getString("groupName");
+                                            }
                                         }
                                         int istrackingCodeAdded = magentoClient.addTrack(shipmentIncrementId, carrierPartyId, carrierTitle, trackingCode);
                                         if (1 == istrackingCodeAdded) {
