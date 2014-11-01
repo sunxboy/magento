@@ -113,6 +113,10 @@ public class MagentoClient {
 
     // Fetches sales order info from magento
     public SalesOrderEntity getSalesOrderInfo(String orderIncrementId) {
+        if (UtilValidate.isEmpty(orderIncrementId)) {
+            Debug.logInfo("Empty orderIncrementId.", module);
+            return null;
+        }
         String magentoSessionId = getMagentoSession();
         SalesOrderInfoRequestParam salesOrderInfoRequestParam = new SalesOrderInfoRequestParam();
         salesOrderInfoRequestParam.setSessionId(magentoSessionId);
@@ -126,6 +130,10 @@ public class MagentoClient {
     }
 
     public CatalogInventoryStockItemEntityArray getCatalogInventoryStockItemList (String sku) {
+        if (UtilValidate.isEmpty(sku)) {
+            Debug.logInfo("Empty product's sku.", module);
+            return null;
+        }
         String magentoSessionId = getMagentoSession();
         MagentoService mage = new MagentoService();
         CatalogInventoryStockItemListRequestParam catalogInventoryStockItemListRequestParam = new CatalogInventoryStockItemListRequestParam();
@@ -140,6 +148,10 @@ public class MagentoClient {
     }
 
     public List<DirectoryRegionEntity> getDirectoryRegionList(String countryGeoCode) {
+        if (UtilValidate.isEmpty(countryGeoCode)) {
+            Debug.logInfo("Empty countryGeoCode.", module);
+            return null;
+        }
         List<DirectoryRegionEntity> directoryRegionList = new ArrayList<DirectoryRegionEntity>();
         String magentoSessionId = getMagentoSession();
         DirectoryRegionListRequestParam directoryRegionListRequestParam = new DirectoryRegionListRequestParam();
@@ -154,6 +166,10 @@ public class MagentoClient {
         return directoryRegionList;
     }
     public int cancelSalesOrder(String orderIncrementId) {
+        if (UtilValidate.isEmpty(orderIncrementId)) {
+            Debug.logInfo("Empty orderIncrementId.", module);
+            return 0;
+        }
         int isCancelled = 0;
         String magentoSessionId = getMagentoSession();
         SalesOrderCancelRequestParam salesOrderCancelRequestParam = new SalesOrderCancelRequestParam();
@@ -168,6 +184,10 @@ public class MagentoClient {
         return isCancelled;
     }
     public String createShipment(String orderIncrementId, Map<Integer, Double> orderItemQtyMap) {
+        if (UtilValidate.isEmpty(orderIncrementId)) {
+            Debug.logInfo("Empty orderIncrementId. Not going to create shipment.", module);
+            return null;
+        }
         String shipmentIncrementId = null;
         String magentoSessionId = getMagentoSession();
         SalesOrderShipmentCreateRequestParam salesOrderShipmentCreateRequestParam = new SalesOrderShipmentCreateRequestParam();
@@ -194,6 +214,14 @@ public class MagentoClient {
         return shipmentIncrementId;
     }
     public int addTrack(String shipmentIncrementId, String carrierPartyId, String carrierTitle, String trackNumber) {
+        if (UtilValidate.isEmpty(shipmentIncrementId) || UtilValidate.isEmpty(carrierPartyId) || UtilValidate.isEmpty(carrierTitle) || UtilValidate.isEmpty(trackNumber)) {
+            Debug.logInfo("Not getting complete information while going to add tracking code.", module);
+            Debug.logInfo("shipmentIncrementId = "+shipmentIncrementId, module);
+            Debug.logInfo("carrierPartyId = "+carrierPartyId, module);
+            Debug.logInfo("carrierTitle = "+carrierTitle, module);
+            Debug.logInfo("trackNumber = "+trackNumber, module);
+            return 0;
+        }
         int isTrackingCodeAdded = 0;
         String magentoSessionId = getMagentoSession();
         SalesOrderShipmentAddTrackRequestParam requestParam = new SalesOrderShipmentAddTrackRequestParam();
@@ -210,6 +238,10 @@ public class MagentoClient {
         return isTrackingCodeAdded;
     }
     public String createInvoice(String orderIncrementId, Map<Integer, Double> orderItemQtyMap) {
+        if (UtilValidate.isEmpty(orderIncrementId)) {
+            Debug.logInfo("Empty orderIncrementId. Not going to create invoice.", module);
+            return null;
+        }
         String invoiceIncrementId = null;
         String magentoSessionId = getMagentoSession();
         OrderItemIdQtyArray orderItemIdQtyArray = new OrderItemIdQtyArray();
@@ -235,6 +267,10 @@ public class MagentoClient {
         return invoiceIncrementId;
     }
     public int catalogInventoryStockItemUpdate (String productId, String inventoryCount) {
+        if (UtilValidate.isEmpty(productId) || UtilValidate.isEmpty(inventoryCount)) {
+            Debug.logInfo("Not getting complete information while going to update catalog inventory stock.", module);
+            Debug.logInfo("productId = "+productId+" inventoryCount = "+inventoryCount, module);
+        }
         int isStockItemUpdated = 0;
         String magentoSessionId = getMagentoSession();
         CatalogInventoryStockItemUpdateRequestParam requestParam = new CatalogInventoryStockItemUpdateRequestParam();
