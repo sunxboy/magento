@@ -46,7 +46,7 @@ public class MagentoServices {
             Filters filters = MagentoHelper.prepareSalesOrderFilters(magOrderId, "pending", fromDate, thruDate);
 
             MagentoClient magentoClient = new MagentoClient(dispatcher, delegator);
-            
+
             List<SalesOrderListEntity> salesOrderList = magentoClient.getSalesOrderList(filters);
             List<String> errorMessageList = new ArrayList<String>();
             GenericValue system = delegator.findOne("UserLogin", false, UtilMisc.toMap("userLoginId", "system"));
@@ -99,10 +99,9 @@ public class MagentoServices {
     public static Map<String, Object> importCancelledOrdersFromMagento(DispatchContext dctx, Map<String, ?> context) {
         LocalDispatcher dispatcher = dctx.getDispatcher();
         Delegator delegator = dctx.getDelegator();
-        
         Map<String, Object> result = ServiceUtil.returnSuccess();
         Map<String, Object> serviceResp = null;
-        
+
         String magOrderId = (String) context.get("orderId");
         Timestamp fromDate = (Timestamp) context.get("fromDate");
         Timestamp thruDate = (Timestamp) context.get("thruDate");
@@ -111,7 +110,6 @@ public class MagentoServices {
             Filters filters = MagentoHelper.prepareSalesOrderFilters(magOrderId, "canceled", fromDate, thruDate);
             MagentoClient magentoClient = new MagentoClient(dispatcher, delegator);
             List<SalesOrderListEntity> salesOrderList = magentoClient.getSalesOrderList(filters);
-            List<String> errorMessageList = new ArrayList<String>();
             GenericValue system = delegator.findOne("UserLogin", false, UtilMisc.toMap("userLoginId", "system"));
             for (SalesOrderListEntity salesOrder : salesOrderList) {
                 SalesOrderEntity salesOrderInfo = magentoClient.getSalesOrderInfo(salesOrder.getIncrementId());
@@ -129,15 +127,6 @@ public class MagentoServices {
                         } else {
                             MagentoHelper.processStateChange(cancelOrderInfo, delegator, dispatcher);
                         }
-                    } else {
-                        Map<String, Object> createOrderCtx = new HashMap<String, Object>();
-                        createOrderCtx.put("orderInfo", salesOrderInfo);
-                        createOrderCtx.put("userLogin", system);
-                        serviceResp = dispatcher.runSync("createOrderFromMagento", createOrderCtx, 120, true);
-                        if (!ServiceUtil.isSuccess(serviceResp)) {
-                            errorMessageList.add((String) ServiceUtil.getErrorMessage(serviceResp));
-                        }
-                        MagentoHelper.processStateChange(cancelOrderInfo, delegator, dispatcher);
                     }
                 }
             }
@@ -183,20 +172,20 @@ public class MagentoServices {
         try {
             GenericValue system = delegator.findOne("UserLogin", false, UtilMisc.toMap("userLoginId", "system"));
             if (UtilValidate.isNotEmpty(orderId)) {
-            GenericValue orderHeader = delegator.findOne("OrderHeader", false, UtilMisc.toMap("orderId", orderId));
-            if (UtilValidate.isEmpty(orderHeader) || !"MAGENTO_SALE_CHANNEL".equals(orderHeader.getString("salesChannelEnumId"))) {
-                Debug.logInfo("Not a Magento order, doing nothing with orderId #"+ orderId, module);
-                return response;
-            } else if ("ORDER_COMPLETED".equals(orderHeader.getString("statusId")) && "ORDER_COMPLETED".equals(orderHeader.getString("syncStatusId"))){
-                Debug.logInfo("Order with order Id # "+orderId+" is already marked as completed in Magento.", module);
-                return response;
-            } else {
-                String resp = MagentoHelper.completeOrderInMagento(dispatcher, delegator, orderId);
-                if (UtilValidate.isNotEmpty(resp)) {
-                    dispatcher.runSync("updateOrderHeader", UtilMisc.toMap("orderId", orderId, "syncStatusId", "ORDER_COMPLETED", "userLogin", system));
-                    Debug.logInfo("Order with orderId # "+orderId+" is successfully marked as completed in Magento.", module);
+                GenericValue orderHeader = delegator.findOne("OrderHeader", false, UtilMisc.toMap("orderId", orderId));
+                if (UtilValidate.isEmpty(orderHeader) || !"MAGENTO_SALE_CHANNEL".equals(orderHeader.getString("salesChannelEnumId"))) {
+                    Debug.logInfo("Not a Magento order, doing nothing with orderId #"+ orderId, module);
+                    return response;
+                } else if ("ORDER_COMPLETED".equals(orderHeader.getString("statusId")) && "ORDER_COMPLETED".equals(orderHeader.getString("syncStatusId"))){
+                    Debug.logInfo("Order with order Id # "+orderId+" is already marked as completed in Magento.", module);
+                    return response;
+                } else {
+                    String resp = MagentoHelper.completeOrderInMagento(dispatcher, delegator, orderId);
+                    if (UtilValidate.isNotEmpty(resp)) {
+                        dispatcher.runSync("updateOrderHeader", UtilMisc.toMap("orderId", orderId, "syncStatusId", "ORDER_COMPLETED", "userLogin", system));
+                        Debug.logInfo("Order with orderId # "+orderId+" is successfully marked as completed in Magento.", module);
+                    }
                 }
-            }
             }
         } catch (GenericEntityException gee) {
             Debug.logError(gee.getMessage(), module);

@@ -25,17 +25,20 @@ under the License.
             header-row-style="header-row" default-table-style="basic-table">
         <field use-when="magentoConfiguration==null" name="enumId"><hidden value="MAGENTO_SALE_CHANNEL"/></field>
         <field use-when="magentoConfiguration!=null" name="magentoConfigurationId"><hidden value="${magentoConfiguration.magentoConfigurationId}"/></field>
-        <field position="1" name="xmlRpcUserName" title="${uiLabelMap.MagentoSoapUserName}" required-field="true"><text size="30" maxlength="255"/></field>
-        <field position="1" name="password" title="${uiLabelMap.CommonPassword}" required-field="true"><text size="30" maxlength="255"/></field>
-        <field position="1" name="productStoreId" title="${uiLabelMap.MagentoStore}">
+        <field position="1" name="xmlRpcUserName" title="${uiLabelMap.MagentoSoapUserName}" required-field="true"><text size="50" maxlength="255"/></field>
+        <field position="1" name="password" title="${uiLabelMap.CommonPassword}" required-field="true"><text size="50" maxlength="255"/></field>
+        <field position="1" name="serverUrl" title="${uiLabelMap.MagentoMagentoWsdlLocationUrl}" required-field="true"><text size="50" maxlength="255"/></field>
+        <field position="1" name="productStoreId" title="${uiLabelMap.MagentoStore}"> 
             <drop-down>
                 <entity-options entity-name="ProductStore" description="${storeName}">
                     <entity-order-by field-name="storeName"/>
                 </entity-options>
             </drop-down>
         </field>
+        
         <field name="submitButton" title="${uiLabelMap.CommonSave}" widget-style="smallSubmit">
             <submit button-type="button"/>
         </field>
+        
     </form>
 </forms>
