@@ -110,7 +110,6 @@ public class MagentoServices {
             Filters filters = MagentoHelper.prepareSalesOrderFilters(magOrderId, "canceled", fromDate, thruDate);
             MagentoClient magentoClient = new MagentoClient(dispatcher, delegator);
             List<SalesOrderListEntity> salesOrderList = magentoClient.getSalesOrderList(filters);
-            List<String> errorMessageList = new ArrayList<String>();
             GenericValue system = delegator.findOne("UserLogin", false, UtilMisc.toMap("userLoginId", "system"));
             for (SalesOrderListEntity salesOrder : salesOrderList) {
                 SalesOrderEntity salesOrderInfo = magentoClient.getSalesOrderInfo(salesOrder.getIncrementId());
@@ -128,15 +127,6 @@ public class MagentoServices {
                         } else {
                             MagentoHelper.processStateChange(cancelOrderInfo, delegator, dispatcher);
                         }
-                    } else {
-                        Map<String, Object> createOrderCtx = new HashMap<String, Object>();
-                        createOrderCtx.put("orderInfo", salesOrderInfo);
-                        createOrderCtx.put("userLogin", system);
-                        serviceResp = dispatcher.runSync("createOrderFromMagento", createOrderCtx, 120, true);
-                        if (!ServiceUtil.isSuccess(serviceResp)) {
-                            errorMessageList.add((String) ServiceUtil.getErrorMessage(serviceResp));
-                        }
-                        MagentoHelper.processStateChange(cancelOrderInfo, delegator, dispatcher);
                     }
                 }
             }
