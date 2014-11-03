@@ -1,8 +1,12 @@
 package org.ofbizus.magento;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
+import javax.xml.namespace.QName;
 
 import magento.ArrayOfString;
 import magento.CatalogInventoryStockItemEntityArray;
@@ -50,6 +54,7 @@ public class MagentoClient {
     public static final String module = MagentoClient.class.getName();
     private static String soapUserName;
     private static String soapPassword;
+    private static String magentoServiceWsdlLocation;
 
     protected LocalDispatcher dispatcher;
     protected Delegator delegator;
@@ -65,6 +70,7 @@ public class MagentoClient {
             if (UtilValidate.isNotEmpty(magentoConfiguration)) { 
                 soapUserName = (String) magentoConfiguration.get("xmlRpcUserName");
                 soapPassword = (String) magentoConfiguration.get("password");
+                magentoServiceWsdlLocation = magentoConfiguration.getString("serverUrl");
             }
         } catch (GenericEntityException gee) {
             Debug.logError(gee, module);
@@ -75,14 +81,28 @@ public class MagentoClient {
         }
     }
 
+    public static MageApiModelServerWsiHandlerPortType getPort() {
+        URL url = null;
+        MageApiModelServerWsiHandlerPortType port = null;
+        try {
+            url = new URL(magentoServiceWsdlLocation);
+            QName serviceName = new QName("urn:Magento", "MagentoService");
+
+            MagentoService mage = new MagentoService(url, serviceName);
+            port = mage.getMageApiModelServerWsiHandlerPort();
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+            Debug.logError(e.getMessage(), module);
+        } 
+        return port;
+    }
     public static String getMagentoSession() {
         String session = null;
         try {
             LoginParam loginParams = new LoginParam();
             loginParams.setUsername(soapUserName);
             loginParams.setApiKey(soapPassword);
-            MagentoService mage = new MagentoService();
-            MageApiModelServerWsiHandlerPortType port = mage.getMageApiModelServerWsiHandlerPort();
+            MageApiModelServerWsiHandlerPortType port = getPort();
             LoginResponseParam loginResponseParam = port.login(loginParams);
 
             session = loginResponseParam.getResult();
@@ -103,8 +123,7 @@ public class MagentoClient {
         SalesOrderListRequestParam salesOrderListRequestParam = new SalesOrderListRequestParam();
         salesOrderListRequestParam.setSessionId(magentoSessionId);
         salesOrderListRequestParam.setFilters(filters);
-        MagentoService mage = new MagentoService();
-        MageApiModelServerWsiHandlerPortType port = mage.getMageApiModelServerWsiHandlerPort();
+        MageApiModelServerWsiHandlerPortType port = getPort();
         SalesOrderListResponseParam salesOrderListResponseParam = port.salesOrderList(salesOrderListRequestParam);
         SalesOrderListEntityArray salesOrderListEntityArray = salesOrderListResponseParam.getResult();
         salesOrderList = salesOrderListEntityArray.getComplexObjectArray();
@@ -122,8 +141,7 @@ public class MagentoClient {
         salesOrderInfoRequestParam.setSessionId(magentoSessionId);
         salesOrderInfoRequestParam.setOrderIncrementId(orderIncrementId);
 
-        MagentoService mage = new MagentoService();
-        MageApiModelServerWsiHandlerPortType port = mage.getMageApiModelServerWsiHandlerPort();
+        MageApiModelServerWsiHandlerPortType port = getPort();
         SalesOrderInfoResponseParam salesOrderListResponseParam = port.salesOrderInfo(salesOrderInfoRequestParam);
         SalesOrderEntity salesOrder = salesOrderListResponseParam.getResult();
         return salesOrder;
@@ -135,13 +153,12 @@ public class MagentoClient {
             return null;
         }
         String magentoSessionId = getMagentoSession();
-        MagentoService mage = new MagentoService();
         CatalogInventoryStockItemListRequestParam catalogInventoryStockItemListRequestParam = new CatalogInventoryStockItemListRequestParam();
         catalogInventoryStockItemListRequestParam.setSessionId(magentoSessionId);
         ArrayOfString productIds = new ArrayOfString();
         productIds.getComplexObjectArray().add(sku);
         catalogInventoryStockItemListRequestParam.setProductIds(productIds);
-        MageApiModelServerWsiHandlerPortType port = mage.getMageApiModelServerWsiHandlerPort();
+        MageApiModelServerWsiHandlerPortType port = getPort();
         CatalogInventoryStockItemListResponseParam catalogInventoryStockItemListResponseParam = port.catalogInventoryStockItemList(catalogInventoryStockItemListRequestParam);
         CatalogInventoryStockItemEntityArray catalogInventoryStockItemEntityArray = catalogInventoryStockItemListResponseParam.getResult();
         return catalogInventoryStockItemEntityArray;
@@ -158,8 +175,7 @@ public class MagentoClient {
         directoryRegionListRequestParam.setSessionId(magentoSessionId);
         directoryRegionListRequestParam.setCountry(countryGeoCode);
 
-        MagentoService mage = new MagentoService();
-        MageApiModelServerWsiHandlerPortType port = mage.getMageApiModelServerWsiHandlerPort();
+        MageApiModelServerWsiHandlerPortType port = getPort();
         DirectoryRegionListResponseParam directoryRegionListResponseParam = port.directoryRegionList(directoryRegionListRequestParam);
         DirectoryRegionEntityArray directorRegionEntityArray = directoryRegionListResponseParam.getResult();
         directoryRegionList = directorRegionEntityArray.getComplexObjectArray();
@@ -176,8 +192,7 @@ public class MagentoClient {
         salesOrderCancelRequestParam.setSessionId(magentoSessionId);
         salesOrderCancelRequestParam.setOrderIncrementId(orderIncrementId);
 
-        MagentoService mage = new MagentoService();
-        MageApiModelServerWsiHandlerPortType port = mage.getMageApiModelServerWsiHandlerPort();
+        MageApiModelServerWsiHandlerPortType port = getPort();
         SalesOrderCancelResponseParam salesOrderCancelResponseParam = port.salesOrderCancel(salesOrderCancelRequestParam);
         isCancelled = salesOrderCancelResponseParam.getResult();
 
@@ -207,8 +222,7 @@ public class MagentoClient {
         salesOrderShipmentCreateRequestParam.setEmail(1);
         salesOrderShipmentCreateRequestParam.setItemsQty(orderItemIdQtyArray);
 
-        MagentoService mage = new MagentoService();
-        MageApiModelServerWsiHandlerPortType port = mage.getMageApiModelServerWsiHandlerPort();
+        MageApiModelServerWsiHandlerPortType port = getPort();
         SalesOrderShipmentCreateResponseParam salesOrderShipmentCreateResponseParam = port.salesOrderShipmentCreate(salesOrderShipmentCreateRequestParam);
         shipmentIncrementId = salesOrderShipmentCreateResponseParam.getResult();
         return shipmentIncrementId;
@@ -231,8 +245,7 @@ public class MagentoClient {
         requestParam.setTitle(carrierTitle);
         requestParam.setTrackNumber(trackNumber);
 
-        MagentoService mage = new MagentoService();
-        MageApiModelServerWsiHandlerPortType port = mage.getMageApiModelServerWsiHandlerPort();
+        MageApiModelServerWsiHandlerPortType port = getPort();
         SalesOrderShipmentAddTrackResponseParam responseParam = port.salesOrderShipmentAddTrack(requestParam);
         isTrackingCodeAdded = responseParam.getResult();
         return isTrackingCodeAdded;
@@ -260,8 +273,7 @@ public class MagentoClient {
         salesOrderInvoiceCreateRequestParam.setEmail("true");
         salesOrderInvoiceCreateRequestParam.setItemsQty(orderItemIdQtyArray);
 
-        MagentoService mage = new MagentoService();
-        MageApiModelServerWsiHandlerPortType port = mage.getMageApiModelServerWsiHandlerPort();
+        MageApiModelServerWsiHandlerPortType port = getPort();
         SalesOrderInvoiceCreateResponseParam salesOrderInvoiceCreateResponseParam = port.salesOrderInvoiceCreate(salesOrderInvoiceCreateRequestParam);
         invoiceIncrementId = salesOrderInvoiceCreateResponseParam.getResult();
         return invoiceIncrementId;
@@ -281,8 +293,7 @@ public class MagentoClient {
         catalogInventoryStockItemUpdateEntity.setQty(inventoryCount);
         requestParam.setData(catalogInventoryStockItemUpdateEntity);
 
-        MagentoService mage = new MagentoService();
-        MageApiModelServerWsiHandlerPortType port = mage.getMageApiModelServerWsiHandlerPort();
+        MageApiModelServerWsiHandlerPortType port = getPort();
         CatalogInventoryStockItemUpdateResponseParam responseParam = port.catalogInventoryStockItemUpdate(requestParam);
         isStockItemUpdated = responseParam.getResult();
         return isStockItemUpdated;
