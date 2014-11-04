@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<entity-engine-xml>
+    <Enumeration description="Magento Sales Channel" enumCode="MAGENTO_CHANNEL" enumId="MAGENTO_SALE_CHANNEL" sequenceId="01" enumTypeId="ORDER_SALES_CHANNEL"/>
+    <GoodIdentificationType description="Magento's Product Id" goodIdentificationTypeId="MAGENTO_ID" hasTable="N" parentTypeId=""/>
+
+    <SystemProperty systemResourceId="Magento" systemPropertyId="magento.payment.method" systemPropertyValue="EXT_OFFLINE"/>
+</entity-engine-xml>

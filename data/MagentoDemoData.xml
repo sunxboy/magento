@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<entity-engine-xml>
+    <Party partyId="Company" partyTypeId="PARTY_GROUP"/>
+    <PartyGroup partyId="Company" groupName="Shop Ecommerce Demo" logoImageUrl=""/>
+    <PartyRole partyId="Company" roleTypeId="PARENT_ORGANIZATION"/>
+    <PartyRole partyId="Company" roleTypeId="BILL_FROM_VENDOR"/>
+    <PartyRole partyId="Company" roleTypeId="BILL_TO_CUSTOMER"/>
+    <PartyRole partyId="Company" roleTypeId="INTERNAL_ORGANIZATIO"/>
+    <PartyRole partyId="Company" roleTypeId="_NA_"/>
+
+    <Facility facilityId="WebStoreWarehouse" facilityTypeId="WAREHOUSE" ownerPartyId="Company" />
+    <ProductStore productStoreId="9010" storeName="Magento Product Store" companyName="Shop Ecommerce Demo" title="Ecommerce Demo"
+        subtitle="Shop Ecommerce Demo" payToPartyId="Company" daysToCancelNonPay="30" prorateShipping="Y" prorateTaxes="Y"
+        inventoryFacilityId="WebStoreWarehouse" oneInventoryFacility="Y" checkInventory="Y" reserveInventory="Y" balanceResOnOrderCreation="Y" reserveOrderEnumId="INVRO_FIFO_REC" requireInventory="Y"
+        defaultLocaleString="en_US" defaultCurrencyUomId="USD" defaultSalesChannelEnumId="WEB_SALES_CHANNEL" allowPassword="Y" explodeOrderItems="N" retryFailedAuths="Y" reqReturnInventoryReceive="N"
+        headerApprovedStatus="ORDER_APPROVED" itemApprovedStatus="ITEM_APPROVED" digitalItemApprovedStatus="ITEM_APPROVED" headerDeclinedStatus="ORDER_REJECTED"
+        itemDeclinedStatus="ITEM_REJECTED" headerCancelStatus="ORDER_CANCELLED" itemCancelStatus="ITEM_CANCELLED" orderNumberPrefix="NN"
+        authDeclinedMessage="There has been a problem with your method of payment. Please try a different method or call customer service."
+        authFraudMessage="Your order has been rejected and your account has been disabled due to fraud."
+        authErrorMessage="Problem connecting to payment processor; we will continue to retry and notify you by email."
+        storeCreditValidDays="90" viewCartOnAdd="N" useProductCategoryUrlName="Y" catalogUrlMountPoint="products"
+        styleSheet="" headerLogo="" prodSearchExcludeVariants="Y" autoApproveInvoice="Y" shipIfCaptureFails="N" autoApproveOrder="Y" autoSaveCart = "Y" usePrimaryEmailUsername="Y" termTypeId = "PRE_AUTHORIZED"/>
+    <ProductStoreFacility productStoreId="9010" facilityId="WebStoreWarehouse" fromDate="2010-10-15 12:00:00.0"/>
+
+    <FacilityLocation facilityId="WebStoreWarehouse" locationSeqId="TLTLTLLL05" locationTypeEnumId="FLT_PICKLOC" areaId="TL" aisleId="TL" sectionId="TL" levelId="LL" positionId="05"/>
+    <FacilityLocation facilityId="WebStoreWarehouse" locationSeqId="TLTLTLUL05" locationTypeEnumId="FLT_BULK" areaId="TL" aisleId="TL" sectionId="TL" levelId="UL" positionId="05"/>
+
+    <MagentoConfiguration productStoreId="9010" enumId="MAGENTO_SALE_CHANNEL" xmlRpcUserName="magentohost" password="magento" serverUrl="http://magentohost/api/xmlrpc/"/>
+
+    <!-- GL journal for suspended transactions (failed post) -->
+    <GlJournal organizationPartyId="Company" glJournalId="ERROR_JOURNAL" glJournalName="Suspense transactions"/>
+    <PartyAcctgPreference partyId="Company" taxFormId="US_IRS_1120" cogsMethodId="COGS_LIFO" baseCurrencyUomId="USD"
+        invoiceSeqCustMethId="INV_HOOK_ENF_SEQ" invoiceIdPrefix="CI"
+        quoteIdPrefix="CQ"
+        orderIdPrefix="CO"
+        errorGlJournalId="ERROR_JOURNAL"/>
+
+    <!-- User Data -->
+    <Party partyId="AndyC" partyTypeId="PERSON"/>
+    <Person firstName="Andy" lastName="Cepon" partyId="AndyC"/>
+    <RoleType roleTypeId="PICKER" description="Warehouse Picker"/>
+    <PartyRole partyId="AndyC" roleTypeId="PICKER"/>
+    <UserLogin userLoginId="AndyC" partyId="AndyC" currentPassword="{SHA}47ca69ebb4bdc9ae0adec130880165d2cc05db1a" enabled="Y"/>
+    <ContactMech contactMechId="AndyC" contactMechTypeId="EMAIL_ADDRESS" infoString="andy.cepon@demo.com"/>
+    <PartyContactMech partyId="AndyC" contactMechId="AndyC" fromDate="2013-07-04 00:00:00.0" allowSolicitation="Y"/>
+    <PartyContactMechPurpose contactMechPurposeTypeId="PRIMARY_EMAIL" partyId="AndyC" contactMechId="AndyC" fromDate="2013-07-04 00:00:00.0"/>
+
+    <Party partyId="admin" partyTypeId="PERSON"/>
+    <Person firstName="Admin" lastName="User" partyId="admin"/>
+    <Party partyId="system" partyTypeId="PERSON"/>
+    <Person partyId="system" firstName="System" lastName="Account"/>
+    <PartyRole partyId="admin" roleTypeId="MANAGER"/>
+    <PartyRole partyId="admin" roleTypeId="PACKER"/>
+    <PartyRole partyId="admin" roleTypeId="_NA_"/>
+    <PartyRole partyId="admin" roleTypeId="EMPLOYEE"/>
+    <PartyRole partyId="system" roleTypeId="OWNER"/>
+    <ContactMech contactMechId="admin" contactMechTypeId="EMAIL_ADDRESS" infoString="hwm.buynow@gmail.com"/>
+    <PartyContactMech partyId="admin" contactMechId="admin" fromDate="2003-01-01 00:00:00.0" allowSolicitation="Y"/>
+    <PartyContactMechPurpose contactMechPurposeTypeId="PRIMARY_EMAIL" partyId="admin" contactMechId="admin" fromDate="2003-01-01 00:00:00.0"/>
+    <PartyRelationship partyIdFrom="Company" partyIdTo="admin" partyRelationshipTypeId="EMPLOYMENT" roleTypeIdFrom="INTERNAL_ORGANIZATIO" roleTypeIdTo="EMPLOYEE" fromDate="2014-01-01 00:00:00.000"/>
+
+    <UserLogin userLoginId="system" partyId="system" enabled="N" isSystem="Y"/>
+    <UserLogin userLoginId="admin" partyId="admin" currentPassword="{SHA}47ca69ebb4bdc9ae0adec130880165d2cc05db1a" enabled="Y" hasLoggedOut="N"/>
+
+</entity-engine-xml>
