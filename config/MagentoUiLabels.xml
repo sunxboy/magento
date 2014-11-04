@@ -12,6 +12,9 @@
     <property key="MagentoMagentoConfiguration">
         <value xml:lang="en">Magento Configuration</value>
     </property>
+    <property key="MagentoMagentoWsdlLocationUrl">
+        <value xml:lang="en">Magento Wsdl Location Url</value>
+    </property>
     <property key="MagentoPleaseEnterFacilityLocation">
         <value xml:lang="en">Please enter facility location.</value>
     </property>
