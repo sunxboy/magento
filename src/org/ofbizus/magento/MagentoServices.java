@@ -112,8 +112,7 @@ public class MagentoServices {
             List<SalesOrderListEntity> salesOrderList = magentoClient.getSalesOrderList(filters);
             GenericValue system = delegator.findOne("UserLogin", false, UtilMisc.toMap("userLoginId", "system"));
             for (SalesOrderListEntity salesOrder : salesOrderList) {
-                SalesOrderEntity salesOrderInfo = magentoClient.getSalesOrderInfo(salesOrder.getIncrementId());
-                String externalId = salesOrderInfo.getIncrementId();
+                String externalId = salesOrder.getIncrementId();
                 if (UtilValidate.isNotEmpty(externalId)) {
                  // Check if order already imported
                     Map<String, Object> cancelOrderInfo = new HashMap<String, Object>();
