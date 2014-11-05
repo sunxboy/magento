@@ -258,7 +258,7 @@ public class MagentoServices {
                 Map<String, Object> serviceResult = dispatcher.runSync("getInventoryAvailableByFacility", serviceContext);
                 if (ServiceUtil.isSuccess(serviceResult)) {
                     // Call magento api method for updating inventory count order
-                    String inventoryCount = (String) ObjectType.simpleTypeConvert(serviceResult.get("quantityOnHandTotal"), "String", null, null);
+                    String inventoryCount = (String) ObjectType.simpleTypeConvert(serviceResult.get("availableToPromiseTotal"), "String", null, null);
                     MagentoClient magentoClient = new MagentoClient(dispatcher, delegator);
                     isStockItemUpdated = magentoClient.catalogInventoryStockItemUpdate(goodIdentification.getString("idValue"), inventoryCount);
                     if (isStockItemUpdated == 0) {
