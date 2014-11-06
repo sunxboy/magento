@@ -98,7 +98,7 @@ public class MagentoClient {
         return port;
     }
     public String getMagentoSession() {
-            if (UtilValidate.isEmpty(this.sessionId)) {
+        if (UtilValidate.isEmpty(this.sessionId)) {
             LoginParam loginParams = new LoginParam();
             loginParams.setUsername(soapUserName);
             loginParams.setApiKey(soapPassword);
@@ -106,8 +106,8 @@ public class MagentoClient {
             LoginResponseParam loginResponseParam = port.login(loginParams);
 
             this.sessionId = loginResponseParam.getResult();
-            }
-            Debug.logInfo("===========Got Magento session  with sessionId:" +this.sessionId, module);
+        }
+        Debug.logInfo("===========Got Magento session  with sessionId:" +this.sessionId, module);
         return this.sessionId;
     }
 
