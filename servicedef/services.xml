@@ -72,4 +72,9 @@ under the License.
         <implements service="updateMagentoConfiguration"/>
         <override name="magentoConfigurationId" optional="true"/>
     </service>
+    <service name="checkOrderStatusInMagento" engine="java" auth="true"
+            location="org.ofbizus.magento.MagentoServices" invoke="checkOrderStatusInMagento">
+        <description>Check if order is cancelled in Magento.</description>
+        <attribute name="orderId" type="String" mode="IN"/>
+    </service>
 </services>

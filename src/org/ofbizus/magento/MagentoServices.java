@@ -275,4 +275,44 @@ public class MagentoServices {
         }
         return response;
     }
+    public static Map<String, Object> checkOrderStatusInMagento (DispatchContext dctx, Map<String, ?> context) {
+        Map<String, Object> result = ServiceUtil.returnSuccess();
+        Delegator delegator = dctx.getDelegator();
+        LocalDispatcher dispatcher = dctx.getDispatcher();
+        String orderId = (String) context.get("orderId");
+        try {
+            if (UtilValidate.isNotEmpty(orderId)) {
+                GenericValue system = delegator.findOne("UserLogin", false, UtilMisc.toMap("userLoginId", "system"));
+                GenericValue orderHeader = delegator.findOne("OrderHeader", false, UtilMisc.toMap("orderId", orderId));
+                if (UtilValidate.isNotEmpty(orderHeader) && "MAGENTO_SALE_CHANNEL".equals(orderHeader.getString("salesChannelEnumId")) && UtilValidate.isNotEmpty(orderHeader.getString("externalId"))) {
+                    String orderIncrementId = orderHeader.getString("externalId");
+                    MagentoClient magentoClient = new MagentoClient(dispatcher, delegator);
+                    SalesOrderEntity salesOrder = magentoClient.getSalesOrderInfo(orderIncrementId);
+                    if ("canceled".equalsIgnoreCase(salesOrder.getStatus())) {
+
+                        if (!"ORDER_CANCELLED".equals(orderHeader.getString("syncStatusId"))) {
+                            dispatcher.runSync("updateOrderHeader", UtilMisc.toMap("orderId", orderId, "syncStatusId", "ORDER_CANCELLED", "userLogin", system), 0, true);
+                        }
+
+                        Map <String, Object> serviceCtx = new HashMap<String, Object>();
+                        serviceCtx.put("orderId", orderId);
+                        serviceCtx.put("statusId", "ORDER_CANCELLED");
+                        serviceCtx.put("setItemStatus", "ITEM_CANCELLED");
+                        serviceCtx.put("userLogin", system);
+                        dispatcher.runSync("changeOrderStatus", serviceCtx, 0, true);
+
+                        Debug.logError("The order with magento orderId #"+orderIncrementId+" is cancelled in Magento.", module);
+                        result = ServiceUtil.returnError("The order with magento orderId #"+orderIncrementId+" is cancelled in Magento. So cancelling the order.");
+                    }
+                }
+            }
+        } catch (GenericEntityException gee) {
+            Debug.logError(gee.getMessage(), module);
+            return ServiceUtil.returnError(gee.getMessage());
+        } catch (GenericServiceException gse) {
+            Debug.logError(gse.getMessage(), module);
+            return ServiceUtil.returnError(gse.getMessage());
+        }
+        return result;
+    }
 }
