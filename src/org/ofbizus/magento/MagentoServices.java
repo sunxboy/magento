@@ -37,7 +37,6 @@ public class MagentoServices {
         Map<String, Object> serviceResp = null;
         LocalDispatcher dispatcher = dctx.getDispatcher();
         Delegator delegator = dctx.getDelegator();
-        
         String magOrderId = (String) context.get("orderId");
         Timestamp fromDate = (Timestamp) context.get("fromDate");
         Timestamp thruDate = (Timestamp) context.get("thruDate");
@@ -75,6 +74,10 @@ public class MagentoServices {
         } catch (GenericServiceException gse) {
             gse.printStackTrace();
             Debug.logError("Error in order import (GenericServiceException) "+gse.getMessage(), module);
+        } catch (Exception e) {
+            Debug.logError("Error in improting pending orders from Magento. Error Message: " +e.getMessage(), module);
+            e.printStackTrace();
+            return ServiceUtil.returnError("Error in improting pending orders from Magento. Error Message:" +e.getMessage());
         }
         return result;
     }
@@ -138,6 +141,10 @@ public class MagentoServices {
         } catch (GeneralException ge) {
             ge.printStackTrace();
             Debug.logError("Error in order import (GeneralException)", ge.getMessage(), module);
+        } catch (Exception e) {
+            Debug.logError("Error in improting cancelled orders from Magento. Error Message: " +e.getMessage(), module);
+            e.printStackTrace();
+            return ServiceUtil.returnError("Error in improting cancelled orders from Magento. Error Message:" +e.getMessage());
         }
         return result;
     }
@@ -160,6 +167,10 @@ public class MagentoServices {
         } catch (GenericEntityException gee) {
             Debug.logError(gee.getMessage(), module);
             return ServiceUtil.returnError(gee.getMessage());
+        }  catch (Exception e) {
+            Debug.logError("Error in cancelling order in Magento. Error Message: " +e.getMessage(), module);
+            e.printStackTrace();
+            return ServiceUtil.returnError("Error in cancelling order in Magento. Error Message:" +e.getMessage());
         }
         return response;
     }
@@ -192,6 +203,10 @@ public class MagentoServices {
         } catch (GenericServiceException gse) {
             Debug.logError(gse.getMessage(), module);
             return ServiceUtil.returnError(gse.getMessage());
+        } catch (Exception e) {
+            Debug.logError("Error in completing order in Magento. Error Message: " +e.getMessage(), module);
+            e.printStackTrace();
+            return ServiceUtil.returnError("Error in completing order in Magento. Error Message:" +e.getMessage());
         }
         return response;
     }
@@ -216,9 +231,9 @@ public class MagentoServices {
                     return ServiceUtil.returnError(ServiceUtil.getErrorMessage(serviceResult));
                 }
             }
-        } catch (GenericServiceException e) {
-            Debug.logError("Getting error while configuring magento"+e.getMessage() ,module);
-            return ServiceUtil.returnError("Getting error while configuring magento "+e.getMessage());
+        } catch (GenericServiceException gse) {
+            Debug.logError("Getting error while configuring magento"+gse.getMessage() ,module);
+            return ServiceUtil.returnError("Getting error while configuring magento "+gse.getMessage());
         }
         return ServiceUtil.returnSuccess("Configuration has been done successfully.");
     }
@@ -271,7 +286,9 @@ public class MagentoServices {
         } catch (GenericEntityException gee) {
             Debug.logError("Getting error while updating inventory count in magento "+gee.getMessage() ,module);
         } catch (Exception e) {
-            Debug.logError("Getting error while updating inventory count in magento "+e.getMessage() ,module);
+            Debug.logError("Getting error while updating inventory count in magento. Error Message: "+e.getMessage() ,module);
+            e.printStackTrace();
+            return ServiceUtil.returnError("Getting error while updating inventory count in magento. Error Message: "+e.getMessage());
         }
         return response;
     }
@@ -284,7 +301,7 @@ public class MagentoServices {
             if (UtilValidate.isNotEmpty(orderId)) {
                 GenericValue system = delegator.findOne("UserLogin", false, UtilMisc.toMap("userLoginId", "system"));
                 GenericValue orderHeader = delegator.findOne("OrderHeader", false, UtilMisc.toMap("orderId", orderId));
-                if (UtilValidate.isNotEmpty(orderHeader) && "MAGENTO_SALE_CHANNEL".equals(orderHeader.getString("salesChannelEnumId"))) {
+                if (UtilValidate.isNotEmpty(orderHeader) && "MAGENTO_SALE_CHANNEL".equals(orderHeader.getString("salesChannelEnumId")) && UtilValidate.isNotEmpty(orderHeader.getString("externalId"))) {
                     String orderIncrementId = orderHeader.getString("externalId");
                     MagentoClient magentoClient = new MagentoClient(dispatcher, delegator);
                     SalesOrderEntity salesOrder = magentoClient.getSalesOrderInfo(orderIncrementId);
@@ -312,6 +329,10 @@ public class MagentoServices {
         } catch (GenericServiceException gse) {
             Debug.logError(gse.getMessage(), module);
             return ServiceUtil.returnError(gse.getMessage());
+        } catch (Exception e) {
+            Debug.logError("Error while checking order status in Magento. Error Message: " +e.getMessage(), module);
+            e.printStackTrace();
+            return ServiceUtil.returnError("Error while checking order status in Magento. Error Message: " +e.getMessage());
         }
         return result;
     }
