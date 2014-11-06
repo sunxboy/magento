@@ -275,4 +275,28 @@ public class MagentoServices {
         }
         return response;
     }
+    public static Map<String, Object> checkOrderStatusInMagento (DispatchContext dctx, Map<String, ?> context) {
+        Map<String, Object> result = ServiceUtil.returnSuccess();
+        Delegator delegator = dctx.getDelegator();
+        LocalDispatcher dispatcher = dctx.getDispatcher();
+        String orderId = (String) context.get("orderId");
+        try {
+            if (UtilValidate.isNotEmpty(orderId)) {
+                GenericValue orderHeader = delegator.findOne("OrderHeader", false, UtilMisc.toMap("orderId", orderId));
+                if (UtilValidate.isNotEmpty(orderHeader) && "MAGENTO_SALE_CHANNEL".equals(orderHeader.getString("salesChannelEnumId"))) {
+                    String orderIncrementId = orderHeader.getString("externalId");
+                    MagentoClient magentoClient = new MagentoClient(dispatcher, delegator);
+                    SalesOrderEntity salesOrder = magentoClient.getSalesOrderInfo(orderIncrementId);
+                    if ("canceled".equalsIgnoreCase(salesOrder.getStatus())) {
+                        Debug.logError("The order with magento orderId #"+orderIncrementId+" is cancelled in Magento.", module);
+                        result = ServiceUtil.returnError("The order with magento orderId #"+orderIncrementId+" is cancelled in Magento.");
+                    }
+                }
+            }
+        } catch (GenericEntityException gee) {
+            Debug.logError(gee.getMessage(), module);
+            return ServiceUtil.returnError(gee.getMessage());
+        }
+        return result;
+    }
 }
