@@ -59,6 +59,7 @@ public class MagentoClient {
     protected LocalDispatcher dispatcher;
     protected Delegator delegator;
     protected GenericValue system;
+    protected String sessionId;
 
     public MagentoClient (LocalDispatcher dispatcher, Delegator delegator) {
         this.dispatcher = dispatcher;
@@ -96,23 +97,18 @@ public class MagentoClient {
         } 
         return port;
     }
-    public static String getMagentoSession() {
-        String session = null;
-        try {
+    public String getMagentoSession() {
+        if (UtilValidate.isEmpty(this.sessionId)) {
             LoginParam loginParams = new LoginParam();
             loginParams.setUsername(soapUserName);
             loginParams.setApiKey(soapPassword);
             MageApiModelServerWsiHandlerPortType port = getPort();
             LoginResponseParam loginResponseParam = port.login(loginParams);
 
-            session = loginResponseParam.getResult();
-            Debug.logInfo("===========Got Magento session  with sessionId:" +session, module);
-        } catch (Exception e) {
-            e.printStackTrace();
-            Debug.logError("===========Error in getting magento session=====" + e.getMessage(), module);
-            return "error";
+            this.sessionId = loginResponseParam.getResult();
         }
-        return session;
+        Debug.logInfo("Got Magento session  with sessionId:" +this.sessionId, module);
+        return this.sessionId;
     }
 
     // Fetches sales order List from magento
