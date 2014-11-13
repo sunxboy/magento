@@ -1,9 +1,16 @@
 package org.ofbizus.magento;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -41,8 +48,10 @@ import org.ofbiz.order.shoppingcart.CheckOutHelper;
 import org.ofbiz.order.shoppingcart.ItemNotFoundException;
 import org.ofbiz.order.shoppingcart.ShoppingCart;
 import org.ofbiz.order.shoppingcart.ShoppingCartItem;
+import org.ofbiz.service.DispatchContext;
 import org.ofbiz.service.LocalDispatcher;
 import org.ofbiz.service.ServiceUtil;
+
 
 public class MagentoHelper {
     public static final String SALES_CHANNEL = "MAGENTO_SALE_CHANNEL";
@@ -683,7 +692,7 @@ public class MagentoHelper {
         return "Success";
     }
     public static Filters prepareSalesOrderFilters(String magOrderId, String statusId, Timestamp fromDate, Timestamp thruDate) {
-        DateFormat df = new SimpleDateFormat("yyyy-mm-dd HH:mm:ss");
+        DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         String createdFrom = null;
         String createdTo = null;
 
@@ -731,5 +740,81 @@ public class MagentoHelper {
         filters.setComplexFilter(complexFilterArray);
 
         return filters;
+    }
+
+    public static String modelParamNameToCsvColumnName(String keyName, char separator) {
+        if (keyName == null) return null;
+
+        StringBuilder fieldName = new StringBuilder(keyName.length());
+        for (int i=0; i < keyName.length(); i++) {
+            char ch = keyName.charAt(i);
+            if (Character.isUpperCase(ch) && i == 0) {
+                fieldName.append(Character.toLowerCase(ch));
+            } else if (Character.isUpperCase(ch)) {
+                fieldName.append(separator);
+                fieldName.append(Character.toLowerCase(ch));
+            } else {
+                fieldName.append(Character.toLowerCase(ch));
+            }
+        }
+        return fieldName.toString();
+    }
+
+    public static String getCsvheader (List<String> paramNameList) {
+        if (UtilValidate.isEmpty(paramNameList)) {
+            return null;
+        }
+        String header = "";
+        for (String paramName : paramNameList) {
+            String convertedParamName = modelParamNameToCsvColumnName(paramName, '-');
+            header = header.concat("\"" + convertedParamName + "\"");
+            header = header.concat(",");
+        }
+        return header;
+    }
+    public static void createMagentoIntegrationConciliationCSV (List<Map<String, Object>> reportList) {
+        String header = "";
+        try {
+            if (UtilValidate.isNotEmpty(reportList)) {
+                List<String> csvFieldList = new ArrayList<String>(); 
+                csvFieldList.addAll((reportList.get(0)).keySet());
+                if (UtilValidate.isNotEmpty(csvFieldList)) {
+                    header = MagentoHelper.getCsvheader(csvFieldList);
+                } else {
+                    Debug.logInfo("No CSV field list found.", module);
+                }
+                if (UtilValidate.isNotEmpty(header)) {
+                    String outputLocation = System.getProperty("ofbiz.home") + "/runtime/magento/";
+                    File outputDir = new File(outputLocation);
+                    if (!outputDir.exists()) {
+                        outputDir.mkdir();
+                    }
+                    String fileName = "/".concat("MagentoIntegrationConciliation").concat(".csv");
+                    String csvFileLocation = outputLocation.concat(fileName);
+                    Writer outFile = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(csvFileLocation)));
+                    outFile.write(header);
+
+                    String row = null;
+                    String fieldValue = null;
+
+                    for (Map report : reportList) {
+                        row = "";
+                        for (String fieldName : csvFieldList) {
+                            if (UtilValidate.isNotEmpty(report.get(fieldName))) {
+                                fieldValue = report.get(fieldName).toString();
+                                fieldValue = fieldValue.replaceAll("\"", "&quot;");
+                                row = row.concat("\"" +fieldValue+ "\"");
+                            }
+                            row = row.concat(",");
+                        }
+                        outFile.append("\n");
+                        outFile.append(row);
+                    }
+                    outFile.close();
+                }
+            }
+        } catch (IOException e) {
+            Debug.logError("I/O error while reading from file: " + e.getMessage(), module);
+        }
     }
 }
