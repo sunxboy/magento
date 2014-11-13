@@ -381,6 +381,7 @@ public class MagentoServices {
         } catch (GenericEntityException gee) {
             Debug.logInfo(gee.getMessage(), module);
         }
+        result = ServiceUtil.returnSuccess();
         return result;
     }
     public static Map<String, Object> sendMagentoIntegrationConciliationMail (DispatchContext dctx, Map<String, ?> context) {
