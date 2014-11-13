@@ -77,4 +77,15 @@ under the License.
         <description>Check if order is cancelled in Magento.</description>
         <attribute name="orderId" type="String" mode="IN"/>
     </service>
+    <service name="magentoIntegrationConciliation" engine="java" auth="true"
+            location="org.ofbizus.magento.MagentoServices" invoke="magentoIntegrationConciliation">
+        <description>Check the consistency of Magento integration.</description>
+    </service>
+    <service name="sendMagentoIntegrationConciliationMail" engine="java" auth="true"
+            location="org.ofbizus.magento.MagentoServices" invoke="sendMagentoIntegrationConciliationMail">
+        <description>Send Magento integration conciliation mail.</description>
+        <attribute name="sendTo"  type="String" mode="IN"/>
+        <attribute name="sendFrom"  type="String" mode="IN" optional="true"/>
+        <attribute name="subject"  type="String" mode="IN" optional="true"/>
+    </service>
 </services>

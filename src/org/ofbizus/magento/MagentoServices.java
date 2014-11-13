@@ -1,5 +1,9 @@
 package org.ofbizus.magento;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -334,6 +338,97 @@ public class MagentoServices {
             e.printStackTrace();
             return ServiceUtil.returnError("Error while checking order status in Magento. Error Message: " +e.getMessage());
         }
+        return result;
+    }
+    public static Map<String, Object> magentoIntegrationConciliation (DispatchContext dctx, Map<String, ?> context) {
+        Map<String, Object> result = ServiceUtil.returnSuccess();
+        Delegator delegator = dctx.getDelegator();
+        LocalDispatcher dispatcher = dctx.getDispatcher();
+        GenericValue userLogin = (GenericValue) context.get("userLogin");
+        try {
+            List<Map<String, Object>> varianceList = MagentoHelper.getVariance(dispatcher, delegator);
+            if (UtilValidate.isNotEmpty(varianceList)) {
+                MagentoHelper.createMagentoIntegrationConciliationCSV(varianceList);
+                GenericValue magentoConfiguration = EntityUtil.getFirst(delegator.findList("MagentoConfiguration", EntityCondition.makeCondition("enumId", EntityOperator.EQUALS, "MAGENTO_SALE_CHANNEL"), null, null, null, false));
+                if (UtilValidate.isNotEmpty(magentoConfiguration) && UtilValidate.isNotEmpty(magentoConfiguration.getString("productStoreId"))) {
+                    GenericValue productStore = delegator.findOne("ProductStore", false, UtilMisc.toMap("productStoreId", magentoConfiguration.getString("productStoreId")));
+                    if (UtilValidate.isNotEmpty(productStore) && UtilValidate.isNotEmpty(productStore.getString("payToPartyId"))) {
+                        result = dispatcher.runSync("getPartyEmail", UtilMisc.toMap("partyId", productStore.get("payToPartyId"), "userLogin", userLogin));
+                        if (!ServiceUtil.isSuccess(result)) {
+                            Debug.logError(ServiceUtil.getErrorMessage(result), module);
+                            return ServiceUtil.returnError((ServiceUtil.getErrorMessage(result)));
+                        }
+                    }
+                }
+
+                Map<String, Object> serviceCtx = new HashMap<String, Object>();
+                serviceCtx.put("userLogin", userLogin);
+                serviceCtx.put("sendTo", (String) result.get("emailAddress"));
+                serviceCtx.put("sendFrom", (String) result.get("emailAddress"));
+                serviceCtx.put("subject", "Problem in Magento integration");
+
+                result = dispatcher.runSync("sendMagentoIntegrationConciliationMail", serviceCtx);
+                if (!ServiceUtil.isSuccess(result)) {
+                    Debug.logError(ServiceUtil.getErrorMessage(result), module);
+                    return ServiceUtil.returnError((ServiceUtil.getErrorMessage(result)));
+                }
+                result.clear();
+            } else {
+                Debug.logInfo("Sales order synchronization process is consistent.", module);
+            }
+        } catch (GenericServiceException gse) {
+            Debug.logInfo(gse.getMessage(), module);
+        } catch (GenericEntityException gee) {
+            Debug.logInfo(gee.getMessage(), module);
+        }
+        return result;
+    }
+    public static Map<String, Object> sendMagentoIntegrationConciliationMail (DispatchContext dctx, Map<String, ?> context) {
+        Map<String, Object> result = ServiceUtil.returnSuccess();
+        LocalDispatcher dispatcher = dctx.getDispatcher();
+        GenericValue userLogin = (GenericValue) context.get("userLogin");
+        String sendTo = (String) context.get("sendTo");
+        String sendFrom = (String) context.get("sendFrom");
+        String subject = (String) context.get("subject");
+        try {
+            Map<String, Object> sendMailContext = new HashMap<String, Object>();
+            sendMailContext.put("sendTo", sendTo);
+            sendMailContext.put("sendFrom", sendFrom);
+            sendMailContext.put("subject", subject);
+            sendMailContext.put("userLogin", userLogin);
+            String messageText = "Magento integration process is inconsistent. PFA for more detail.";
+            String attachmentName = "SalesOrderConciliation.csv";
+            List<Map<String, Object>> bodyParts = new ArrayList<Map<String,Object>>();
+
+            bodyParts.add(UtilMisc.<String, Object>toMap("content", messageText, "type", "text/plain"));
+
+            File fileOut = new File(System.getProperty("ofbiz.home")+"/runtime/magento/MagentoIntegrationConciliation.csv");
+            FileInputStream fis = new FileInputStream(fileOut);
+            int c;
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            while ((c=fis.read()) > -1) {
+                baos.write(c);
+            }
+            fis.close();
+            baos.close();
+            if (UtilValidate.isNotEmpty(baos.toByteArray())) {
+                bodyParts.add(UtilMisc.<String, Object>toMap("content", baos.toByteArray(), "type", "text/csv", "filename", attachmentName));
+            }
+            sendMailContext.put("bodyParts", bodyParts);
+
+            result = dispatcher.runSync("sendMailMultiPart", sendMailContext);
+            if (!ServiceUtil.isSuccess(result)) {
+                Debug.logError(ServiceUtil.getErrorMessage(result), module);
+                return ServiceUtil.returnError((ServiceUtil.getErrorMessage(result)));
+            }
+        } catch (GenericServiceException gse) {
+            Debug.logInfo(gse.getMessage(), module);
+            return ServiceUtil.returnError(gse.getMessage());
+        } catch (IOException e) {
+            Debug.logInfo(e.getMessage(), module);
+            e.printStackTrace();
+        }
+        result = ServiceUtil.returnSuccess();
         return result;
     }
 }
