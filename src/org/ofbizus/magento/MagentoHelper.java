@@ -9,6 +9,7 @@ import java.io.Writer;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -16,6 +17,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.TimeZone;
 
 import magento.AssociativeEntity;
 import magento.CatalogInventoryStockItemEntity;
@@ -28,6 +30,7 @@ import magento.SalesOrderAddressEntity;
 import magento.SalesOrderEntity;
 import magento.SalesOrderItemEntity;
 import magento.SalesOrderItemEntityArray;
+import magento.SalesOrderListEntity;
 
 import org.ofbiz.base.util.Debug;
 import org.ofbiz.base.util.GeneralException;
@@ -48,7 +51,6 @@ import org.ofbiz.order.shoppingcart.CheckOutHelper;
 import org.ofbiz.order.shoppingcart.ItemNotFoundException;
 import org.ofbiz.order.shoppingcart.ShoppingCart;
 import org.ofbiz.order.shoppingcart.ShoppingCartItem;
-import org.ofbiz.service.DispatchContext;
 import org.ofbiz.service.LocalDispatcher;
 import org.ofbiz.service.ServiceUtil;
 
@@ -816,5 +818,102 @@ public class MagentoHelper {
         } catch (IOException e) {
             Debug.logError("I/O error while reading from file: " + e.getMessage(), module);
         }
+    }
+    public static List<Map<String, Object>> getVariance(LocalDispatcher dispatcher, Delegator delegator) {
+        int mageTotalOrders = 0;
+        int mageTotalCompletedOrders = 0;
+        int mageTotalCancelledOrders = 0;
+
+        int ofbizTotalOrders = 0;
+        int ofbizTotalCancelledOrders = 0;
+        int ofbizTotalCompletedOrders = 0;
+        List<Map<String, Object>> varianceList  = new ArrayList<Map<String, Object>>();
+        Map<String, Object> condMap = new HashMap<String, Object>();
+
+        try {
+            condMap.put("serviceName", "importPendingOrdersFromMagento");
+            condMap.put("statusId", "SERVICE_FINISHED");
+            GenericValue ipoJob = EntityUtil.getFirst(delegator.findList("JobSandbox", EntityCondition.makeCondition(condMap), null, UtilMisc.toList("-finishDateTime"), null, false));
+
+            condMap.put("serviceName", "importCancelledOrdersFromMagento");
+            GenericValue icoJob = EntityUtil.getFirst(delegator.findList("JobSandbox", EntityCondition.makeCondition(condMap), null, UtilMisc.toList("-finishDateTime"), null, false));
+            if (UtilValidate.isNotEmpty(ipoJob) || UtilValidate.isNotEmpty(icoJob)) {
+                Timestamp ipoJobFinishDateTime = ipoJob.getTimestamp("finishDateTime");
+                Timestamp icoJobFinishDateTime = icoJob.getTimestamp("finishDateTime");
+                Timestamp fromDate = UtilDateTime.getDayStart(ipoJobFinishDateTime);
+                MagentoClient magentoClient = new MagentoClient(dispatcher, delegator);
+                Filters filters = MagentoHelper.prepareSalesOrderFilters(null, null, fromDate, null);
+                List<SalesOrderListEntity> salesOrders = magentoClient.getSalesOrderList(filters);
+                if (UtilValidate.isNotEmpty(salesOrders)) {
+                    for (SalesOrderListEntity salesOrder : salesOrders) {
+                        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                        dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+                        Date date = dateFormat.parse(salesOrder.getCreatedAt());
+                        dateFormat.setTimeZone(TimeZone.getDefault());
+                        date = dateFormat.parse(dateFormat.format(date));
+                        Timestamp createdAt = UtilDateTime.toTimestamp(date);
+                        if (ipoJobFinishDateTime.after(createdAt)) {
+                            if ("completed".equals(salesOrder.getStatus())) {
+                                mageTotalCompletedOrders++;
+                            }
+                            mageTotalOrders++;
+                        }
+                        if ("canceled".equals(salesOrder.getStatus()) && icoJobFinishDateTime.after(createdAt)) {
+                            mageTotalCancelledOrders++;
+                        }
+                    }
+
+                    EntityCondition cond = EntityCondition.makeCondition(
+                            EntityCondition.makeCondition("orderDate", EntityOperator.GREATER_THAN_EQUAL_TO, fromDate),
+                            EntityCondition.makeCondition("orderDate", EntityOperator.LESS_THAN_EQUAL_TO, ipoJobFinishDateTime)
+                            );
+                    List<GenericValue> allOrderList = delegator.findList("OrderHeader", cond, null, null, null, false);
+                    List<GenericValue> completedOrderList = EntityUtil.filterByAnd(allOrderList, UtilMisc.toMap("statusId", "ORDER_COMPLETED"));
+
+                    cond = EntityCondition.makeCondition(
+                            EntityCondition.makeCondition("statusId", EntityOperator.GREATER_THAN_EQUAL_TO, "ORDER_CANCELLED"),
+                            EntityCondition.makeCondition("orderDate", EntityOperator.GREATER_THAN_EQUAL_TO, fromDate),
+                            EntityCondition.makeCondition("orderDate", EntityOperator.LESS_THAN_EQUAL_TO, icoJobFinishDateTime)
+                            );
+                    List<GenericValue> cancelledOrderList = delegator.findList("OrderHeader", cond, null, null, null, false);
+
+                    ofbizTotalCompletedOrders = completedOrderList.size();
+                    ofbizTotalCancelledOrders = cancelledOrderList.size();
+                    ofbizTotalOrders = allOrderList.size();
+
+                    if ((ofbizTotalOrders != mageTotalOrders) || (ofbizTotalCancelledOrders != mageTotalCancelledOrders) || (ofbizTotalCompletedOrders != mageTotalCompletedOrders)) {
+                        Debug.logInfo("Sales order synchronization process is inconsistent.", module);
+                        Debug.logInfo("Total orders created in Magento: "+mageTotalOrders+" in OFBiz "+ofbizTotalOrders, module);
+                        Debug.logInfo("Total completed orders in Magento: "+mageTotalCompletedOrders+" in OFBiz "+ofbizTotalCompletedOrders, module);
+                        Debug.logInfo("Total cancelled order in Magento: "+mageTotalCancelledOrders+" in OFBiz "+ofbizTotalCancelledOrders, module);
+
+                        int variance = 0;
+                        variance = ofbizTotalOrders - mageTotalOrders;
+                        if (variance < 0) {
+                            variance = -variance;
+                        }
+                        varianceList.add(UtilMisc.<String, Object>toMap("order", "All Orders", "inOfbiz", ofbizTotalOrders, "inMagento", mageTotalOrders, "variance", variance));
+
+                        variance = ofbizTotalCompletedOrders - mageTotalCompletedOrders;
+                        if (variance < 0) {
+                            variance = -variance;
+                        }
+                        varianceList.add(UtilMisc.<String, Object>toMap("order", "Completed Orders", "inOfbiz", ofbizTotalCompletedOrders, "inMagento", mageTotalCompletedOrders, "variance", variance));
+
+                        variance = ofbizTotalCancelledOrders - mageTotalCancelledOrders;
+                        if (variance < 0) {
+                            variance = -variance;
+                        }
+                        varianceList.add(UtilMisc.<String, Object>toMap("order", "Cancelled Orders", "inOfbiz", ofbizTotalCancelledOrders, "inMagento", mageTotalCancelledOrders, "variance", variance));
+                    }
+                }
+            }
+        } catch (GenericEntityException gee) {
+            Debug.logInfo(gee.getMessage(), module);
+        } catch (ParseException pe) {
+            Debug.logInfo(pe.getMessage(), module);
+            pe.printStackTrace();
+        }
+        return varianceList;
     }
 }
