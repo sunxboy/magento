@@ -32,6 +32,7 @@ under the License.
                 <set field="javaScripts[+1]" value="/magento/js/bootstrap.min.js" global="true"/>
                 <set field="javaScripts[+2]" value="/magento/js/jquery.validate.js" global="true"/>
                 <set field="javaScripts[+3]" value="/magento/js/chosen.jquery.min.js" global="true"/>
+                <set field="javaScripts[+4]" value="/magento/js/MagentoInIt.js" global="true"/>
 
                 <set field="layoutSettings.companyName" from-field="uiLabelMap.CompanyName" global="true"/>
                 <set field="layoutSettings.companySubtitle" from-field="uiLabelMap.CompanySubtitle" global="true"/>
