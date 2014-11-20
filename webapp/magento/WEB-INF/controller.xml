@@ -38,6 +38,21 @@ under the License.
         <response name="success" type="view" value="StoreConfiguration"/>
         <response name="error" type="view" value="StoreConfiguration"/>
     </request-map>
-
+    <request-map uri="FacilityInformation">
+        <security https="true" auth="true"/>
+        <response name="success" type="view" value="FacilityInformation"/>
+    </request-map>
+    <request-map uri="createFacilityInformation">
+        <security https="true" auth="true"/>
+        <event type="service" invoke="createWarehouse"/>
+        <response name="success" type="view" value="FacilityInformation"/>
+        <response name="error" type="view" value="FacilityInformation"/>
+    </request-map>
+    <request-map uri="updateFacilityInformation">
+        <security https="true" auth="true"/>
+        <event type="service" invoke="updateWarehouse"/>
+        <response name="success" type="view" value="FacilityInformation"/>
+        <response name="error" type="view" value="FacilityInformation"/>
+    </request-map>
     <view-map name="StoreConfiguration" type="screen" page="component://magento/widget/magento/MagentoScreens.xml#StoreConfiguration"/>
 </site-conf>
