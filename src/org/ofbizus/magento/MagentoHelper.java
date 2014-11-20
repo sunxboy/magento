@@ -51,6 +51,7 @@ import org.ofbiz.order.shoppingcart.CheckOutHelper;
 import org.ofbiz.order.shoppingcart.ItemNotFoundException;
 import org.ofbiz.order.shoppingcart.ShoppingCart;
 import org.ofbiz.order.shoppingcart.ShoppingCartItem;
+import org.ofbiz.product.store.ProductStoreWorker;
 import org.ofbiz.service.LocalDispatcher;
 import org.ofbiz.service.ServiceUtil;
 
@@ -915,5 +916,42 @@ public class MagentoHelper {
             pe.printStackTrace();
         }
         return varianceList;
+    }
+    public static Map<String, String> getMapForContactNumber(String phoneNumber) {
+        String countryCode = "1";
+        String areaCode = null;
+        String contactNumber = null;
+        String reversePhoneNumber = new StringBuffer(phoneNumber).reverse().toString().replaceAll("\\D", "");
+        if(reversePhoneNumber.length() > 7) {
+            contactNumber = new StringBuffer(reversePhoneNumber.substring(0, 7)).reverse().toString();
+            reversePhoneNumber = reversePhoneNumber.replaceFirst(reversePhoneNumber.substring(0, 7), "");
+            if(reversePhoneNumber.length() > 3) {
+                areaCode = new StringBuffer(reversePhoneNumber.substring(0, 3)).reverse().toString();
+                countryCode = new StringBuffer(reversePhoneNumber.substring(3)).reverse().toString();
+            } else {
+                areaCode = new StringBuffer(reversePhoneNumber).reverse().toString();
+            }
+        } else {
+            contactNumber = new StringBuffer(reversePhoneNumber).reverse().toString();
+        }
+        return UtilMisc.toMap(
+                "countryCode", countryCode,
+                "areaCode", areaCode,
+                "contactNumber", contactNumber);
+    }
+    public static GenericValue getMagentoProductStore(Delegator delegator) {
+        try {
+            GenericValue magentoConfiguration = EntityUtil.getFirst(delegator.findList("MagentoConfiguration", EntityCondition.makeCondition("enumId", EntityOperator.EQUALS, "MAGENTO_SALE_CHANNEL"), null, null, null, false));
+            if (UtilValidate.isNotEmpty(magentoConfiguration) && UtilValidate.isNotEmpty(magentoConfiguration.getString("productStoreId"))) {
+                GenericValue productStore = ProductStoreWorker.getProductStore(magentoConfiguration.getString("productStoreId"), delegator);
+                if (UtilValidate.isNotEmpty(productStore)) {
+                    return productStore;
+                }
+            }
+        } catch (GenericEntityException gee) {
+            Debug.logInfo(gee.getMessage(), module);
+            return null;
+        }
+       return  null;
     }
 }

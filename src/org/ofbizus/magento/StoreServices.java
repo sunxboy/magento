@@ -1,0 +1,578 @@
+package org.ofbizus.magento;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+
+import org.ofbiz.base.util.Debug;
+import org.ofbiz.base.util.UtilDateTime;
+import org.ofbiz.base.util.UtilGenerics;
+import org.ofbiz.base.util.UtilMisc;
+import org.ofbiz.base.util.UtilProperties;
+import org.ofbiz.base.util.UtilValidate;
+import org.ofbiz.entity.Delegator;
+import org.ofbiz.entity.GenericEntityException;
+import org.ofbiz.entity.GenericValue;
+import org.ofbiz.entity.condition.EntityCondition;
+import org.ofbiz.entity.util.EntityUtil;
+import org.ofbiz.party.party.PartyWorker;
+import org.ofbiz.service.DispatchContext;
+import org.ofbiz.service.GenericServiceException;
+import org.ofbiz.service.LocalDispatcher;
+import org.ofbiz.service.ModelService;
+import org.ofbiz.service.ServiceUtil;
+
+public class StoreServices {
+    public static final String module = MagentoServices.class.getName();
+    public static final String resource = "MagentoUiLabels";
+
+    public static Map<String, Object> createUpdateCompany(DispatchContext dctx, Map<String, Object>context) {
+        LocalDispatcher dispatcher = dctx.getDispatcher();
+        Map<String, Object> result = new HashMap<String, Object>();
+        Map<String, Object> serviceCtx = new HashMap<String, Object>();
+        Map<String, String> contactNumberMap = new HashMap<String, String>();
+        Locale locale = (Locale) context.get("locale");
+        String partyId = (String) context.get("partyId");
+        String postalContactMechId = (String) context.get("postalContactMechId");
+        String emailContactMechId = (String) context.get("emailContactMechId");
+        String telecomContactMechId = (String) context.get("telecomContactMechId");
+        GenericValue userLogin = (GenericValue) context.get("userLogin");
+
+        try {
+            // Create Company
+            serviceCtx.put("groupName", (String) context.get("groupName"));
+            serviceCtx.put("userLogin", userLogin);
+            if (UtilValidate.isNotEmpty(partyId)) {
+                serviceCtx.put("partyId", partyId);
+                result = dispatcher.runSync("updatePartyGroup", serviceCtx);
+                if (!ServiceUtil.isSuccess(result)) {
+                    Debug.logError(ServiceUtil.getErrorMessage(result), module);
+                    return ServiceUtil.returnError(ServiceUtil.getErrorMessage(result));
+                }
+            } else {
+                result = dispatcher.runSync("createPartyGroup", serviceCtx);
+                if (!ServiceUtil.isSuccess(result)) {
+                    Debug.logError(ServiceUtil.getErrorMessage(result), module);
+                    return ServiceUtil.returnError(ServiceUtil.getErrorMessage(result));
+                }
+
+                serviceCtx.clear();
+                //Create Company roles
+                List<String> companyRoles = new ArrayList<String>();
+                companyRoles.add("BILL_FROM_VENDOR");
+                companyRoles.add("BILL_TO_CUSTOMER");
+                companyRoles.add("INTERNAL_ORGANIZATIO");
+                companyRoles.add("PARENT_ORGANIZATION");
+                serviceCtx.put("userLogin", userLogin);
+                serviceCtx.put("partyId", partyId);
+                for (String companyRole : companyRoles) {
+                    serviceCtx.put("roleTypeId", companyRole);
+                    result = dispatcher.runSync("createPartyRole", serviceCtx);
+                    if(!ServiceUtil.isSuccess(result)) {
+                        Debug.logError(ServiceUtil.getErrorMessage(result), module);
+                        return ServiceUtil.returnError(ServiceUtil.getErrorMessage(result));
+                    }
+                }
+            }
+
+            serviceCtx.clear();
+            result.clear();
+            if (UtilValidate.isNotEmpty(postalContactMechId)) {
+                serviceCtx = dctx.getModelService("updatePartyPostalAddress").makeValid(context, ModelService.IN_PARAM);
+                serviceCtx.put("partyId", partyId);
+                serviceCtx.put("contactMechId", postalContactMechId);
+                result = dispatcher.runSync("updatePartyPostalAddress", serviceCtx);
+                if (!ServiceUtil.isSuccess(result)) {
+                    Debug.logError(ServiceUtil.getErrorMessage(result), module);
+                    return ServiceUtil.returnError(ServiceUtil.getErrorMessage(result));
+                }
+            } else {
+                // Create Company Postal Address.
+                serviceCtx = dctx.getModelService("createPartyPostalAddress").makeValid(context, ModelService.IN_PARAM);
+                serviceCtx.put("partyId", partyId);
+                result = dispatcher.runSync("createPartyPostalAddress", serviceCtx);
+                if (!ServiceUtil.isSuccess(result)) {
+                    Debug.logError(ServiceUtil.getErrorMessage(result), module);
+                    return ServiceUtil.returnError(ServiceUtil.getErrorMessage(result));
+                }
+                postalContactMechId = (String) result.get("contactMechId");
+    
+                //Create postal address purposes
+                List<String> postalContactMechPurposes = new ArrayList<String>();
+                postalContactMechPurposes.add("BILLING_LOCATION");
+                postalContactMechPurposes.add("GENERAL_LOCATION");
+                postalContactMechPurposes.add("PAYMENT_LOCATION");
+    
+                serviceCtx.put("partyId", partyId);
+                serviceCtx.put("contactMechId", postalContactMechId);
+                serviceCtx.put("userLogin", userLogin);
+                for(String postalContactMechPurpose : postalContactMechPurposes) {
+                    serviceCtx.put("contactMechPurposeTypeId", postalContactMechPurpose);
+                    result = dispatcher.runSync("createPartyContactMechPurpose", serviceCtx);
+                    if(!ServiceUtil.isSuccess(result)) {
+                        Debug.logError(ServiceUtil.getErrorMessage(result), module);
+                        return ServiceUtil.returnError(ServiceUtil.getErrorMessage(result));
+                    }
+                }
+            }
+
+            result.clear();
+            serviceCtx.clear();
+            if (UtilValidate.isNotEmpty(context.get("infoString"))) {
+                // Create Company Email Address.
+                serviceCtx.put("partyId", partyId);
+                serviceCtx.put("emailAddress", (String) context.get("infoString"));
+                serviceCtx.put("userLogin", userLogin);
+                if (UtilValidate.isNotEmpty(emailContactMechId)) {
+                    serviceCtx.put("contactMechId", emailContactMechId);
+                    result = dispatcher.runSync("updatePartyEmailAddress", serviceCtx);
+                    if (!ServiceUtil.isSuccess(result)) {
+                        Debug.logError(ServiceUtil.getErrorMessage(result), module);
+                        return ServiceUtil.returnError(ServiceUtil.getErrorMessage(result));
+                    }
+                } else  {
+                    result = dispatcher.runSync("createPartyEmailAddress", serviceCtx);
+                    if (!ServiceUtil.isSuccess(result)) {
+                        Debug.logError(ServiceUtil.getErrorMessage(result), module);
+                        return ServiceUtil.returnError(ServiceUtil.getErrorMessage(result));
+                    }
+                    emailContactMechId = (String) result.get("contactMechId");
+
+                  //Create email purposes 
+                    serviceCtx.clear();
+                    serviceCtx.put("partyId", partyId);
+                    serviceCtx.put("userLogin", userLogin);
+                    serviceCtx.put("contactMechId", emailContactMechId);
+                    List<String> emailContactMechPurposes = new ArrayList<String>();
+                    emailContactMechPurposes.add("PRIMARY_EMAIL");
+                    emailContactMechPurposes.add("CONTACT_US_EMAIL");
+                    for (String emailContactMechPurpose : emailContactMechPurposes) {
+                        serviceCtx.put("contactMechPurposeTypeId", emailContactMechPurpose);
+                        result = dispatcher.runSync("createPartyContactMechPurpose",serviceCtx);
+                        if (!ServiceUtil.isSuccess(result)) {
+                            Debug.logError(ServiceUtil.getErrorMessage(result), module);
+                            return ServiceUtil.returnError(ServiceUtil.getErrorMessage(result));
+                        }
+                        
+                    }
+                }
+            }
+
+            serviceCtx.clear();
+            if (UtilValidate.isNotEmpty(context.get("contactNumber"))) {
+                contactNumberMap = MagentoHelper.getMapForContactNumber((String) context.get("contactNumber"));
+                serviceCtx = dctx.getModelService("createPartyTelecomNumber").makeValid(contactNumberMap, ModelService.IN_PARAM);
+                serviceCtx.put("partyId", partyId);
+                serviceCtx.put("userLogin", userLogin);
+                if (UtilValidate.isNotEmpty(telecomContactMechId)) {
+                    serviceCtx.put("contactMechId", telecomContactMechId);
+                    result = dispatcher.runSync("updatePartyTelecomNumber", serviceCtx);
+                } else {
+                    serviceCtx.put("contactMechPurposeTypeId", "PRIMARY_PHONE");
+                    result = dispatcher.runSync("createPartyTelecomNumber", serviceCtx);
+                }
+                if (!ServiceUtil.isSuccess(result)) {
+                    Debug.logError(ServiceUtil.getErrorMessage(result), module);
+                    return ServiceUtil.returnError(ServiceUtil.getErrorMessage(result));
+                }
+            } else if (UtilValidate.isNotEmpty(telecomContactMechId)) {
+                //Remove previous contact number if any
+                serviceCtx.clear();
+                serviceCtx.put("userLogin", userLogin);
+                serviceCtx.put("partyId", partyId);
+                serviceCtx.put("contactMechId", telecomContactMechId);
+                result = dispatcher.runSync("updatePartyTelecomNumber", serviceCtx);
+                if (ServiceUtil.isError(result)) {
+                    Debug.logError(ServiceUtil.getErrorMessage(result), module);
+                    return ServiceUtil.returnError(ServiceUtil.getErrorMessage(result));
+                }
+            }
+            result = ServiceUtil.returnSuccess(UtilProperties.getMessage(resource, "MagentoCompanyIsCreatedSuccessfully", locale));
+            result.put("partyId", partyId);
+        } catch (GenericServiceException e) {
+            Debug.logError(e.getMessage(), module);
+            ServiceUtil.returnError(e.getMessage());
+        }
+        return result;
+    }
+
+    public static Map<String, Object> createUpdateProductStore(DispatchContext dctx, Map<String, Object>context) {
+        LocalDispatcher dispatcher = dctx.getDispatcher();
+        Delegator delegator = dctx.getDelegator();
+        Map<String, Object> result = new HashMap<String, Object>();
+        Map<String, Object> serviceCtx = new HashMap<String, Object>();
+        Locale locale = (Locale) context.get("locale");
+        String partyId = (String) context.get("partyId");
+        String productStoreId = (String) context.get("productStoreId");
+        String orderNumberPrefix = (String) context.get("orderNumberPrefix");
+        GenericValue userLogin = (GenericValue) context.get("userLogin");
+        try {
+            if (UtilValidate.isNotEmpty(productStoreId)) {
+                GenericValue productStore = delegator.findOne("ProductStore", false, UtilMisc.toMap("productStoreId", productStoreId));
+                if (UtilValidate.isNotEmpty(productStore)) {
+                    serviceCtx = dctx.getModelService("updateProductStore").makeValid(productStore, ModelService.IN_PARAM);
+                    serviceCtx.put("storeName", (String) context.get("storeName"));
+                    serviceCtx.put("userLogin", userLogin);
+                    result = dispatcher.runSync("updateProductStore", serviceCtx);
+                    if (!ServiceUtil.isSuccess(result)) {
+                        Debug.logError(ServiceUtil.getErrorMessage(result), module);
+                        return ServiceUtil.returnError(ServiceUtil.getErrorMessage(result));
+                    }
+                    result = ServiceUtil.returnSuccess(UtilProperties.getMessage(resource, "MagentoStoreIsUpdatedSuccessfully", locale));
+                    result.put("partyId", partyId);
+                    result.put("productStoreId", productStoreId);
+                }
+            } else {
+                serviceCtx = dctx.getModelService("createProductStore").makeValid(context, ModelService.IN_PARAM);
+                serviceCtx.put("orderNumberPrefix", orderNumberPrefix.trim());
+
+                //Add basic setting values for product store
+                serviceCtx.put("isDemoStore", "N");
+                serviceCtx.put("requireInventory", "N");
+                serviceCtx.put("isImmediatelyFulfilled", "N");
+                serviceCtx.put("prodSearchExcludeVariants", "Y");
+                serviceCtx.put("shipIfCaptureFails", "N");
+                serviceCtx.put("retryFailedAuths", "Y");
+                serviceCtx.put("explodeOrderItems", "N");
+                serviceCtx.put("checkGcBalance", "Y");
+                serviceCtx.put("autoApproveInvoice", "Y");
+                serviceCtx.put("autoApproveOrder", "Y");
+                serviceCtx.put("autoApproveReviews", "N");
+                serviceCtx.put("allowPassword", "Y");
+                serviceCtx.put("usePrimaryEmailUsername", "Y");
+                serviceCtx.put("manualAuthIsCapture", "N");
+                serviceCtx.put("requireCustomerRole", "Y");
+                serviceCtx.put("capturePmntsOnOrdApproval", "Y");
+                serviceCtx.put("daysToCancelNonPay", Long.valueOf("0"));
+                serviceCtx.put("storeCreditAccountEnumId", "FIN_ACCOUNT");
+                serviceCtx.put("defaultSalesChannelEnumId", "WEB_SALES_CHANNEL");
+                serviceCtx.put("reqReturnInventoryReceive", "Y");
+                serviceCtx.put("headerApprovedStatus", "ORDER_APPROVED");
+                serviceCtx.put("itemApprovedStatus", "ITEM_APPROVED");
+                serviceCtx.put("digitalItemApprovedStatus", "ITEM_APPROVED");
+                serviceCtx.put("headerDeclinedStatus", "ORDER_REJECTED");
+                serviceCtx.put("itemDeclinedStatus", "ITEM_REJECTED");
+                serviceCtx.put("headerCancelStatus", "ORDER_CANCELLED");
+                serviceCtx.put("itemCancelStatus", "ITEM_CANCELLED");
+
+                serviceCtx.put("autoSaveCart", "N");
+                serviceCtx.put("showCheckoutGiftOptions", "N");
+                serviceCtx.put("prorateShipping", "N");
+                serviceCtx.put("prorateTaxes", "N");
+                serviceCtx.put("checkInventory", "Y");
+                serviceCtx.put("balanceResOnOrderCreation", "N");
+                serviceCtx.put("payToPartyId", partyId);
+                result = dispatcher.runSync("createProductStore", serviceCtx);
+                if (!ServiceUtil.isSuccess(result)) {
+                    Debug.logError(ServiceUtil.getErrorMessage(result), module);
+                    return ServiceUtil.returnError(ServiceUtil.getErrorMessage(result));
+                }
+                productStoreId = (String) result.get("productStoreId");
+                if (UtilValidate.isNotEmpty(productStoreId)) {
+                    GenericValue magentoConfiguration = EntityUtil.getFirst(delegator.findList("MagentoConfiguration", EntityCondition.makeCondition("enumId", "MAGENTO_SALE_CHANNEL"), null, null, null, false));
+                    serviceCtx = dctx.getModelService("createUpdateMagentoConfiguration").makeValid(magentoConfiguration, ModelService.IN_PARAM);
+                    serviceCtx.put("enumId", "MAGENTO_SALE_CHANNEL");
+                    serviceCtx.put("productStoreId", productStoreId);
+                    result = dispatcher.runSync("createUpdateMagentoConfiguration", context);
+                    if (UtilValidate.isNotEmpty(result)) {
+                        Debug.logError(ServiceUtil.getErrorMessage(result), module);
+                        return ServiceUtil.returnError(ServiceUtil.getErrorMessage(result));
+                    }
+                }
+                result = ServiceUtil.returnSuccess(UtilProperties.getMessage(resource, "MagentoStoreIsCreatedSuccessfully", locale));
+                result.put("partyId", partyId);
+                result.put("productStoreId", productStoreId);
+            }
+        } catch (GenericServiceException e) {
+             Debug.logError(e.getMessage(), module);
+        } catch (GenericEntityException gee) {
+            Debug.logError(gee.getMessage(), module);
+        }
+        return result;
+    }
+    public static Map<String, Object> createUpdateStoreInformation(DispatchContext dctx, Map<String, Object>context) {
+        LocalDispatcher dispatcher = dctx.getDispatcher();
+        Map<String, Object> result = new HashMap<String, Object>();
+        Map<String, Object> serviceCtx = new HashMap<String, Object>();
+        Locale locale = (Locale) context.get("locale");
+
+        try {
+            serviceCtx = dctx.getModelService("createUpdateCompany").makeValid(context, ModelService.IN_PARAM);
+            result = dispatcher.runSync("createUpdateCompany", serviceCtx);
+            if (!ServiceUtil.isSuccess(result)) {
+                Debug.logError(ServiceUtil.getErrorMessage(result), module);
+                return ServiceUtil.returnError(ServiceUtil.getErrorMessage(result));
+            }
+            String partyId = (String) result.get("partyId");
+            if (UtilValidate.isNotEmpty(partyId)) {
+                serviceCtx = dctx.getModelService("createUpdateProductStore").makeValid(context, ModelService.IN_PARAM);
+                result = dispatcher.runSync("createUpdateProductStore", serviceCtx);
+                if (!ServiceUtil.isSuccess(result)) {
+                    Debug.logError(ServiceUtil.getErrorMessage(result), module);
+                    return ServiceUtil.returnError(ServiceUtil.getErrorMessage(result));
+                }
+                
+                
+                
+            }
+        } catch (GenericServiceException gse) {
+            Debug.logInfo(gse.getMessage(), module);
+            ServiceUtil.returnError(gse.getMessage());
+        }
+        return ServiceUtil.returnSuccess(UtilProperties.getMessage(resource, "MagentoStoreInformationIsUpdatedSuccessfully", locale));
+    }
+    public static Map<String, Object> createWarehouse (DispatchContext dctx, Map<String, Object> context) {
+        LocalDispatcher dispatcher = dctx.getDispatcher();
+        Delegator delegator = dctx.getDelegator();
+        Map<String, Object> result = new HashMap<String, Object>();
+        Map<String, Object> serviceCtx = new HashMap<String, Object>();
+        Map<String, String> contactNumberMap = new HashMap<String, String>();
+        Locale locale = (Locale) context.get("locale");
+        GenericValue userLogin = (GenericValue) context.get("userLogin");
+        String partyId = (String) context.get("partyId");
+        String productStoreId = (String) context.get("productStoreId");
+        String facilityId = null;
+
+        try {
+            serviceCtx = dctx.getModelService("createFacility").makeValid(context, ModelService.IN_PARAM);
+            serviceCtx.put("facilityTypeId", "WAREHOUSE");
+            serviceCtx.put("ownerPartyId", partyId);
+            result = dispatcher.runSync("createFacility", serviceCtx);
+            if (ServiceUtil.isSuccess(result)) {
+                facilityId = (String) result.get("facilityId");
+            } else {
+                Debug.logError(ServiceUtil.getErrorMessage(result), module);
+                return ServiceUtil.returnError(ServiceUtil.getErrorMessage(result));
+            }
+            serviceCtx.clear();
+            result.clear();
+
+            serviceCtx.put("productStoreId", productStoreId);
+            serviceCtx.put("inventoryFacilityId", facilityId);
+            serviceCtx.put("userLogin", userLogin);
+            if (UtilValidate.isEmpty(context.get("checkInventory"))) {
+                serviceCtx.put("checkInventory", "Y");
+            } else {
+                serviceCtx.put("checkInventory", context.get("checkInventory"));
+            }
+            if (UtilValidate.isEmpty(context.get("balanceResOnOrderCreation"))) {
+                serviceCtx.put("balanceResOnOrderCreation", "N");
+            } else {
+                serviceCtx.put("balanceResOnOrderCreation", context.get("balanceResOnOrderCreation"));
+            }
+            serviceCtx.put("reserveOrderEnumId", context.get("reserveOrderEnumId"));
+            result = dispatcher.runSync("updateProductStore", serviceCtx);
+            if (!ServiceUtil.isSuccess(result)) {
+                Debug.logError(ServiceUtil.getErrorMessage(result), module);
+                return ServiceUtil.returnError(ServiceUtil.getErrorMessage(result));
+            }
+            serviceCtx.clear();
+            result.clear();
+
+            serviceCtx.put("productStoreId", productStoreId);
+            serviceCtx.put("facilityId", facilityId);
+            serviceCtx.put("userLogin", userLogin);
+            serviceCtx.put("fromDate", UtilDateTime.nowTimestamp());
+            result = dispatcher.runSync("createProductStoreFacility", serviceCtx);
+            if (!ServiceUtil.isSuccess(result)) {
+                Debug.logError(ServiceUtil.getErrorMessage(result), module);
+                return ServiceUtil.returnError(ServiceUtil.getErrorMessage(result));
+            }
+            serviceCtx.clear();
+            result.clear();
+
+            if (UtilValidate.isNotEmpty(context.get("isWarehoueAddressSameAsCompanyAddress"))) {
+                GenericValue postalAddress = PartyWorker.findPartyLatestPostalAddress(partyId, delegator);
+                serviceCtx = dctx.getModelService("createFacilityPostalAddress").makeValid(UtilMisc.toMap(postalAddress), ModelService.IN_PARAM);
+                serviceCtx.remove("contactMechId");
+            } else {
+                serviceCtx = dctx.getModelService("createFacilityPostalAddress").makeValid(context, ModelService.IN_PARAM);
+            }
+
+            serviceCtx.put("userLogin", userLogin);
+            serviceCtx.put("facilityId", facilityId);
+            serviceCtx.put("toName", (String) context.get("facilityName"));
+            result = dispatcher.runSync("createFacilityPostalAddress", serviceCtx);
+            if (!ServiceUtil.isSuccess(result)) {
+                Debug.logError(ServiceUtil.getErrorMessage(result), module);
+                return ServiceUtil.returnError(ServiceUtil.getErrorMessage(result));
+            }
+            String postalContactMechId = (String) result.get("contactMechId");
+            serviceCtx.clear();
+            result.clear();
+
+            //Create Facility Postal Contact Mech Purpose.
+            serviceCtx.put("contactMechId", postalContactMechId);
+            serviceCtx.put("facilityId", facilityId);
+            serviceCtx.put("userLogin", userLogin);
+
+            List<String> postalContactMechPurpose = new ArrayList<String>();
+            postalContactMechPurpose.add("SHIP_ORIG_LOCATION");
+            postalContactMechPurpose.add("SHIPPING_LOCATION");
+            for(String contactMechPurpose : postalContactMechPurpose) {
+                serviceCtx.put("contactMechPurposeTypeId", contactMechPurpose);
+                result = dispatcher.runSync("createFacilityContactMechPurpose", serviceCtx);
+                if(!ServiceUtil.isSuccess(result)) {
+                    Debug.logError(ServiceUtil.getErrorMessage(result), module);
+                    return ServiceUtil.returnError(ServiceUtil.getErrorMessage(result));
+                }
+            }
+            serviceCtx.clear();
+
+            if (UtilValidate.isNotEmpty(context.get("contactNumber"))) {
+                //Create Facility Telecom Number.
+                contactNumberMap = MagentoHelper.getMapForContactNumber((String) context.get("contactNumber"));
+                serviceCtx = dctx.getModelService("createFacilityTelecomNumber").makeValid(contactNumberMap, ModelService.IN_PARAM);
+                serviceCtx.put("facilityId", facilityId);
+                serviceCtx.put("userLogin", userLogin);
+                serviceCtx.put("contactMechPurposeTypeId", "PRIMARY_PHONE");
+                result = dispatcher.runSync("createFacilityTelecomNumber", serviceCtx);
+                if(!ServiceUtil.isSuccess(result)) {
+                    Debug.logError(ServiceUtil.getErrorMessage(result), module);
+                    return ServiceUtil.returnError(ServiceUtil.getErrorMessage(result));
+                }
+                String telecomContactMechId = (String) result.get("contactMechId");
+                serviceCtx.clear();
+                contactNumberMap.clear();
+
+                //Create telecom contact mech purposes
+                serviceCtx.put("userLogin", userLogin);
+                serviceCtx.put("facilityId", facilityId);
+                serviceCtx.put("contactMechId", telecomContactMechId);
+                List<String> telecomContactMechPurpose = new ArrayList<String>();
+                telecomContactMechPurpose.add("PHONE_SHIPPING");
+                telecomContactMechPurpose.add("PHONE_SHIP_ORIG");
+                for(String contactMechPurpose : telecomContactMechPurpose) {
+                    serviceCtx.put("contactMechPurposeTypeId", contactMechPurpose);
+                    result = dispatcher.runSync("createFacilityContactMechPurpose", serviceCtx);
+                    if(!ServiceUtil.isSuccess(result)) {
+                        Debug.logError(ServiceUtil.getErrorMessage(result), module);
+                        return ServiceUtil.returnError(ServiceUtil.getErrorMessage(result));
+                    }
+                }
+            }
+            serviceCtx.clear();
+
+            result = ServiceUtil.returnSuccess(UtilProperties.getMessage(resource, "EasyErpAdminWarehouseIsCreatedSuccessfully", locale));
+            result.put("facilityId", facilityId);
+            result.put("partyId", partyId);
+            result.put("productStoreId", productStoreId);
+        
+        } catch (GenericServiceException e) {
+            Debug.logError(e.getMessage(), module);
+        }
+        return result;
+    }
+
+    public static Map<String, Object> updateWarehouse (DispatchContext dctx, Map<String, Object> context) {
+        LocalDispatcher dispatcher = dctx.getDispatcher();
+        Map<String, Object> result = new HashMap<String, Object>();
+        Map<String, Object> serviceCtx = new HashMap<String, Object>();
+        Map<String, String> contactNumberMap = new HashMap<String, String>();
+        Locale locale = (Locale) context.get("locale");
+        GenericValue userLogin = (GenericValue) context.get("userLogin");
+        String partyId = (String) context.get("partyId");
+        String productStoreId = (String) context.get("productStoreId");
+        String facilityId = (String) context.get("facilityId");
+        String postalContactMechId = (String) context.get("facilityPostalContactMechId");
+        String telecomContactMechId = (String) context.get("facilityTelecomContactMechId");
+
+        try {
+            serviceCtx = dctx.getModelService("updateFacility").makeValid(context, ModelService.IN_PARAM);
+            serviceCtx.put("ownerPartyId", partyId);
+            result = dispatcher.runSync("updateFacility", serviceCtx);
+            if (!ServiceUtil.isSuccess(result)) {
+                Debug.logError(ServiceUtil.getErrorMessage(result), module);
+                return ServiceUtil.returnError(ServiceUtil.getErrorMessage(result));
+            }
+            serviceCtx.clear();
+            result.clear();
+            if (UtilValidate.isNotEmpty(postalContactMechId)) {
+                serviceCtx = dctx.getModelService("updateFacilityPostalAddress").makeValid(context, ModelService.IN_PARAM);
+                serviceCtx.put("contactMechId", postalContactMechId);
+                serviceCtx.put("toName", (String) context.get("facilityName"));
+                serviceCtx.put("userLogin", userLogin);
+                result = dispatcher.runSync("updateFacilityPostalAddress", serviceCtx);
+                if (!ServiceUtil.isSuccess(result)) {
+                    Debug.logError(ServiceUtil.getErrorMessage(result), module);
+                    return ServiceUtil.returnError(ServiceUtil.getErrorMessage(result));
+                }
+            }
+            serviceCtx.clear();
+            result.clear();
+            if (UtilValidate.isNotEmpty(context.get("contactNumber"))) {
+                //Create Facility Telecom Number.
+                contactNumberMap = MagentoHelper.getMapForContactNumber((String) context.get("contactNumber"));
+                serviceCtx = dctx.getModelService("createFacilityTelecomNumber").makeValid(contactNumberMap, ModelService.IN_PARAM);
+                serviceCtx.put("facilityId", facilityId);
+                serviceCtx.put("userLogin", userLogin);
+                if (UtilValidate.isNotEmpty(telecomContactMechId)) {
+                    serviceCtx.put("contactMechId", telecomContactMechId);
+                    result = dispatcher.runSync("updateFacilityTelecomNumber", serviceCtx);
+                } else {
+                    result = dispatcher.runSync("createFacilityTelecomNumber", serviceCtx);
+                }
+                if (!ServiceUtil.isSuccess(result)) {
+                    Debug.logError(ServiceUtil.getErrorMessage(result), module);
+                    return ServiceUtil.returnError(ServiceUtil.getErrorMessage(result));
+                }
+                serviceCtx.clear();
+                contactNumberMap.clear();
+            } else if (UtilValidate.isNotEmpty(telecomContactMechId)) {
+                //Remove previous contact number if any
+                serviceCtx.put("facilityId", facilityId);
+                serviceCtx.put("contactMechId", telecomContactMechId);
+                serviceCtx.put("userLogin", userLogin);
+                result = dispatcher.runSync("deleteFacilityContactMech", serviceCtx);
+                if (!ServiceUtil.isSuccess(result)) {
+                    Debug.logError(ServiceUtil.getErrorMessage(result), module);
+                    return ServiceUtil.returnError(ServiceUtil.getErrorMessage(result));
+                }
+            }
+            result = ServiceUtil.returnSuccess(UtilProperties.getMessage(resource, "MagentoFacilityInformationIsUpdatedSuccessfully", locale));
+            result.put("facilityId", facilityId);
+            result.put("partyId", partyId);
+            result.put("productStoreId", productStoreId);
+        } catch (GenericServiceException gse) {
+            Debug.logError(gse.getMessage(), module);
+        }
+        return result;
+    }
+    public static Map<String, Object> createRemoveProductStoreShipMeth (DispatchContext dctx, Map<String, Object> context) {
+        LocalDispatcher dispatcher = dctx.getDispatcher();
+        Map<String, Object> result = new HashMap<String, Object>();
+        Map<String, Object> serviceCtx = new HashMap<String, Object>();
+        String productStoreShipMethId = (String) context.get("productStoreShipMethId");
+        Locale locale = (Locale) context.get("locale");
+        List<String> shipmentMethodTypeIdList = UtilGenerics.toList(context.get("shipmentMethodTypeId"));
+        String successMessage = null;
+        try {
+            if (UtilValidate.isNotEmpty(productStoreShipMethId)) {
+                serviceCtx = dctx.getModelService("removeProductStoreShipMeth").makeValid(context, ModelService.IN_PARAM);
+                dispatcher.runSync("removeProductStoreShipMeth", serviceCtx);
+                successMessage = UtilProperties.getMessage(resource, "MagentoShippingMethodIsRemovedSuccessfully", locale);
+            } else {
+                if (UtilValidate.isNotEmpty(shipmentMethodTypeIdList)) {
+                    for (String shipmentMethodTypeId : shipmentMethodTypeIdList) {
+                        serviceCtx = dctx.getModelService("createProductStoreShipMeth").makeValid(context, ModelService.IN_PARAM);
+                        serviceCtx.put("shipmentMethodTypeId", shipmentMethodTypeId);
+                        dispatcher.runSync("createProductStoreShipMeth", serviceCtx);
+                    }
+                    successMessage = UtilProperties.getMessage(resource, "MagentoShippingMethodsAreAddedSuccessfully", locale);
+                }
+                
+            }
+            if (!ServiceUtil.isSuccess(result)) {
+                Debug.logError(ServiceUtil.getErrorMessage(result), module);
+                return ServiceUtil.returnError(ServiceUtil.getErrorMessage(result));
+            }
+        } catch (GenericServiceException gse) {
+            Debug.logInfo(gse.getMessage(), module);
+            ServiceUtil.returnError(gse.getMessage());
+        }
+        return ServiceUtil.returnSuccess(successMessage);
+    }
+
+}
