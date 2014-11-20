@@ -24,8 +24,14 @@ under the License.
                 <property-map resource="CommonUiLabels" map-name="uiLabelMap" global="true"/>
 
                 <set field="styleSheets[]" value="/magento/css/bootstrap/bootstrap.css"/>
+                <set field="styleSheets[]" value="/magento/css/custom.css"/>
+                <set field="styleSheets[]" value="/magento/css/tpl/font-awesome.min.css"/>
+                <set field="styleSheets[]" value="/magento/css/tpl/chosen.css"/>
 
+                <set field="javaScripts[+0]" value="/magento/js/jquery-2.1.1.js" global="true"/>
                 <set field="javaScripts[+1]" value="/magento/js/bootstrap.min.js" global="true"/>
+                <set field="javaScripts[+2]" value="/magento/js/jquery.validate.js" global="true"/>
+                <set field="javaScripts[+3]" value="/magento/js/chosen.jquery.min.js" global="true"/>
 
                 <set field="layoutSettings.companyName" from-field="uiLabelMap.CompanyName" global="true"/>
                 <set field="layoutSettings.companySubtitle" from-field="uiLabelMap.CompanySubtitle" global="true"/>
