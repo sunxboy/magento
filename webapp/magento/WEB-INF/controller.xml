@@ -54,5 +54,18 @@ under the License.
         <response name="success" type="view" value="FacilityInformation"/>
         <response name="error" type="view" value="FacilityInformation"/>
     </request-map>
+    <request-map uri="StoreInformation">
+        <security https="true" auth="true"/>
+        <response name="success" type="view" value="StoreInformation"/>
+    </request-map>
+    <request-map uri="createUpdateStoreInformation">
+        <security https="true" auth="true"/>
+        <event type="service" invoke="createUpdateStoreInformation"/>
+        <response name="success" type="view" value="StoreInformation"/>
+        <response name="error" type="view" value="StoreInformation"/>
+    </request-map>
+
     <view-map name="StoreConfiguration" type="screen" page="component://magento/widget/magento/MagentoScreens.xml#StoreConfiguration"/>
+    <view-map name="StoreInformation" type="screen" page="component://magento/widget/magento/MagentoScreens.xml#StoreInformation"/>
+    <view-map name="FacilityInformation" type="screen" page="component://magento/widget/magento/MagentoScreens.xml#FacilityInformation"/>
 </site-conf>

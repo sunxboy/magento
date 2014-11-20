@@ -38,6 +38,31 @@ under the License.
             </widgets>
         </section>
     </screen>
+    <screen name="StoreInformation">
+        <section>
+            <actions>
+                <set field="titleProperty" value="MagentoStore"/>
+                <set field="step" value="2"/>
+                <set field="productStore" value="${groovy: org.ofbizus.magento.MagentoHelper.getMagentoProductStore(delegator)}"/>
+                <entity-and entity-name="Geo" list="countryList">
+                    <field-map field-name="geoTypeId" value="COUNTRY"/>
+                    <order-by field-name="geoName"/>
+                </entity-and>
+                <script location="component://magento/webapp/magento/WEB-INF/actions/StoreInformation.groovy"/>
+            </actions>
+            <widgets>
+                <decorator-screen name="MagentoCommonDecorator" location="${parameters.mainDecoratorLocation}">
+                    <decorator-section name="body">
+                        <platform-specific>
+                            <html>
+                                <html-template location="component://magento/webapp/magento/store/StoreContainer.ftl"/>
+                            </html>
+                        </platform-specific>
+                    </decorator-section>
+                </decorator-screen>
+            </widgets>
+        </section>
+    </screen>
     <screen name="FacilityInformation">
         <section>
             <actions>
