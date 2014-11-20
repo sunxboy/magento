@@ -65,4 +65,58 @@ under the License.
         <attribute name="emailContactMechId" mode="IN" type="String" optional="true"/>
         <attribute name="telecomContactMechId" mode="IN" type="String" optional="true"/>
     </service>
+    <service name="createUpdateProductStore" engine="java" auth="true"
+            location="org.ofbizus.magento.StoreServices" invoke="createUpdateProductStore">
+        <description>Create store</description>
+        <implements service="createProductStore"/>
+        <attribute name="partyId" mode="INOUT" type="String" optional="false"/>
+        <override name="productStoreId" mode="INOUT" optional="true"/>
+    </service>
+    <service name="createUpdateStoreInformation" engine="java" auth="true"
+            location="org.ofbizus.magento.StoreServices" invoke="createUpdateStoreInformation">
+        <description>Create or update store information</description>
+        <implements service="createUpdateProductStore"/>
+        <implements service="createUpdateCompany"/>
+        <override name="partyId" type="String" mode="IN" optional="true"/>
+    </service>
+    <service name="createWarehouse" engine="java" auth="true"
+            location="org.ofbizus.magento.StoreServices" invoke="createWarehouse">
+        <description>Creates warehouse, its contact number and email address. Associates it to its product store.</description>
+        <implements service="createFacility"/>
+        <implements service="updateProductStore"/>
+        <attribute name="address1" mode="IN" type="String" optional="true"/>
+        <attribute name="address2" mode="IN" type="String" optional="true"/>
+        <attribute name="city" mode="IN" type="String" optional="true"/>
+        <attribute name="countryGeoId" mode="IN" type="String" optional="true"/>
+        <attribute name="stateProvinceGeoId" mode="IN" type="String" optional="true"/>
+        <attribute name="postalCode" mode="IN" type="String" optional="true"/>
+        <attribute name="contactNumber" mode="IN" type="String" optional="true"/>
+        <attribute name="isWarehoueAddressSameAsCompanyAddress" mode="IN" type="String" optional="true"/>
+        <attribute name="partyId" mode="INOUT" type="String" optional="false"/>
+        <override name="productStoreId" mode="INOUT" optional="false"/>
+        <override name="ownerPartyId" optional="true"/>
+        <override name="facilityTypeId" optional="true"/>
+    </service>
+    <service name="updateWarehouse" engine="java" auth="true"
+            location="org.ofbizus.magento.StoreServices" invoke="updateWarehouse">
+        <description>Updates warehouse, its contact information.</description>
+        <implements service="updateFacility"/>
+        <implements service="updateProductStore"/>
+        <implements service="updateFacilityPostalAddress"/>
+        <attribute name="contactNumber" mode="IN" type="String" optional="true"/>
+        <attribute name="partyId" mode="INOUT" type="String" optional="false"/>
+        <attribute name="facilityPostalContactMechId" mode="IN" type="String" optional="true"/>
+        <attribute name="facilityTelecomContactMechId" mode="IN" type="String" optional="true"/>
+        <override name="facilityId" mode="INOUT"/>
+        <override name="productStoreId" mode="INOUT" optional="false"/>
+        <override name="contactMechId" optional="true"/>
+        <override name="facilityName" optional="false"/>
+    </service>
+    <service name="createRemoveProductStoreShipMeth" engine="java" auth="true"
+            location="org.ofbizus.magento.StoreServices" invoke="createRemoveProductStoreShipMeth">
+        <description>Create or Remove product store shipping method.</description>
+        <implements service="createProductStoreShipMeth"/>
+        <attribute name="productStoreShipMethId"  type="String" mode="IN" optional="true"/>
+        <override name="shipmentMethodTypeId" type="List" mode="IN" optional="true"/>
+    </service>
 </services>
