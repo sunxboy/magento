@@ -28,9 +28,9 @@ under the License.
         <security https="true" auth="true"/>
         <response name="success" type="view" value="MagentoConfiguration"/>
     </request-map>
-    <request-map uri="MagentoConfiguration">
+    <request-map uri="StoreConfiguration">
         <security https="true" auth="true"/>
-        <response name="success" type="view" value="MagentoConfiguration"/>
+        <response name="success" type="view" value="StoreConfiguration"/>
     </request-map>
     <request-map uri="createUpdateMagentoConfiguration">
         <security https="true" auth="true"/>
@@ -39,6 +39,5 @@ under the License.
         <response name="error" type="view" value="MagentoConfiguration"/>
     </request-map>
 
-    <view-map name="MagentoConfiguration" type="screen" page="component://magento/widget/magento/MagentoScreens.xml#MagentoConfiguration"/>
-
+    <view-map name="StoreConfiguration" type="screen" page="component://magento/widget/magento/MagentoScreens.xml#StoreConfiguration"/>
 </site-conf>

@@ -17,20 +17,22 @@ under the License.
 -->
 <screens xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:noNamespaceSchemaLocation="http://ofbiz.apache.org/dtds/widget-screen.xsd">
-    <screen name="MagentoConfiguration">
+    <screen name="StoreConfiguration">
         <section>
             <actions>
                 <set field="titleProperty" value="CommonConfiguration"/>
-                <set field="headerItem" value="magentoConfiguration"/>
-                <entity-and entity-name="ProductStore" list="productStoreList"/>
+                <set field="step" value="1"/>
                 <entity-and entity-name="MagentoConfiguration" list="magentoConfiguration"/>
                 <set field="magentoConfiguration" value="${groovy: org.ofbiz.entity.util.EntityUtil.getFirst(magentoConfiguration)}"/>
             </actions>
             <widgets>
                 <decorator-screen name="MagentoCommonDecorator" location="${parameters.mainDecoratorLocation}">
                     <decorator-section name="body">
-                        <label style="h1" text="${uiLabelMap.MagentoMagentoConfiguration}"></label>
-                        <include-form location="component://magento/widget/magento/MagentoForms.xml" name="CreateUpdateMagentoConfiguration"/>
+                        <platform-specific>
+                            <html>
+                                <html-template location="component://magento/webapp/magento/store/StoreContainer.ftl"/>
+                            </html>
+                        </platform-specific>
                     </decorator-section>
                 </decorator-screen>
             </widgets>
