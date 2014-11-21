@@ -1,19 +1,43 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <resource xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <property key="CompanyName">
+        <value xml:lang="en">OFBiz: Magento</value>
+    </property>
+    <property key="CompanySubtitle">
+        <value xml:lang="en">Part of the Open For Business Family of Open Source Software</value>
+    </property>
+    <property key="MagentoAccessUserKey">
+        <value xml:lang="en">Access User Key</value>
+    </property>
+    <property key="MagentoAccessUserPassword">
+        <value xml:lang="en">Access User Password</value>
+    </property>
+    <property key="MagentoAction">
+        <value xml:lang="en">Action</value>
+    </property>
     <property key="MagentoApplication">
         <value xml:lang="en">Magento Application</value>
     </property>
     <property key="MagentoCompanyName">
-        <value xml:lang="en">OFBiz: Magento</value>
+        <value xml:lang="en">Company Name</value>
     </property>
-    <property key="MagentoCompanySubtitle">
-        <value xml:lang="en">Part of the Open For Business Family of Open Source Software</value>
+    <property key="MagentoConnectUrl">
+        <value xml:lang="en">Connect Url</value>
+    </property>
+    <property key="MagentoFacilityInformationIsUpdatedSuccessfully">
+        <value xml:lang="en">Facility information is updated successfully.</value>
+    </property>
+    <property key="MagentoFacilityName">
+        <value xml:lang="en">Facility Name</value>
     </property>
     <property key="MagentoMagentoConfiguration">
         <value xml:lang="en">Magento Configuration</value>
     </property>
     <property key="MagentoMagentoWsdlLocationUrl">
         <value xml:lang="en">Magento Wsdl Location Url</value>
+    </property>
+    <property key="MagentoPhone">
+        <value xml:lang="en">Phone</value>
     </property>
     <property key="MagentoPleaseEnterFacilityLocation">
         <value xml:lang="en">Please enter facility location.</value>
@@ -24,10 +48,25 @@
     <property key="MagentoQtyRecRejCanNotBeZero">
         <value xml:lang="en">Both quantity to accept and quantity to reject cannot be zero.</value>
     </property>
+    <property key="MagentoShippingMethod">
+        <value xml:lang="en">Shipping Method</value>
+    </property>
+    <property key="MagentoShippingMethodsAreAddedSuccessfully">
+        <value xml:lang="en">Shipping method are added successfully.</value>
+    </property>
+    <property key="MagentoShippingMethodIsRemovedSuccessfully">
+        <value xml:lang="en">Shipping method is removed succesfully.</value>
+    </property>
     <property key="MagentoSoapUserName">
         <value xml:lang="en">SOAP User Name</value>
     </property>
     <property key="MagentoStore">
         <value xml:lang="en">Store</value>
+    </property>
+    <property key="MagentoStoreInformationIsUpdatedSuccessfully">
+        <value xml:lang="en">Store information is updated successfully.</value>
+    </property>
+    <property key="MagentoStoreName">
+        <value xml:lang="en">Store Name</value>
     </property>
 </resource>
