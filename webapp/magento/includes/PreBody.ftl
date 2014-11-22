@@ -28,6 +28,7 @@
               Magento Store Setup
             </a>
           </div>
+          <p class="navbar-text navbar-right"><a href="<@ofbizUrl>logout</@ofbizUrl>" title="${uiLabelMap.CommonLogout}"><i class="fa fa-sign-out fa-lg"></i></a></p>
         </div>
       </nav>
       <div class="row">
