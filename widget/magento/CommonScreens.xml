@@ -79,4 +79,18 @@ under the License.
             </widgets>
         </section>
     </screen>
+    <screen name="Login">
+        <section>
+            <actions>
+                <set field="titleProperty" value="CommonLogin"/>
+            </actions>
+            <widgets>
+                <decorator-screen name="main-decorator">
+                    <decorator-section name="body">
+                        <platform-specific><html><html-template location="component://magento/webapp/magento/includes/LoginContainer.ftl"/></html></platform-specific>
+                    </decorator-section>
+                </decorator-screen>
+            </widgets>
+        </section>
+    </screen>
 </screens>

@@ -68,4 +68,5 @@ under the License.
     <view-map name="StoreConfiguration" type="screen" page="component://magento/widget/magento/MagentoScreens.xml#StoreConfiguration"/>
     <view-map name="StoreInformation" type="screen" page="component://magento/widget/magento/MagentoScreens.xml#StoreInformation"/>
     <view-map name="FacilityInformation" type="screen" page="component://magento/widget/magento/MagentoScreens.xml#FacilityInformation"/>
+    <view-map name="login" type="screen" page="component://magento/widget/magento/CommonScreens.xml#Login"/>
 </site-conf>
