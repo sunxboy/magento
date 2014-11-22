@@ -558,7 +558,7 @@ public class StoreServices {
                     for (String shipmentMethodTypeId : shipmentMethodTypeIdList) {
                         serviceCtx = dctx.getModelService("createProductStoreShipMeth").makeValid(context, ModelService.IN_PARAM);
                         serviceCtx.put("shipmentMethodTypeId", shipmentMethodTypeId);
-                        dispatcher.runSync("createProductStoreShipMeth", serviceCtx);
+                        result = dispatcher.runSync("createProductStoreShipMeth", serviceCtx);
                     }
                     successMessage = UtilProperties.getMessage(resource, "MagentoShippingMethodsAreAddedSuccessfully", locale);
                 }

@@ -29,6 +29,7 @@
                     <input type="hidden" name="productStoreId" value="${(productStore.productStoreId)!}"/>
                     <input type="hidden" name="partyId" value="${(carrier.partyId)!}"/>
                     <input type="hidden" name="roleTypeId" value="CARRIER"/>
+                    <input type="hidden" name="serviceName" value="${(shippingServiceNameMap[carrier.partyId])!}"/>
                     <div class="form-group row">
                       <div class="col-lg-3 col-md-3">
                         <label for="countryGeoId">Shipping Method</label>

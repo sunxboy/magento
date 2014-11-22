@@ -11,6 +11,7 @@ carrierParties = delegator.findList("PartyRoleAndPartyDetail", expr,
 if (carrierParties) {
     carrierAndShipmentMethod = [:];
     storeShipMethMap = [:];
+    shippingServiceNameMap = [:];
     carrierParties.each { carrier ->
         expr = exprBldr.AND() {
             EQUALS(roleTypeId: "CARRIER");
@@ -37,7 +38,17 @@ if (carrierParties) {
                 storeShipMethMap.(carrier.partyId) = existingStoreShipMethMap;
             }
         }
+        if ("DHL".equalsIgnoreCase(carrier.partyId)) {
+            shippingServiceNameMap.(carrier.partyId) = "";
+        } else if ("UPS".equalsIgnoreCase(carrier.partyId)) {
+            shippingServiceNameMap.(carrier.partyId) = "";
+        } else if ("USPS".equalsIgnoreCase(carrier.partyId)) {
+            shippingServiceNameMap.(carrier.partyId) = "uspsRateInquire";
+        } else if ("FEDEX".equalsIgnoreCase(carrier.partyId)) {
+            shippingServiceNameMap.(carrier.partyId) = "";
+        } 
     }
+    context.shippingServiceNameMap = shippingServiceNameMap;
     context.carrierAndShipmentMethod = carrierAndShipmentMethod;
     context.carrierParties = carrierParties;
     context.storeShipMethMap = storeShipMethMap;
