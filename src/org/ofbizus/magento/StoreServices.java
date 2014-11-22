@@ -574,5 +574,73 @@ public class StoreServices {
         }
         return ServiceUtil.returnSuccess(successMessage);
     }
+    public static Map<String, Object> createUpdateShipmentGatewayConfig (DispatchContext dctx, Map<String, Object> context) {
+        LocalDispatcher dispatcher = dctx.getDispatcher();
+        Map<String, Object> result = new HashMap<String, Object>();
+        Map<String, Object> serviceCtx = new HashMap<String, Object>();
+        String shipmentGatewayConfigId = (String) context.get("shipmentGatewayConfigId");
+        String carrierPartyId = (String) context.get("carrierPartyId");
+        GenericValue userLogin = (GenericValue) context.get("userLogin");
+        Locale locale = (Locale) context.get("locale");
+        String serviceName = null;
+        String shipmentGatewayConfTypeId = null;
+        try {
+            if (UtilValidate.isNotEmpty(shipmentGatewayConfigId)) {
+                if (UtilValidate.isNotEmpty(carrierPartyId)) {
+                    if ("DHL".equalsIgnoreCase(carrierPartyId)) {
+                        serviceName = "updateShipmentGatewayConfigDhl";
+                    } else if ("FEDEX".equalsIgnoreCase(carrierPartyId)) {
+                        serviceName = "updateShipmentGatewayConfigFedex";
+                    } else if ("UPS".equalsIgnoreCase(carrierPartyId)) {
+                        serviceName = "updateShipmentGatewayConfigUps";
+                    } else if ("USPS".equalsIgnoreCase(carrierPartyId)) {
+                        serviceName = "updateShipmentGatewayConfigUsps";
+                    }
+                    serviceCtx = dctx.getModelService(serviceName).makeValid(context, ModelService.IN_PARAM);
+                    result = dispatcher.runSync(serviceName, serviceCtx);
+                }
+            } else {
+                if (UtilValidate.isNotEmpty(carrierPartyId)) {
+                    if ("DHL".equalsIgnoreCase(carrierPartyId)) {
+                        shipmentGatewayConfTypeId = "DHL";
+                        serviceName = "createShipmentGatewayConfigDhl";
+                    } else if ("FEDEX".equalsIgnoreCase(carrierPartyId)) {
+                        shipmentGatewayConfTypeId = "FEDEX";
+                        serviceName = "createShipmentGatewayConfigFedex";
+                    } else if ("UPS".equalsIgnoreCase(carrierPartyId)) {
+                        shipmentGatewayConfTypeId = "UPS";
+                        serviceName = "createShipmentGatewayConfigUps";
+                    } else if ("USPS".equalsIgnoreCase(carrierPartyId)) {
+                        shipmentGatewayConfTypeId = "USPS";
+                        serviceName = "createShipmentGatewayConfigUsps";
+                    }
+                    serviceCtx.put("shipmentGatewayConfigId", shipmentGatewayConfigId);
+                    serviceCtx.put("shipmentGatewayConfTypeId", shipmentGatewayConfTypeId);
+                    serviceCtx.put("description", carrierPartyId);
+                    serviceCtx.put("userLogin", userLogin);
+                    result = dispatcher.runSync("createShipmentGatewayConfig", serviceCtx);
 
+                    if (!ServiceUtil.isSuccess(result)) {
+                        Debug.logError(ServiceUtil.getErrorMessage(result), module);
+                        return ServiceUtil.returnError(ServiceUtil.getErrorMessage(result));
+                    }
+                    shipmentGatewayConfigId = (String) result.get("shipmentGatewayConfigId");
+                    if (UtilValidate.isNotEmpty(shipmentGatewayConfigId)) {
+                        serviceCtx.clear();
+                        serviceCtx = dctx.getModelService(serviceName).makeValid(context, ModelService.IN_PARAM);
+                        serviceCtx.put("shipmentGatewayConfigId", shipmentGatewayConfigId);
+                        result = dispatcher.runSync(serviceName, serviceCtx);
+                    }
+                }
+            }
+            if (!ServiceUtil.isSuccess(result)) {
+                Debug.logError(ServiceUtil.getErrorMessage(result), module);
+                return ServiceUtil.returnError(ServiceUtil.getErrorMessage(result));
+            }
+        } catch (GenericServiceException gse) {
+            Debug.logInfo(gse.getMessage(), module);
+            return ServiceUtil.returnError(gse.getMessage());
+        }
+        return ServiceUtil.returnSuccess(UtilProperties.getMessage(resource, "MagentoShippingGatewayConfigurationIsUpdatedSuccessfully", locale));
+    }
 }
