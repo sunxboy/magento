@@ -64,9 +64,26 @@ under the License.
         <response name="success" type="view" value="StoreInformation"/>
         <response name="error" type="view" value="StoreInformation"/>
     </request-map>
+    <request-map uri="ShippingInformation">
+        <security https="true" auth="true"/>
+        <response name="success" type="view" value="ShippingInformation" />
+    </request-map>
+    <request-map uri="createRemoveProductStoreShipMeth">
+        <security https="true" auth="true"/>
+        <event type="service" invoke="createRemoveProductStoreShipMeth"/>
+        <response name="success" type="view" value="ShippingInformation"/>
+        <response name="error" type="view" value="ShippingInformation"/>
+    </request-map>
+    <request-map uri="createUpdateShipmentGatewayConfig">
+        <security https="true" auth="true"/>
+        <event type="service" invoke="createUpdateShipmentGatewayConfig"/>
+        <response name="success" type="view" value="ShippingInformation"/>
+        <response name="error" type="view" value="ShippingInformation"/>
+    </request-map>
 
     <view-map name="StoreConfiguration" type="screen" page="component://magento/widget/magento/MagentoScreens.xml#StoreConfiguration"/>
     <view-map name="StoreInformation" type="screen" page="component://magento/widget/magento/MagentoScreens.xml#StoreInformation"/>
     <view-map name="FacilityInformation" type="screen" page="component://magento/widget/magento/MagentoScreens.xml#FacilityInformation"/>
+    <view-map name="ShippingInformation" type="screen" page="component://magento/widget/magento/MagentoScreens.xml#ShippingInformation"/>
     <view-map name="login" type="screen" page="component://magento/widget/magento/CommonScreens.xml#Login"/>
 </site-conf>

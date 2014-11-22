@@ -24,6 +24,9 @@
     <property key="MagentoConnectUrl">
         <value xml:lang="en">Connect Url</value>
     </property>
+    <property key="MagentoEmailAddress">
+        <value xml:lang="en">Email Address</value>
+    </property>
     <property key="MagentoFacilityInformationIsUpdatedSuccessfully">
         <value xml:lang="en">Facility information is updated successfully.</value>
     </property>
@@ -48,6 +51,10 @@
     <property key="MagentoQtyRecRejCanNotBeZero">
         <value xml:lang="en">Both quantity to accept and quantity to reject cannot be zero.</value>
     </property>
+    <property key="MagentoShippingGatewayConfigurationIsUpdatedSuccessfully">
+        <value xml:lang="en">Shipping gateway configuration is updated successfully.</value>
+    </property>
+    
     <property key="MagentoShippingMethod">
         <value xml:lang="en">Shipping Method</value>
     </property>

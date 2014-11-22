@@ -88,4 +88,25 @@ under the License.
             </widgets>
         </section>
     </screen>
+    <screen name="ShippingInformation">
+        <section>
+            <actions>
+                <set field="titleProperty" value="CommonShipping"/>
+                <set field="step" value="4"/>
+                <set field="productStore" value="${groovy: org.ofbizus.magento.MagentoHelper.getMagentoProductStore(delegator)}"/>
+                <script location="component://magento/webapp/magento/WEB-INF/actions/ShippingInformation.groovy"/>
+            </actions>
+            <widgets>
+                <decorator-screen name="MagentoCommonDecorator" location="${parameters.mainDecoratorLocation}">
+                    <decorator-section name="body">
+                        <platform-specific>
+                            <html>
+                                <html-template location="component://magento/webapp/magento/store/StoreContainer.ftl"/>
+                            </html>
+                        </platform-specific>
+                    </decorator-section>
+                </decorator-screen>
+            </widgets>
+        </section>
+    </screen>
 </screens>

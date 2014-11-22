@@ -1,2 +1,5 @@
 label.error{color:#FF0000;}
 .asterisk { color: #FF0000;}
+.chosen-container.chosen-container-multi, .search-field .default {
+    width: 100% !important;
+}
