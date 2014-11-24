@@ -1,5 +1,7 @@
 package org.ofbizus.magento;
 
+import java.io.File;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -297,6 +299,7 @@ public class StoreServices {
         Map<String, Object> result = new HashMap<String, Object>();
         Map<String, Object> serviceCtx = new HashMap<String, Object>();
         Locale locale = (Locale) context.get("locale");
+        GenericValue userLogin = (GenericValue) context.get("userLogin");
 
         try {
             serviceCtx = dctx.getModelService("createUpdateCompany").makeValid(context, ModelService.IN_PARAM);
@@ -313,9 +316,14 @@ public class StoreServices {
                     Debug.logError(ServiceUtil.getErrorMessage(result), module);
                     return ServiceUtil.returnError(ServiceUtil.getErrorMessage(result));
                 }
-                
-                
-                
+                serviceCtx.clear();
+                serviceCtx.put("userLogin", userLogin);
+                serviceCtx.put("partyId", partyId);
+                result = dispatcher.runSync("setupDefaultGeneralLedger", serviceCtx);
+                if (!ServiceUtil.isSuccess(result)) {
+                    Debug.logError(ServiceUtil.getErrorMessage(result), module);
+                    return ServiceUtil.returnError(ServiceUtil.getErrorMessage(result));
+                }
             }
         } catch (GenericServiceException gse) {
             Debug.logInfo(gse.getMessage(), module);
@@ -642,5 +650,69 @@ public class StoreServices {
             return ServiceUtil.returnError(gse.getMessage());
         }
         return ServiceUtil.returnSuccess(UtilProperties.getMessage(resource, "MagentoShippingGatewayConfigurationIsUpdatedSuccessfully", locale));
+    }
+    public static Map<String, Object> setupDefaultGeneralLedger (DispatchContext dctx, Map<String, Object> context) {
+        LocalDispatcher dispatcher = dctx.getDispatcher();
+        Delegator delegator = dctx.getDelegator();
+        Map<String, Object> result = new HashMap<String, Object>();
+        Map<String, Object> serviceCtx = new HashMap<String, Object>();
+        String partyId = (String) context.get("partyId");
+        GenericValue userLogin = (GenericValue) context.get("userLogin");
+        try {
+            if (UtilValidate.isNotEmpty(partyId)) {
+                EntityCondition cond = EntityCondition.makeCondition (
+                        EntityCondition.makeCondition("partyId", partyId),
+                        EntityCondition.makeCondition("glJournalName", "Suspense transactions")
+                        );
+                List<GenericValue> glJournalList = delegator.findList("GlJournal", cond, null, null, null, false);
+                if (UtilValidate.isEmpty(glJournalList)) {
+                    serviceCtx.put("glJournalName", "Suspense transactions");
+                    serviceCtx.put("organizationPartyId", partyId);
+                    serviceCtx.put("userLogin", userLogin);
+                    result = dispatcher.runSync("createGlJournal", serviceCtx);
+                    if (!ServiceUtil.isSuccess(result)) {
+                        Debug.logError(ServiceUtil.getErrorMessage(result), module);
+                        return ServiceUtil.returnError(ServiceUtil.getErrorMessage(result));
+                    }
+                }
+
+                GenericValue partyAcctgPreference = delegator.findOne("PartyAcctgPreference", false, UtilMisc.toMap("partyId", partyId));
+                if (UtilValidate.isEmpty(partyAcctgPreference)) {
+                    serviceCtx.clear();
+                    serviceCtx.put("partyId", partyId);
+                    serviceCtx.put("taxFormId", "US_IRS_1120");
+                    serviceCtx.put("cogsMethodId", "COGS_AVG_COST");
+                    serviceCtx.put("invoiceSequenceEnumId", "INVSQ_ENF_SEQ");
+                    serviceCtx.put("invoiceIdPrefix", "CI");
+                    serviceCtx.put("quoteSequenceEnumId", "INVSQ_ENF_SEQ");
+                    serviceCtx.put("quoteIdPrefix", "CQ");
+                    serviceCtx.put("orderSequenceEnumId", "INVSQ_ENF_SEQ");
+                    serviceCtx.put("orderIdPrefix", "CO");
+                    serviceCtx.put("orderIdPrefix", "CO");
+                    serviceCtx.put("userLogin", userLogin);
+                    result = dispatcher.runSync("createPartyAcctgPreference", serviceCtx);
+                    if (!ServiceUtil.isSuccess(result)) {
+                        Debug.logError(ServiceUtil.getErrorMessage(result), module);
+                        return ServiceUtil.returnError(ServiceUtil.getErrorMessage(result));
+                    }
+                }
+
+                URL outputPath = MagentoHelper.getTempDataFileUrlToImport(delegator, partyId);
+                if (UtilValidate.isNotEmpty(outputPath)) {
+                    result = dispatcher.runSync("parseEntityXmlFile", UtilMisc.toMap("url", outputPath, "userLogin", userLogin));
+                    if (!ServiceUtil.isSuccess(result)) {
+                        Debug.logError(ServiceUtil.getErrorMessage(result), module);
+                        return ServiceUtil.returnError(ServiceUtil.getErrorMessage(result));
+                    }
+                }
+            }
+        } catch (GenericServiceException gse) {
+            Debug.logInfo(gse.getMessage(), module);
+            return ServiceUtil.returnError(gse.getMessage());
+        } catch (GenericEntityException gee) {
+            Debug.logInfo(gee.getMessage(), module);
+            return ServiceUtil.returnError(gee.getMessage());
+        }
+        return ServiceUtil.returnSuccess();
     }
 }

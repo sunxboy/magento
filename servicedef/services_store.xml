@@ -153,4 +153,8 @@ under the License.
         <attribute name="accessPassword" mode="IN" type="String"/>
         <attribute name="carrierPartyId" mode="IN" type="String"/>
     </service>
+    <service name="setupDefaultGeneralLedger" engine="java" auth="true"
+            location="org.ofbizus.magento.StoreServices" invoke="setupDefaultGeneralLedger">
+        <attribute name="partyId" mode="IN" type="String" optional="true"/>
+    </service>
 </services>

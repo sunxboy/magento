@@ -1,12 +1,16 @@
 package org.ofbizus.magento;
 
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.math.BigDecimal;
+import java.net.URL;
 import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -953,5 +957,36 @@ public class MagentoHelper {
             return null;
         }
        return  null;
+    }
+    public static URL getTempDataFileUrlToImport (Delegator delegator, String partyId) {
+        try {
+            String pathString = "file:"+System.getProperty("ofbiz.home")+"/hot-deploy/magento/data/GlAccountData.xml";
+            URL templateUrl = new URL(pathString);
+            InputStream templateStream = templateUrl.openStream();
+            InputStreamReader templateReader = new InputStreamReader(templateStream, "UTF-8");
+            BufferedReader inFile = new BufferedReader(templateReader);
+            String tempDir = System.getProperty("ofbiz.home")+"/runtime/magento";
+            File fileOut = new File(tempDir);
+            if (!fileOut.exists()) {
+                fileOut.mkdir();
+            }
+            FileOutputStream fos = new FileOutputStream(new File(fileOut, "TempData.xml"));
+            OutputStreamWriter osw = new OutputStreamWriter(fos);
+            BufferedWriter outFile = new BufferedWriter(osw);
+
+            String line = null;
+            while (null != (line = inFile.readLine())) {
+                line = line.replaceAll("ORGPARTYID", partyId);
+                line = line.replaceAll("FROMDATE", UtilDateTime.nowDateString("yyyy-MM-dd HH:mm:ss"));
+                outFile.write(line);
+            }
+            outFile.close();
+            String outputPathString = "file:"+System.getProperty("ofbiz.home")+"/runtime/magento/TempData.xml";
+            URL outputPath = new URL(outputPathString);
+            return outputPath;
+        } catch (IOException ioe) {
+            Debug.logInfo(ioe.getMessage(), module);
+            return null;
+        }
     }
 }
