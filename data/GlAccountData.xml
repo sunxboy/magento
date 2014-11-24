@@ -1,0 +1,237 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<entity-engine-xml>
+
+    <GlAccount glAccountId="1000" accountName="Cash in Bank and on Hand" parentGlAccountId="" accountCode="Cash in Bank and on Hand" glAccountClassId="CASH_EQUIVALENT" glAccountTypeId="CURRENT_ASSET" glResourceTypeId="MONEY" description="Cash in Bank and on Hand" postedBalance="0.0"/>
+
+    <GlAccount glAccountId="1200" accountName="Accounts Receivable" parentGlAccountId=""  accountCode="Accounts Receivable" glAccountClassId="CURRENT_ASSET" glAccountTypeId="ACCOUNTS_RECEIVABLE" glResourceTypeId="MONEY" description="" postedBalance="0.0"/>
+    <GlAccount glAccountId="1210" accountName="AR Unapplied Payments" parentGlAccountId="1200" accountCode="AR Unapplied Payments" glAccountClassId="CURRENT_ASSET" glAccountTypeId="ACCREC_UNAPPLIED" glResourceTypeId="MONEY" description="" postedBalance="0.0"/>
+    <GlAccount glAccountId="1220" accountName="AR Merchant Account Credit Cards" parentGlAccountId="1200" accountCode="AR Merchant Account Credit Cards" glAccountClassId="CURRENT_ASSET" glAccountTypeId="MRCH_STLMNT_ACCOUNT" glResourceTypeId="MONEY" description="" postedBalance="0.0"/>
+    <GlAccount glAccountId="1230" accountName="AR Paypal" parentGlAccountId="1200" accountCode="AR Paypal" glAccountClassId="CURRENT_ASSET" glAccountTypeId="MRCH_STLMNT_ACCOUNT" glResourceTypeId="MONEY" description="" postedBalance="0.0"/>
+    <GlAccount glAccountId="1240" accountName="AR Bank Checks" parentGlAccountId="1200" accountCode="AR Bank Checks" glAccountClassId="CURRENT_ASSET" glAccountTypeId="MRCH_STLMNT_ACCOUNT" glResourceTypeId="MONEY" description="" postedBalance="0.0"/>
+    <GlAccount glAccountId="1250" accountName="AR Google Checkout" parentGlAccountId="1200" accountCode="AR Google Checkout" glAccountClassId="CURRENT_ASSET" glAccountTypeId="MRCH_STLMNT_ACCOUNT" glResourceTypeId="MONEY" description="" postedBalance="0.0"/>
+    <GlAccount glAccountId="1260" accountName="AR American Express" parentGlAccountId="1200" accountCode="AR American Express" glAccountClassId="CURRENT_ASSET" glAccountTypeId="MRCH_STLMNT_ACCOUNT" glResourceTypeId="MONEY" description="" postedBalance="0.0"/>
+    <GlAccount glAccountId="1270" accountName="AR Discover" parentGlAccountId="1200" accountCode="AR Discover" glAccountClassId="CURRENT_ASSET" glAccountTypeId="MRCH_STLMNT_ACCOUNT" glResourceTypeId="MONEY" description="" postedBalance="0.0"/>
+    <GlAccount glAccountId="1280" accountName="AR Iglobal" parentGlAccountId="1200" accountCode="AR Iglobal" glAccountClassId="CURRENT_ASSET" glAccountTypeId="MRCH_STLMNT_ACCOUNT" glResourceTypeId="MONEY" description="" postedBalance="0.0"/>
+    <GlAccount glAccountId="1290" accountName="AR Not Naked" parentGlAccountId="1200" accountCode="AR Not Naked" glAccountClassId="CURRENT_ASSET" glAccountTypeId="ACCOUNTS_RECEIVABLE" glResourceTypeId="MONEY" description="" postedBalance="0.0"/>
+
+    <GlAccount glAccountId="1400" accountName="Inventory" parentGlAccountId="" accountCode="Inventory" glAccountClassId="INVENTORY_ASSET" glAccountTypeId="INVENTORY_ACCOUNT" description="" postedBalance="0.0"/>
+    <GlAccount glAccountId="1500" accountName="Furniture and Equipment" parentGlAccountId=""  accountCode="Furniture and Equipment" glAccountClassId="LONGTERM_ASSET" glAccountTypeId="FIXED_ASSET" glResourceTypeId="FINISHED_GOODS" description="" postedBalance="0.0"/>
+    <GlAccount glAccountId="1700" accountName="Accumulated Depreciation" parentGlAccountId=""  accountCode="Accumulated Depreciation" glAccountClassId="ACCUM_DEPRECIATION" glAccountTypeId="FIXED_ASSET" glResourceTypeId="MONEY" description="" postedBalance="0.0"/>
+
+    <GlAccount glAccountId="2000" accountName="Accounts Payable" parentGlAccountId=""  accountCode="Accounts Payable" glAccountClassId="CURRENT_LIABILITY" glAccountTypeId="ACCOUNTS_PAYABLE" glResourceTypeId="MONEY" description="" postedBalance="0.0"/>
+    <GlAccount glAccountId="2001" accountName="AP Unapplied Payments" parentGlAccountId="" accountCode="AP Unapplied Payments" glAccountClassId="CURRENT_LIABILITY" glAccountTypeId="ACCPAYABLE_UNAPPLIED" glResourceTypeId="MONEY" description="" postedBalance="0.0"/>
+    <GlAccount glAccountId="2002" accountName="Uninvoiced Item Receipts" parentGlAccountId="" accountCode="Uninvoiced Item Receipts" glAccountClassId="CURRENT_LIABILITY" glAccountTypeId="CURRENT_LIABILITY" glResourceTypeId="MONEY" description="" postedBalance="0.0"/>
+    <GlAccount glAccountId="2010" accountName="Sales Tax Payable" parentGlAccountId=""  accountCode="Sales Tax Payable" glAccountClassId="CURRENT_LIABILITY" glAccountTypeId="CURRENT_LIABILITY" glResourceTypeId="MONEY" description="" postedBalance="0.0"/>
+    <GlAccount glAccountId="2100" accountName="Payroll Liabilities" parentGlAccountId=""  accountCode="Payroll Liabilities" glAccountClassId="CURRENT_LIABILITY" glAccountTypeId="CURRENT_LIABILITY" glResourceTypeId="MONEY" description="" postedBalance="0.0"/>
+    <GlAccount glAccountId="2300" accountName="Customer Deposits" parentGlAccountId=""  accountCode="Customer Deposits" glAccountClassId="CURRENT_LIABILITY" glAccountTypeId="CUSTOMER_DEPOSIT" glResourceTypeId="MONEY" description="" postedBalance="0.0"/>
+    <GlAccount glAccountId="2400" accountName="Gift Certificates Outstanding" parentGlAccountId=""  accountCode="Gift Certificates Outstanding" glAccountClassId="CURRENT_LIABILITY" glAccountTypeId="CUSTOMER_CREDIT" glResourceTypeId="MONEY" description="" postedBalance="0.0"/>
+
+    <GlAccount glAccountId="3000" accountName="Owners Equity And Net Worth" parentGlAccountId="" accountCode="Owners Equity And Net Worth" glAccountClassId="EQUITY" glAccountTypeId="" glResourceTypeId="MONEY" description="" postedBalance="0.0"/>
+    <GlAccount glAccountId="3010" accountName="Shareholder 1" parentGlAccountId="3000" accountCode="Shareholder 1" glAccountClassId="OWNERS_EQUITY" glAccountTypeId="OWNERS_EQUITY" glResourceTypeId="MONEY" description="" postedBalance="0.0"/>
+    <GlAccount glAccountId="3020" accountName="Shareholder 2" parentGlAccountId="3000" accountCode="Shareholder 2" glAccountClassId="OWNERS_EQUITY" glAccountTypeId="OWNERS_EQUITY" glResourceTypeId="MONEY" description="" postedBalance="0.0"/>
+    <GlAccount glAccountId="3030" accountName="Shareholder 3" parentGlAccountId="3000" accountCode="Shareholder 3" glAccountClassId="OWNERS_EQUITY" glAccountTypeId="OWNERS_EQUITY" glResourceTypeId="MONEY" description="" postedBalance="0.0"/>
+    <GlAccount glAccountId="3100" accountName="Member Draws" parentGlAccountId="" accountCode="Member Draws" glAccountClassId="RETURN_OF_CAPITAL" glAccountTypeId="OWNERS_EQUITY" glResourceTypeId="MONEY" description="" postedBalance="0.0"/>
+
+    <GlAccount glAccountId="4600" accountName="Merchandise Sales" parentGlAccountId=""  accountCode="Merchandise Sales" glAccountClassId="REVENUE" glAccountTypeId="" glResourceTypeId="MONEY" description="" postedBalance="0.0"/>
+    <GlAccount glAccountId="4610" accountName="Shipping Revenue" parentGlAccountId=""  accountCode="Shipping Revenue" glAccountClassId="REVENUE" glAccountTypeId="" glResourceTypeId="MONEY" description="" postedBalance="0.0"/>
+
+    <GlAccount glAccountId="4700" accountName="Donation Payable" parentGlAccountId="" accountCode="Donation Payable" glAccountClassId="CURRENT_LIABILITY" glAccountTypeId="CURRENT_LIABILITY" glResourceTypeId="MONEY" postedBalance="0.0"/>
+
+    <GlAccount glAccountId="4830" accountName="Sale Discounts" parentGlAccountId="" accountCode="Sale Discounts" glAccountClassId="CONTRA_REVENUE" glAccountTypeId="" glResourceTypeId="MONEY"  description="" postedBalance="0.0"/>
+    <GlAccount glAccountId="4840" accountName="Sales returns and Allowances" parentGlAccountId="" accountCode="Sales returns and Allowances" glAccountClassId="CONTRA_REVENUE" glAccountTypeId="" glResourceTypeId="MONEY"  description="" postedBalance="0.0"/>
+
+    <GlAccount glAccountId="5100" accountName="Merchandise Cost" parentGlAccountId="" accountCode="Merchandise Cost" glAccountClassId="COGS_EXPENSE" description="" postedBalance="0.0"/>
+    <GlAccount glAccountId="5150" accountName="Shipping Cost" parentGlAccountId="" accountCode="Shipping Cost" glAccountClassId="COGS_EXPENSE" description="" postedBalance="0.0"/>
+    <GlAccount glAccountId="5180" accountName="Merchant Account Fees" parentGlAccountId=""  accountCode="Merchant Account Fees" glAccountClassId="COGS_EXPENSE" glAccountTypeId="" glResourceTypeId="MONEY" description="" postedBalance="0.0"/>
+    <GlAccount glAccountId="5400" accountName="Depreciation Expense" parentGlAccountId=""  accountCode="Depreciation Expense" glAccountClassId="DEPRECIATION" glAccountTypeId="" glResourceTypeId="MONEY" description="" postedBalance="0.0"/>
+
+    <GlAccount glAccountId="7000" accountName="Advertising and Promotion" parentGlAccountId=""  accountCode="Advertising and Promotion" glAccountClassId="SGA_EXPENSE" glAccountTypeId="" glResourceTypeId="MONEY" description="" postedBalance="0.0"/>
+    <GlAccount glAccountId="7010" accountName="SEO Expense" parentGlAccountId=""  accountCode="SEO Expense" glAccountClassId="SGA_EXPENSE" glAccountTypeId="" glResourceTypeId="MONEY" description="" postedBalance="0.0"/>
+    <GlAccount glAccountId="7020" accountName="Pay Per Click Expense" parentGlAccountId=""  accountCode="Pay Per Click Expense" glAccountClassId="SGA_EXPENSE" glAccountTypeId="" glResourceTypeId="MONEY" description="" postedBalance="0.0"/>
+    <GlAccount glAccountId="7100" accountName="Website Expense" parentGlAccountId=""  accountCode="Website Expense" glAccountClassId="SGA_EXPENSE" glAccountTypeId="" glResourceTypeId="MONEY" description="" postedBalance="0.0"/>
+    <GlAccount glAccountId="7120" accountName="Website Construction" parentGlAccountId=""  accountCode="Website Construction" glAccountClassId="SGA_EXPENSE" glAccountTypeId="" glResourceTypeId="MONEY" description="" postedBalance="0.0"/>
+    <GlAccount glAccountId="7130" accountName="Website Maintenance" parentGlAccountId=""  accountCode="Website Maintenance" glAccountClassId="SGA_EXPENSE" glAccountTypeId="" glResourceTypeId="MONEY" description="" postedBalance="0.0"/>
+    <GlAccount glAccountId="7200" accountName="Taxes and Licenses" parentGlAccountId=""  accountCode="Taxes and Licenses" glAccountClassId="SGA_EXPENSE" glAccountTypeId="" glResourceTypeId="MONEY" description="" postedBalance="0.0"/>
+    <GlAccount glAccountId="7210" accountName="Dues and Subscriptions" parentGlAccountId=""  accountCode="Dues and Subscriptions" glAccountClassId="SGA_EXPENSE" glAccountTypeId="" glResourceTypeId="MONEY" description="" postedBalance="0.0"/>
+    <GlAccount glAccountId="7300" accountName="Office Expense" parentGlAccountId=""  accountCode="Office Expense" glAccountClassId="SGA_EXPENSE" glAccountTypeId="" glResourceTypeId="MONEY" description="" postedBalance="0.0"/>
+    <GlAccount glAccountId="7310" accountName="Account Expense" parentGlAccountId=""  accountCode="Account Expense" glAccountClassId="SGA_EXPENSE" glAccountTypeId="" glResourceTypeId="MONEY" description="" postedBalance="0.0"/>
+    <GlAccount glAccountId="7320" accountName="Website Admin" parentGlAccountId=""  accountCode="Website Admin" glAccountClassId="SGA_EXPENSE" glAccountTypeId="" glResourceTypeId="MONEY" description="" postedBalance="0.0"/>
+    <GlAccount glAccountId="7330" accountName="Payroll Expenses" parentGlAccountId=""  accountCode="Payroll Expenses" glAccountClassId="SGA_EXPENSE" glAccountTypeId="" glResourceTypeId="MONEY" description="" postedBalance="0.0"/>
+    <GlAccount glAccountId="7340" accountName="Mesc Expense" parentGlAccountId=""  accountCode="Telephone Expense" glAccountClassId="SGA_EXPENSE" glAccountTypeId="" glResourceTypeId="MONEY" description="" postedBalance="0.0"/>
+
+
+    <GlAccountOrganization glAccountId="1000" organizationPartyId="ORGPARTYID" fromDate="FROMDATE"/>
+
+    <GlAccountOrganization glAccountId="1200" organizationPartyId="ORGPARTYID" fromDate="FROMDATE"/>
+    <GlAccountOrganization glAccountId="1210" organizationPartyId="ORGPARTYID" fromDate="FROMDATE"/>
+    <GlAccountOrganization glAccountId="1220" organizationPartyId="ORGPARTYID" fromDate="FROMDATE"/>
+    <GlAccountOrganization glAccountId="1230" organizationPartyId="ORGPARTYID" fromDate="FROMDATE"/>
+    <GlAccountOrganization glAccountId="1240" organizationPartyId="ORGPARTYID" fromDate="FROMDATE"/>
+    <GlAccountOrganization glAccountId="1250" organizationPartyId="ORGPARTYID" fromDate="FROMDATE"/>
+    <GlAccountOrganization glAccountId="1260" organizationPartyId="ORGPARTYID" fromDate="FROMDATE"/>
+    <GlAccountOrganization glAccountId="1270" organizationPartyId="ORGPARTYID" fromDate="FROMDATE"/>
+    <GlAccountOrganization glAccountId="1280" organizationPartyId="ORGPARTYID" fromDate="FROMDATE"/>
+    <GlAccountOrganization glAccountId="1290" organizationPartyId="ORGPARTYID" fromDate="FROMDATE"/>
+
+    <GlAccountOrganization glAccountId="1400" organizationPartyId="ORGPARTYID" fromDate="FROMDATE"/>
+    <GlAccountOrganization glAccountId="1500" organizationPartyId="ORGPARTYID" fromDate="FROMDATE"/>
+    <GlAccountOrganization glAccountId="1700" organizationPartyId="ORGPARTYID" fromDate="FROMDATE"/>
+    <GlAccountOrganization glAccountId="2000" organizationPartyId="ORGPARTYID" fromDate="FROMDATE"/>
+    <GlAccountOrganization glAccountId="2001" organizationPartyId="ORGPARTYID" fromDate="FROMDATE"/>
+    <GlAccountOrganization glAccountId="2002" organizationPartyId="ORGPARTYID" fromDate="FROMDATE"/>
+    <GlAccountOrganization glAccountId="2010" organizationPartyId="ORGPARTYID" fromDate="FROMDATE"/>
+    <GlAccountOrganization glAccountId="2100" organizationPartyId="ORGPARTYID" fromDate="FROMDATE"/>
+    <GlAccountOrganization glAccountId="2300" organizationPartyId="ORGPARTYID" fromDate="FROMDATE"/>
+    <GlAccountOrganization glAccountId="2400" organizationPartyId="ORGPARTYID" fromDate="FROMDATE"/>
+    <GlAccountOrganization glAccountId="3000" organizationPartyId="ORGPARTYID" fromDate="FROMDATE"/>
+    <GlAccountOrganization glAccountId="3010" organizationPartyId="ORGPARTYID" fromDate="FROMDATE"/>
+    <GlAccountOrganization glAccountId="3020" organizationPartyId="ORGPARTYID" fromDate="FROMDATE"/>
+    <GlAccountOrganization glAccountId="3030" organizationPartyId="ORGPARTYID" fromDate="FROMDATE"/>
+    <GlAccountOrganization glAccountId="3100" organizationPartyId="ORGPARTYID" fromDate="FROMDATE"/>
+    
+    <GlAccountOrganization glAccountId="4600" organizationPartyId="ORGPARTYID" fromDate="FROMDATE"/>
+    <GlAccountOrganization glAccountId="4610" organizationPartyId="ORGPARTYID" fromDate="FROMDATE"/>
+    <GlAccountOrganization glAccountId="4700" organizationPartyId="ORGPARTYID" fromDate="FROMDATE"/>
+    <GlAccountOrganization glAccountId="4830" organizationPartyId="ORGPARTYID" fromDate="FROMDATE"/>
+    <GlAccountOrganization glAccountId="4840" organizationPartyId="ORGPARTYID" fromDate="FROMDATE"/>
+    
+    <GlAccountOrganization glAccountId="5100" organizationPartyId="ORGPARTYID" fromDate="FROMDATE"/>
+    <GlAccountOrganization glAccountId="5180" organizationPartyId="ORGPARTYID" fromDate="FROMDATE"/>
+    <GlAccountOrganization glAccountId="5150" organizationPartyId="ORGPARTYID" fromDate="FROMDATE"/>
+    
+    <GlAccountOrganization glAccountId="7000" organizationPartyId="ORGPARTYID" fromDate="FROMDATE"/>
+    <GlAccountOrganization glAccountId="7010" organizationPartyId="ORGPARTYID" fromDate="FROMDATE"/>
+    <GlAccountOrganization glAccountId="7020" organizationPartyId="ORGPARTYID" fromDate="FROMDATE"/>
+    <GlAccountOrganization glAccountId="7100" organizationPartyId="ORGPARTYID" fromDate="FROMDATE"/>
+    <GlAccountOrganization glAccountId="7120" organizationPartyId="ORGPARTYID" fromDate="FROMDATE"/>
+    <GlAccountOrganization glAccountId="7130" organizationPartyId="ORGPARTYID" fromDate="FROMDATE"/>
+    <GlAccountOrganization glAccountId="7200" organizationPartyId="ORGPARTYID" fromDate="FROMDATE"/>
+    <GlAccountOrganization glAccountId="7210" organizationPartyId="ORGPARTYID" fromDate="FROMDATE"/>
+    <GlAccountOrganization glAccountId="7300" organizationPartyId="ORGPARTYID" fromDate="FROMDATE"/>
+    <GlAccountOrganization glAccountId="7310" organizationPartyId="ORGPARTYID" fromDate="FROMDATE"/>
+    <GlAccountOrganization glAccountId="7320" organizationPartyId="ORGPARTYID" fromDate="FROMDATE"/>
+    <GlAccountOrganization glAccountId="7330" organizationPartyId="ORGPARTYID" fromDate="FROMDATE"/>
+    <GlAccountOrganization glAccountId="7340" organizationPartyId="ORGPARTYID" fromDate="FROMDATE"/>
+
+    <GlAccountTypeDefault organizationPartyId="ORGPARTYID" glAccountTypeId="ACCOUNTS_RECEIVABLE" glAccountId="1200"/>
+    <GlAccountTypeDefault organizationPartyId="ORGPARTYID" glAccountTypeId="CUSTOMER_CREDIT" glAccountId="1200"/>
+    <GlAccountTypeDefault organizationPartyId="ORGPARTYID" glAccountTypeId="ACCREC_UNAPPLIED" glAccountId="1210"/>
+    <GlAccountTypeDefault organizationPartyId="ORGPARTYID" glAccountTypeId="SALES_ACCOUNT" glAccountId="4600"/>
+    <GlAccountTypeDefault organizationPartyId="ORGPARTYID" glAccountTypeId="SALES_RETURNS" glAccountId="4840"/>
+    <GlAccountTypeDefault organizationPartyId="ORGPARTYID" glAccountTypeId="INVENTORY_ACCOUNT" glAccountId="1400"/>
+    <GlAccountTypeDefault organizationPartyId="ORGPARTYID" glAccountTypeId="COGS_ACCOUNT" glAccountId="5100"/>
+    <GlAccountTypeDefault organizationPartyId="ORGPARTYID" glAccountTypeId="ACCOUNTS_PAYABLE" glAccountId="2000"/>
+    <GlAccountTypeDefault organizationPartyId="ORGPARTYID" glAccountTypeId="ACCPAYABLE_UNAPPLIED" glAccountId="2001"/>
+    <GlAccountTypeDefault organizationPartyId="ORGPARTYID" glAccountTypeId="UNINVOICED_SHIP_RCPT" glAccountId="2002"/>
+
+    <InvoiceItemTypeGlAccount invoiceItemTypeId="INVOICE_ADJ" organizationPartyId="ORGPARTYID" glAccountId="4600"/>
+    <InvoiceItemTypeGlAccount invoiceItemTypeId="INVOICE_ITM_ADJ" organizationPartyId="ORGPARTYID" glAccountId="4600"/>
+    
+    <InvoiceItemTypeGlAccount invoiceItemTypeId="INV_PROMOTION_ADJ" organizationPartyId="ORGPARTYID" glAccountId="4830"/>
+    <InvoiceItemTypeGlAccount invoiceItemTypeId="INV_DISCOUNT_ADJ" organizationPartyId="ORGPARTYID" glAccountId="4830"/>
+    <InvoiceItemTypeGlAccount invoiceItemTypeId="INV_MISC_CHARGE" organizationPartyId="ORGPARTYID" glAccountId="4600"/>
+    <InvoiceItemTypeGlAccount invoiceItemTypeId="INV_SHIPPING_CHARGES" organizationPartyId="ORGPARTYID" glAccountId="4610"/>
+    <InvoiceItemTypeGlAccount invoiceItemTypeId="INV_SURCHARGE_ADJ" organizationPartyId="ORGPARTYID" glAccountId="4600"/>
+    <InvoiceItemTypeGlAccount invoiceItemTypeId="INV_ADD_FEATURE" organizationPartyId="ORGPARTYID" glAccountId="4600"/>
+    <InvoiceItemTypeGlAccount invoiceItemTypeId="INV_WARRANTY_ADJ" organizationPartyId="ORGPARTYID" glAccountId="4600"/>
+    <InvoiceItemTypeGlAccount invoiceItemTypeId="INV_INTRST_CHRG" organizationPartyId="ORGPARTYID" glAccountId="4600"/>
+    <InvoiceItemTypeGlAccount invoiceItemTypeId="INV_PROD_ITEM" organizationPartyId="ORGPARTYID" glAccountId="4600"/>
+    <InvoiceItemTypeGlAccount invoiceItemTypeId="INV_FPROD_ITEM" organizationPartyId="ORGPARTYID" glAccountId="4600"/>
+    <InvoiceItemTypeGlAccount invoiceItemTypeId="INV_DPROD_ITEM" organizationPartyId="ORGPARTYID" glAccountId="4600"/>
+    <InvoiceItemTypeGlAccount invoiceItemTypeId="INV_FDPROD_ITEM" organizationPartyId="ORGPARTYID" glAccountId="4600"/>
+    <InvoiceItemTypeGlAccount invoiceItemTypeId="INV_PROD_FEATR_ITEM" organizationPartyId="ORGPARTYID" glAccountId="4600"/>
+    <InvoiceItemTypeGlAccount invoiceItemTypeId="INV_SPROD_ITEM" organizationPartyId="ORGPARTYID" glAccountId="4600"/>
+    <InvoiceItemTypeGlAccount invoiceItemTypeId="INV_WE_ITEM" organizationPartyId="ORGPARTYID" glAccountId="4600"/>
+    <InvoiceItemTypeGlAccount invoiceItemTypeId="INV_TE_ITEM" organizationPartyId="ORGPARTYID" glAccountId="4600"/>
+    <InvoiceItemTypeGlAccount invoiceItemTypeId="ITM_PROMOTION_ADJ" organizationPartyId="ORGPARTYID" glAccountId="4830"/>
+    <InvoiceItemTypeGlAccount invoiceItemTypeId="ITM_REPLACE_ADJ" organizationPartyId="ORGPARTYID" glAccountId="4600"/>
+    <InvoiceItemTypeGlAccount invoiceItemTypeId="ITM_DISCOUNT_ADJ" organizationPartyId="ORGPARTYID" glAccountId="4830"/>
+    <InvoiceItemTypeGlAccount invoiceItemTypeId="ITM_FEE" organizationPartyId="ORGPARTYID" glAccountId="4600"/>
+    <InvoiceItemTypeGlAccount invoiceItemTypeId="ITM_MISC_CHARGE" organizationPartyId="ORGPARTYID" glAccountId="4600"/>
+    <InvoiceItemTypeGlAccount invoiceItemTypeId="ITM_SHIPPING_CHARGES" organizationPartyId="ORGPARTYID" glAccountId="4610"/>
+    <InvoiceItemTypeGlAccount invoiceItemTypeId="ITM_SURCHARGE_ADJ" organizationPartyId="ORGPARTYID" glAccountId="4600"/>
+    <InvoiceItemTypeGlAccount invoiceItemTypeId="ITM_ADD_FEATURE" organizationPartyId="ORGPARTYID" glAccountId="4600"/>
+    <InvoiceItemTypeGlAccount invoiceItemTypeId="ITM_WARRANTY_ADJ" organizationPartyId="ORGPARTYID" glAccountId="4600"/>
+    <InvoiceItemTypeGlAccount invoiceItemTypeId="FEE" organizationPartyId="ORGPARTYID" glAccountId="4600"/>
+
+    <InvoiceItemTypeGlAccount invoiceItemTypeId="CRT_PROD_ITEM" organizationPartyId="ORGPARTYID" glAccountId="4840"/>
+    <InvoiceItemTypeGlAccount invoiceItemTypeId="CRT_FPROD_ITEM" organizationPartyId="ORGPARTYID" glAccountId="4840"/>
+    <InvoiceItemTypeGlAccount invoiceItemTypeId="CRT_DPROD_ITEM" organizationPartyId="ORGPARTYID" glAccountId="4840"/>
+    <InvoiceItemTypeGlAccount invoiceItemTypeId="CRT_FDPROD_ITEM" organizationPartyId="ORGPARTYID" glAccountId="4840"/>
+    <InvoiceItemTypeGlAccount invoiceItemTypeId="CRT_PROD_FEATR_ITEM" organizationPartyId="ORGPARTYID" glAccountId="4840"/>
+    <InvoiceItemTypeGlAccount invoiceItemTypeId="CRT_SPROD_ITEM" organizationPartyId="ORGPARTYID" glAccountId="4840"/>
+    <InvoiceItemTypeGlAccount invoiceItemTypeId="CRT_PROMOTION_ADJ" organizationPartyId="ORGPARTYID" glAccountId="4840"/>
+    <InvoiceItemTypeGlAccount invoiceItemTypeId="CRT_REPLACE_ADJ" organizationPartyId="ORGPARTYID" glAccountId="4840"/>
+    <InvoiceItemTypeGlAccount invoiceItemTypeId="CRT_DISCOUNT_ADJ" organizationPartyId="ORGPARTYID" glAccountId="4840"/>
+    <InvoiceItemTypeGlAccount invoiceItemTypeId="CRT_FEE_ADJ" organizationPartyId="ORGPARTYID" glAccountId="4840"/>
+    <InvoiceItemTypeGlAccount invoiceItemTypeId="CRT_MISC_ADJ" organizationPartyId="ORGPARTYID" glAccountId="4840"/>
+    <InvoiceItemTypeGlAccount invoiceItemTypeId="CRT_SHIPPING_ADJ" organizationPartyId="ORGPARTYID" glAccountId="4840"/>
+    <InvoiceItemTypeGlAccount invoiceItemTypeId="CRT_SURCHARGE_ADJ" organizationPartyId="ORGPARTYID" glAccountId="4840"/>
+    <InvoiceItemTypeGlAccount invoiceItemTypeId="CRT_ADD_FEATURE_ADJ" organizationPartyId="ORGPARTYID" glAccountId="4840"/>
+    <InvoiceItemTypeGlAccount invoiceItemTypeId="CRT_WARRANTY_ADJ" organizationPartyId="ORGPARTYID" glAccountId="4840"/>
+    <InvoiceItemTypeGlAccount invoiceItemTypeId="CRT_MKTG_PKG_ADJ" organizationPartyId="ORGPARTYID" glAccountId="4840"/>
+    <InvoiceItemTypeGlAccount invoiceItemTypeId="CRT_MAN_ADJ" organizationPartyId="ORGPARTYID" glAccountId="4840"/>
+
+    <InvoiceItemTypeGlAccount invoiceItemTypeId="PINVOICE_ADJ" organizationPartyId="ORGPARTYID" glAccountId="1400"/>
+    <InvoiceItemTypeGlAccount invoiceItemTypeId="PINVOICE_ITM_ADJ" organizationPartyId="ORGPARTYID" glAccountId="1400"/>
+    <InvoiceItemTypeGlAccount invoiceItemTypeId="PINV_PROMOTION_ADJ" organizationPartyId="ORGPARTYID" glAccountId="1400"/>
+    <InvoiceItemTypeGlAccount invoiceItemTypeId="PINV_DISCOUNT_ADJ" organizationPartyId="ORGPARTYID" glAccountId="1400"/>
+    <InvoiceItemTypeGlAccount invoiceItemTypeId="PINV_MISC_CHARGE" organizationPartyId="ORGPARTYID" glAccountId="1400"/>
+    <InvoiceItemTypeGlAccount invoiceItemTypeId="PINV_SHIP_CHARGES" organizationPartyId="ORGPARTYID" glAccountId="1400"/>
+    <InvoiceItemTypeGlAccount invoiceItemTypeId="PINV_SURCHARGE_ADJ" organizationPartyId="ORGPARTYID" glAccountId="1400"/>
+    <InvoiceItemTypeGlAccount invoiceItemTypeId="PINV_ADD_FEATURE" organizationPartyId="ORGPARTYID" glAccountId="1400"/>
+    <InvoiceItemTypeGlAccount invoiceItemTypeId="PINV_WARRANTY_ADJ" organizationPartyId="ORGPARTYID" glAccountId="1400"/>
+    <InvoiceItemTypeGlAccount invoiceItemTypeId="PINV_PROD_ITEM" organizationPartyId="ORGPARTYID" glAccountId="1400"/>
+    <InvoiceItemTypeGlAccount invoiceItemTypeId="PINV_FPROD_ITEM" organizationPartyId="ORGPARTYID" glAccountId="1400"/>
+    <InvoiceItemTypeGlAccount invoiceItemTypeId="PINV_DPROD_ITEM" organizationPartyId="ORGPARTYID" glAccountId="1400"/>
+    <InvoiceItemTypeGlAccount invoiceItemTypeId="PINV_FDPROD_ITEM" organizationPartyId="ORGPARTYID" glAccountId="1400"/>
+    <InvoiceItemTypeGlAccount invoiceItemTypeId="PINV_PROD_FEATR_ITEM" organizationPartyId="ORGPARTYID" glAccountId="1400"/>
+    <InvoiceItemTypeGlAccount invoiceItemTypeId="PINV_SPROD_ITEM" organizationPartyId="ORGPARTYID" glAccountId="1400"/>
+    <InvoiceItemTypeGlAccount invoiceItemTypeId="PINV_WE_ITEM" organizationPartyId="ORGPARTYID" glAccountId="1400"/>
+    <InvoiceItemTypeGlAccount invoiceItemTypeId="PINV_TE_ITEM" organizationPartyId="ORGPARTYID" glAccountId="1400"/>
+    <InvoiceItemTypeGlAccount invoiceItemTypeId="PITM_PROMOTION_ADJ" organizationPartyId="ORGPARTYID" glAccountId="1400"/>
+    <InvoiceItemTypeGlAccount invoiceItemTypeId="PITM_REPLACE_ADJ" organizationPartyId="ORGPARTYID" glAccountId="1400"/>
+    <InvoiceItemTypeGlAccount invoiceItemTypeId="PITM_DISCOUNT_ADJ" organizationPartyId="ORGPARTYID" glAccountId="1400"/>
+    <InvoiceItemTypeGlAccount invoiceItemTypeId="PITM_FEE" organizationPartyId="ORGPARTYID" glAccountId="1400"/>
+    <InvoiceItemTypeGlAccount invoiceItemTypeId="PITM_MISC_CHARGE" organizationPartyId="ORGPARTYID" glAccountId="1400"/>
+    <InvoiceItemTypeGlAccount invoiceItemTypeId="PITM_SHIP_CHARGES" organizationPartyId="ORGPARTYID" glAccountId="1400"/>
+    <InvoiceItemTypeGlAccount invoiceItemTypeId="PITM_SURCHARGE_ADJ" organizationPartyId="ORGPARTYID" glAccountId="1400"/>
+    <InvoiceItemTypeGlAccount invoiceItemTypeId="PITM_ADD_FEATURE" organizationPartyId="ORGPARTYID" glAccountId="1400"/>
+    <InvoiceItemTypeGlAccount invoiceItemTypeId="PITM_WARRANTY_ADJ" organizationPartyId="ORGPARTYID" glAccountId="1400"/>
+    <InvoiceItemTypeGlAccount invoiceItemTypeId="P_FEE" organizationPartyId="ORGPARTYID" glAccountId="1400"/>
+
+    <!-- used to figure out glAccount merchant glAccount (undeposited receipts) -->
+    <CreditCardTypeGlAccount organizationPartyId="ORGPARTYID" cardType="CCT_VISA" glAccountId="1220"/>
+    <CreditCardTypeGlAccount organizationPartyId="ORGPARTYID" cardType="CCT_MASTERCARD" glAccountId="1220"/>
+    <CreditCardTypeGlAccount organizationPartyId="ORGPARTYID" cardType="CCT_AMERICANEXPRESS" glAccountId="1220"/>
+    <CreditCardTypeGlAccount organizationPartyId="ORGPARTYID" cardType="CCT_DISCOVER" glAccountId="1220"/>
+
+    <!-- The following ones are required until the issue OFBIZ-1524 is resolved -->
+    <CreditCardTypeGlAccount organizationPartyId="ORGPARTYID" cardType="Visa" glAccountId="1220"/>
+    <CreditCardTypeGlAccount organizationPartyId="ORGPARTYID" cardType="MasterCard" glAccountId="1220"/>
+    <CreditCardTypeGlAccount organizationPartyId="ORGPARTYID" cardType="AmericanExpress" glAccountId="1220"/>
+    <CreditCardTypeGlAccount organizationPartyId="ORGPARTYID" cardType="Discover" glAccountId="1220"/>
+
+    <PaymentMethodTypeGlAccount organizationPartyId="ORGPARTYID" paymentMethodTypeId="EXT_PAYPAL" glAccountId="1230"/>
+    <PaymentMethodTypeGlAccount organizationPartyId="ORGPARTYID" paymentMethodTypeId="EFT_ACCOUNT" glAccountId="1240"/>
+    <PaymentMethodTypeGlAccount organizationPartyId="ORGPARTYID" paymentMethodTypeId="FIN_ACCOUNT" glAccountId="1240"/>
+    <PaymentMethodTypeGlAccount organizationPartyId="ORGPARTYID" paymentMethodTypeId="PERSONAL_CHECK" glAccountId="1240"/>
+    <PaymentMethodTypeGlAccount organizationPartyId="ORGPARTYID" paymentMethodTypeId="COMPANY_CHECK" glAccountId="1240"/>
+    <PaymentMethodTypeGlAccount organizationPartyId="ORGPARTYID" paymentMethodTypeId="CERTIFIED_CHECK" glAccountId="1240"/>
+    <PaymentMethodTypeGlAccount organizationPartyId="ORGPARTYID" paymentMethodTypeId="MONEY_ORDER" glAccountId="1240"/>
+
+    <!-- mappings for payments -->
+    <PaymentGlAccountTypeMap organizationPartyId="ORGPARTYID" paymentTypeId="CUSTOMER_REFUND" glAccountTypeId="ACCREC_UNAPPLIED"/>
+    <!-- NOTE: do not change this -->
+    <PaymentGlAccountTypeMap organizationPartyId="ORGPARTYID" paymentTypeId="VENDOR_PREPAY" glAccountTypeId="PREPAID_EXPENSES"/>
+    <PaymentGlAccountTypeMap organizationPartyId="ORGPARTYID" paymentTypeId="SALES_TAX_PAYMENT" glAccountTypeId="ACCPAYABLE_UNAPPLIED"/>
+    <!-- NOTE: do not change this -->
+    <PaymentGlAccountTypeMap organizationPartyId="ORGPARTYID" paymentTypeId="VENDOR_PAYMENT" glAccountTypeId="ACCPAYABLE_UNAPPLIED"/>    
+    <PaymentGlAccountTypeMap organizationPartyId="ORGPARTYID" paymentTypeId="CUSTOMER_PAYMENT" glAccountTypeId="ACCREC_UNAPPLIED"/>
+
+    <!-- CustomTimePeriod are required for posting accounting transations. -->
+    <CustomTimePeriod organizationPartyId="ORGPARTYID" customTimePeriodId="6010" periodTypeId="FISCAL_YEAR" fromDate="2011-01-01" thruDate="2012-01-01" isClosed="N" periodNum="1" periodName="2011"/>
+    <CustomTimePeriod organizationPartyId="ORGPARTYID" customTimePeriodId="6011" periodTypeId="FISCAL_YEAR" fromDate="2012-01-01" thruDate="2013-01-01" isClosed="N" periodNum="1" periodName="2012"/>
+    <CustomTimePeriod organizationPartyId="ORGPARTYID" customTimePeriodId="6012" periodTypeId="FISCAL_YEAR" fromDate="2013-01-01" thruDate="2014-01-01" isClosed="N" periodNum="1" periodName="2013"/>
+    <CustomTimePeriod organizationPartyId="ORGPARTYID" customTimePeriodId="6013" periodTypeId="FISCAL_YEAR" fromDate="2014-01-01" thruDate="2015-01-01" isClosed="N" periodNum="1" periodName="2014"/>
+</entity-engine-xml>
