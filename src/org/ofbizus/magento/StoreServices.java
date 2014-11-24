@@ -344,14 +344,23 @@ public class StoreServices {
             serviceCtx.put("facilityTypeId", "WAREHOUSE");
             serviceCtx.put("ownerPartyId", partyId);
             result = dispatcher.runSync("createFacility", serviceCtx);
-            if (ServiceUtil.isSuccess(result)) {
-                facilityId = (String) result.get("facilityId");
-            } else {
+            if (!ServiceUtil.isSuccess(result)) {
                 Debug.logError(ServiceUtil.getErrorMessage(result), module);
                 return ServiceUtil.returnError(ServiceUtil.getErrorMessage(result));
             }
+            facilityId = (String) result.get("facilityId");
             serviceCtx.clear();
             result.clear();
+
+            serviceCtx.put("facilityId", facilityId);
+            serviceCtx.put("locationSeqId", "TLTLTLLL05");
+            serviceCtx.put("locationTypeEnumId", "FLT_PICKLOC");
+            serviceCtx.put("userLogin", userLogin);
+            result = dispatcher.runSync("createFacilityLocation", serviceCtx);
+            if (!ServiceUtil.isSuccess(result)) {
+                Debug.logError(ServiceUtil.getErrorMessage(result), module);
+                return ServiceUtil.returnError(ServiceUtil.getErrorMessage(result));
+            }
 
             serviceCtx.put("productStoreId", productStoreId);
             serviceCtx.put("inventoryFacilityId", facilityId);
