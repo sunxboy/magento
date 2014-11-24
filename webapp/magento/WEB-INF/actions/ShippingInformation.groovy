@@ -1,6 +1,7 @@
 import org.ofbiz.entity.condition.EntityConditionBuilder;
 import org.ofbiz.entity.condition.EntityCondition;
 
+if (productStore) {
 exprBldr = new EntityConditionBuilder();
 expr = exprBldr.AND() {
     EQUALS(roleTypeId: "CARRIER")
@@ -21,6 +22,7 @@ if (carrierParties) {
         if (carrierAndShipmentMethodList) {
             carrierAndShipmentMethod.(carrier.partyId) = carrierAndShipmentMethodList;
         }
+        
         expr = exprBldr.AND() {
             EQUALS(productStoreId: productStore.productStoreId);
             EQUALS(partyId: carrier.partyId);
@@ -52,4 +54,5 @@ if (carrierParties) {
     context.carrierAndShipmentMethod = carrierAndShipmentMethod;
     context.carrierParties = carrierParties;
     context.storeShipMethMap = storeShipMethMap;
+}
 }

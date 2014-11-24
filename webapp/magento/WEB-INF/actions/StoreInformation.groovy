@@ -3,7 +3,6 @@ import org.ofbiz.party.party.PartyWorker;
 
 if (productStore) {
     partyId = productStore.payToPartyId;
-}
 if (partyId) {
     companyMap = [:];
     groupName = PartyHelper.getPartyName(delegator, partyId, false);
@@ -24,4 +23,5 @@ if (partyId) {
     }
     context.companyMap = companyMap;
     context.partyId = partyId;
+}
 }

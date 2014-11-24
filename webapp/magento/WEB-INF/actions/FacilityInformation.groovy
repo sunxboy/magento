@@ -8,7 +8,6 @@ import org.ofbiz.entity.util.EntityUtil;
 if (productStore) {
     facilityId = productStore.inventoryFacilityId;
     partyId = productStore.payToPartyId;
-}
 if (facilityId) {
     EntityCondition condition = EntityCondition.makeCondition(
             EntityCondition.makeCondition("facilityId", facilityId),
@@ -39,4 +38,5 @@ if (facilityId) {
     /*Get facility values*/
     facility = delegator.findOne("Facility", [facilityId: facilityId], false);
     context.facility = facility;
+}
 }
