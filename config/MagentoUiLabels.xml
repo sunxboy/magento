@@ -27,6 +27,9 @@
     <property key="MagentoEmailAddress">
         <value xml:lang="en">Email Address</value>
     </property>
+    <property key="MagentoFacilityInformationIsAddedSuccessfully">
+        <value xml:lang="en">Facility information is added successfully.</value>
+    </property>
     <property key="MagentoFacilityInformationIsUpdatedSuccessfully">
         <value xml:lang="en">Facility information is updated successfully.</value>
     </property>

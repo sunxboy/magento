@@ -59,6 +59,7 @@ public class StoreServices {
                     Debug.logError(ServiceUtil.getErrorMessage(result), module);
                     return ServiceUtil.returnError(ServiceUtil.getErrorMessage(result));
                 }
+                partyId = (String) result.get("partyId");
 
                 serviceCtx.clear();
                 //Create Company roles
@@ -107,6 +108,7 @@ public class StoreServices {
                 postalContactMechPurposes.add("GENERAL_LOCATION");
                 postalContactMechPurposes.add("PAYMENT_LOCATION");
     
+                serviceCtx.clear();
                 serviceCtx.put("partyId", partyId);
                 serviceCtx.put("contactMechId", postalContactMechId);
                 serviceCtx.put("userLogin", userLogin);
@@ -147,17 +149,11 @@ public class StoreServices {
                     serviceCtx.put("partyId", partyId);
                     serviceCtx.put("userLogin", userLogin);
                     serviceCtx.put("contactMechId", emailContactMechId);
-                    List<String> emailContactMechPurposes = new ArrayList<String>();
-                    emailContactMechPurposes.add("PRIMARY_EMAIL");
-                    emailContactMechPurposes.add("CONTACT_US_EMAIL");
-                    for (String emailContactMechPurpose : emailContactMechPurposes) {
-                        serviceCtx.put("contactMechPurposeTypeId", emailContactMechPurpose);
-                        result = dispatcher.runSync("createPartyContactMechPurpose",serviceCtx);
-                        if (!ServiceUtil.isSuccess(result)) {
-                            Debug.logError(ServiceUtil.getErrorMessage(result), module);
-                            return ServiceUtil.returnError(ServiceUtil.getErrorMessage(result));
-                        }
-                        
+                    serviceCtx.put("contactMechPurposeTypeId", "PRIMARY_EMAIL");
+                    result = dispatcher.runSync("createPartyContactMechPurpose",serviceCtx);
+                    if (!ServiceUtil.isSuccess(result)) {
+                        Debug.logError(ServiceUtil.getErrorMessage(result), module);
+                        return ServiceUtil.returnError(ServiceUtil.getErrorMessage(result));
                     }
                 }
             }
@@ -208,7 +204,6 @@ public class StoreServices {
         Locale locale = (Locale) context.get("locale");
         String partyId = (String) context.get("partyId");
         String productStoreId = (String) context.get("productStoreId");
-        String orderNumberPrefix = (String) context.get("orderNumberPrefix");
         GenericValue userLogin = (GenericValue) context.get("userLogin");
         try {
             if (UtilValidate.isNotEmpty(productStoreId)) {
@@ -228,7 +223,6 @@ public class StoreServices {
                 }
             } else {
                 serviceCtx = dctx.getModelService("createProductStore").makeValid(context, ModelService.IN_PARAM);
-                serviceCtx.put("orderNumberPrefix", orderNumberPrefix.trim());
 
                 //Add basic setting values for product store
                 serviceCtx.put("isDemoStore", "N");
@@ -246,7 +240,6 @@ public class StoreServices {
                 serviceCtx.put("usePrimaryEmailUsername", "Y");
                 serviceCtx.put("manualAuthIsCapture", "N");
                 serviceCtx.put("requireCustomerRole", "Y");
-                serviceCtx.put("capturePmntsOnOrdApproval", "Y");
                 serviceCtx.put("daysToCancelNonPay", Long.valueOf("0"));
                 serviceCtx.put("storeCreditAccountEnumId", "FIN_ACCOUNT");
                 serviceCtx.put("defaultSalesChannelEnumId", "WEB_SALES_CHANNEL");
@@ -277,8 +270,9 @@ public class StoreServices {
                     serviceCtx = dctx.getModelService("createUpdateMagentoConfiguration").makeValid(magentoConfiguration, ModelService.IN_PARAM);
                     serviceCtx.put("enumId", "MAGENTO_SALE_CHANNEL");
                     serviceCtx.put("productStoreId", productStoreId);
-                    result = dispatcher.runSync("createUpdateMagentoConfiguration", context);
-                    if (UtilValidate.isNotEmpty(result)) {
+                    serviceCtx.put("userLogin", userLogin);
+                    result = dispatcher.runSync("createUpdateMagentoConfiguration", serviceCtx);
+                    if (!ServiceUtil.isSuccess(result)) {
                         Debug.logError(ServiceUtil.getErrorMessage(result), module);
                         return ServiceUtil.returnError(ServiceUtil.getErrorMessage(result));
                     }
@@ -311,6 +305,7 @@ public class StoreServices {
             String partyId = (String) result.get("partyId");
             if (UtilValidate.isNotEmpty(partyId)) {
                 serviceCtx = dctx.getModelService("createUpdateProductStore").makeValid(context, ModelService.IN_PARAM);
+                serviceCtx.put("partyId", partyId);
                 result = dispatcher.runSync("createUpdateProductStore", serviceCtx);
                 if (!ServiceUtil.isSuccess(result)) {
                     Debug.logError(ServiceUtil.getErrorMessage(result), module);
@@ -463,7 +458,7 @@ public class StoreServices {
             }
             serviceCtx.clear();
 
-            result = ServiceUtil.returnSuccess(UtilProperties.getMessage(resource, "EasyErpAdminWarehouseIsCreatedSuccessfully", locale));
+            result = ServiceUtil.returnSuccess(UtilProperties.getMessage(resource, "MagentoFacilityInformationIsAddedSuccessfully", locale));
             result.put("facilityId", facilityId);
             result.put("partyId", partyId);
             result.put("productStoreId", productStoreId);
@@ -661,7 +656,7 @@ public class StoreServices {
         try {
             if (UtilValidate.isNotEmpty(partyId)) {
                 EntityCondition cond = EntityCondition.makeCondition (
-                        EntityCondition.makeCondition("partyId", partyId),
+                        EntityCondition.makeCondition("organizationPartyId", partyId),
                         EntityCondition.makeCondition("glJournalName", "Suspense transactions")
                         );
                 List<GenericValue> glJournalList = delegator.findList("GlJournal", cond, null, null, null, false);
