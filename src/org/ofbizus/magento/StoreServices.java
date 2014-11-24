@@ -259,6 +259,7 @@ public class StoreServices {
                 serviceCtx.put("checkInventory", "Y");
                 serviceCtx.put("balanceResOnOrderCreation", "N");
                 serviceCtx.put("payToPartyId", partyId);
+                serviceCtx.put("defaultCurrencyUomId", "USD");
                 result = dispatcher.runSync("createProductStore", serviceCtx);
                 if (!ServiceUtil.isSuccess(result)) {
                     Debug.logError(ServiceUtil.getErrorMessage(result), module);
@@ -684,6 +685,7 @@ public class StoreServices {
                     serviceCtx.put("orderSequenceEnumId", "INVSQ_ENF_SEQ");
                     serviceCtx.put("orderIdPrefix", "CO");
                     serviceCtx.put("orderIdPrefix", "CO");
+                    serviceCtx.put("baseCurrencyUomId", "USD");
                     serviceCtx.put("userLogin", userLogin);
                     result = dispatcher.runSync("createPartyAcctgPreference", serviceCtx);
                     if (!ServiceUtil.isSuccess(result)) {
