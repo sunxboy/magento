@@ -24,6 +24,7 @@ under the License.
                 <set field="step" value="1"/>
                 <entity-and entity-name="MagentoConfiguration" list="magentoConfiguration"/>
                 <set field="magentoConfiguration" value="${groovy: org.ofbiz.entity.util.EntityUtil.getFirst(magentoConfiguration)}"/>
+                <set field="productStore" value="${groovy: org.ofbizus.magento.MagentoHelper.getMagentoProductStore(delegator)}"/>
             </actions>
             <widgets>
                 <decorator-screen name="MagentoCommonDecorator" location="${parameters.mainDecoratorLocation}">
