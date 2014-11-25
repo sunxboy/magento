@@ -74,6 +74,16 @@ under the License.
         <response name="success" type="view" value="ShippingInformation"/>
         <response name="error" type="view" value="ShippingInformation"/>
     </request-map>
+    <request-map uri="ShippingGatewayConfiguration">
+        <security https="true" auth="true"/>
+        <response name="success" type="view" value="ShippingGatewayConfiguration"/>
+        <response name="error" type="view" value="ShippingInformation"/>
+    </request-map>
+    <request-map uri="AddShippingMethod">
+        <security https="true" auth="true"/>
+        <response name="success" type="view" value="AddShippingMethod"/>
+        <response name="error" type="view" value="ShippingInformation"/>
+    </request-map>
     <request-map uri="createUpdateShipmentGatewayConfig">
         <security https="true" auth="true"/>
         <event type="service" invoke="createUpdateShipmentGatewayConfig"/>
@@ -85,5 +95,7 @@ under the License.
     <view-map name="StoreInformation" type="screen" page="component://magento/widget/magento/MagentoScreens.xml#StoreInformation"/>
     <view-map name="FacilityInformation" type="screen" page="component://magento/widget/magento/MagentoScreens.xml#FacilityInformation"/>
     <view-map name="ShippingInformation" type="screen" page="component://magento/widget/magento/MagentoScreens.xml#ShippingInformation"/>
+    <view-map name="ShippingGatewayConfiguration" type="screen" page="component://magento/widget/magento/MagentoScreens.xml#ShippingGatewayConfiguration"/>
+    <view-map name="AddShippingMethod" type="screen" page="component://magento/widget/magento/MagentoScreens.xml#AddShippingMethod"/>
     <view-map name="login" type="screen" page="component://magento/widget/magento/CommonScreens.xml#Login"/>
 </site-conf>

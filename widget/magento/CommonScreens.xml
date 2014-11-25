@@ -20,13 +20,10 @@ under the License.
     <screen name="main-decorator">
         <section>
             <actions>
-                <property-map resource="MagentoUiLabels" map-name="uiLabelMap" global="true"/>
-                <property-map resource="CommonUiLabels" map-name="uiLabelMap" global="true"/>
-
                 <set field="styleSheets[]" value="/magento/css/bootstrap/bootstrap.css"/>
-                <set field="styleSheets[]" value="/magento/css/custom.css"/>
                 <set field="styleSheets[]" value="/magento/css/tpl/font-awesome.min.css"/>
                 <set field="styleSheets[]" value="/magento/css/tpl/chosen.css"/>
+                <set field="styleSheets[]" value="/magento/css/custom.css"/>
 
                 <set field="javaScripts[+0]" value="/magento/js/jquery-2.1.1.js" global="true"/>
                 <set field="javaScripts[+1]" value="/magento/js/bootstrap.min.js" global="true"/>
@@ -53,17 +50,23 @@ under the License.
     <screen name="MagentoCommonDecorator">
         <section>
             <actions>
+                <property-map resource="MagentoUiLabels" map-name="uiLabelMap" global="true"/>
+                <property-map resource="CommonUiLabels" map-name="uiLabelMap" global="true"/>
+                <set field="isAjaxRequest" value="${groovy: 'XMLHttpRequest'.equals(request.getHeader('X-Requested-With'))}" type="Boolean"/>
             </actions>
             <widgets>
-                <decorator-screen name="main-decorator">
-                    <decorator-section name="body">
-                        <section>
-                            <widgets>
-                                <decorator-section-include name="body"/>
-                            </widgets>
-                        </section>
-                    </decorator-section>
-                </decorator-screen>
+                <section>
+                    <condition>
+                        <if-compare field="isAjaxRequest" operator="equals" value="false" type="Boolean"/>
+                    </condition>
+                    <widgets>
+                        <include-screen name="main-decorator"/>
+                    </widgets>
+                    <fail-widgets>
+                        <include-screen name="component://magento/widget/magento/CommonScreens.xml#Messages"/>
+                        <decorator-section-include name="body"/>
+                    </fail-widgets>
+                </section>
             </widgets>
         </section>
     </screen>
@@ -85,7 +88,7 @@ under the License.
                 <set field="titleProperty" value="CommonLogin"/>
             </actions>
             <widgets>
-                <decorator-screen name="main-decorator">
+                <decorator-screen name="MagentoCommonDecorator">
                     <decorator-section name="body">
                         <platform-specific><html><html-template location="component://magento/webapp/magento/includes/LoginContainer.ftl"/></html></platform-specific>
                     </decorator-section>

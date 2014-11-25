@@ -16,41 +16,13 @@
                 <div class="row">
                   <div class="col-md-12">
                     <ul class="list-unstyled list-inline pull-right">
-                      <li><a class="btn btn-default" data-toggle-display="#shipGateway_${carrier.partyId}" data-hide=".shipMeth_${carrier.partyId}" data-toggle-effect="slide">Edit Configuration</a></li>
-                      <li><a class="btn btn-default" data-toggle-display="#shipingMethod_${carrier.partyId}" data-hide=".shipGate_${carrier.partyId}" data-toggle-hide=".hideShipMeth_${carrier.partyId}" data-toggle-effect="slide">Add Shipping Method</a></li>
+                      <li><a class="btn btn-default" data-ajax-update="#shipping_${carrier.partyId}" data-update-url="<@ofbizUrl>ShippingGatewayConfiguration?carrierPartyId=${(carrier.partyId)!}</@ofbizUrl>" >Edit Configuration</a></li>
+                      <li><a class="btn btn-default" data-ajax-update="#shipping_${carrier.partyId}" data-update-url="<@ofbizUrl>AddShippingMethod?carrierPartyId=${(carrier.partyId)!}</@ofbizUrl>">Add Shipping Method</a></li>
                     </ul>
                   </div>
                 </div>
-                <div id="shipGateway_${carrier.partyId}" class="shipGate_${carrier.partyId}" style="display:none;">
-                  <#include "component://magento/webapp/magento/store/ShippingGatewayConfiguration.ftl"/>
-                </div>
-                <div id="shipingMethod_${carrier.partyId}" class="shipMeth_${carrier.partyId}" style="display:none;">
-                  <form method="post" action="<@ofbizUrl>createRemoveProductStoreShipMeth</@ofbizUrl>" id="addShipingMethod_${carrier.partyId}" class="">
-                    <input type="hidden" name="productStoreId" value="${(productStore.productStoreId)!}"/>
-                    <input type="hidden" name="partyId" value="${(carrier.partyId)!}"/>
-                    <input type="hidden" name="roleTypeId" value="CARRIER"/>
-                    <input type="hidden" name="serviceName" value="${(shippingServiceNameMap[carrier.partyId])!}"/>
-                    <div class="form-group row">
-                      <div class="col-lg-3 col-md-3">
-                        <label for="countryGeoId">Shipping Method</label>
-                        <select name="shipmentMethodTypeId" multiple="multiple" class="form-control chosen-select">
-                          <#if carrierAndShipmentMethod?has_content>
-                            <#assign shipmentMethodList = carrierAndShipmentMethod[carrier.partyId]>
-                            <#list shipmentMethodList as shipmentMethod>
-                              <option value="${(shipmentMethod.shipmentMethodTypeId)!}"> ${(shipmentMethod.description)!}</option>
-                            </#list>
-                          </#if>
-                        </select>
-                      </div>
-                    </div>
-                    <div class="row">
-                      <div class="col-lg-3 col-md-3">
-                        <button type="submit" class="btn btn-primary" title="${uiLabelMap.CommonAdd}">${uiLabelMap.CommonAdd}</button>
-                      </div>
-                    </div>
-                  </form>
-                </div>
-                <#if storeShipMethMap?has_content && (storeShipMethMap[carrier.partyId])?has_content>
+                <div id="shipping_${carrier.partyId}">
+                  <#if storeShipMethMap?has_content && (storeShipMethMap[carrier.partyId])?has_content>
                   <#assign storeShipMeth = storeShipMethMap[carrier.partyId]/>
                   <table class="table table-hover">
                     <thead>
@@ -83,10 +55,11 @@
                     </tbody>
                   </table>
                 <#else>
-                  <div class="hideShipMeth_${carrier.partyId} shipMeth_${carrier.partyId}">
+                  <div>
                     There is no shipping method. To add click <a href="" data-toggle-display="#shipingMethod_${carrier.partyId}" data-toggle-hide=".hideShipMeth_${carrier.partyId}" data-toggle-effect="slide">here</a>.
                   </div>
                 </#if>
+              </div>
               </div>
             </div>
           </div>
