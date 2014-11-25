@@ -142,5 +142,109 @@ jQuery(function() {
         }
     });
 
-    jQuery(".chosen-select").chosen();
+    jQuery('body').on('click', 'a[data-ajax-update], button[data-ajax-update]', function(e) {
+        e.preventDefault();
+        jQuery.proxy(ajaxUpdater, {elt: this})();
+    });
+
+    function ajaxUpdater() {
+        var options = this,
+            elt = jQuery(options.elt),
+            callback = options.callback ? options.callback : jQuery.noop;
+            beforeSendCallback = options.beforeSendCallback ? options.beforeSendCallback : jQuery.noop;
+            url = elt.data('update-url'),
+            to_update = jQuery(elt.data('ajax-update')),
+            valid = true,
+            param_source = jQuery(elt.data('param-source')),
+            form_fields = jQuery.unique(jQuery.merge(param_source.find(':input').andSelf(), elt.find(':input').andSelf()).filter(':input')),
+            data = form_fields.serializeArray();
+            form_fields.filter(':visible').each(function() {
+                var validator = jQuery(this).form().data('validator');
+                if(validator !== undefined) {
+                valid = valid && (validator.check(this) == false ? false : true);
+                }
+            });
+        if (valid) {
+            jQuery.ajax({
+                async: true,
+                type: 'post',
+                url: url,
+                data: data,
+                beforeSend: function(xhr, settings) {
+                    beforeSendCallback({
+                        xhr: xhr,
+                    });
+                },
+                complete: function(xhr, status) {
+                    handleAjaxResponse({
+                        xhr: xhr,
+                        response: status,
+                        display_success_method: to_update,
+                        display_error_method: to_update,
+                        status: status
+                    });
+                    callback(xhr.responseText, xhr);
+                }
+            });
+        }
+     }
+
+    function handleAjaxResponse(options) {
+        var response = options.response,
+            xhr = options.xhr,
+            data = jQuery(xhr.responseText).not('script').not('.messages'),
+            scripts = jQuery(xhr.responseText).filter('script'),
+            notification_messages = jQuery(xhr.responseText).filter('.messages').children(),
+            to_update_selector = (response === 'success') ? options.display_success_method : options.display_error_method,
+            to_update = jQuery(to_update_selector),
+            default_dialog_title = (response === 'success') ? 'Notification' : 'Error',
+            anim_method = (response === 'success') ? options.anim_method : '',
+            anim_direction = (response === 'success' && options.anim_direction) ? options.anim_direction : '',
+            new_dialog_title = (options.display_dialog_title) ? options.display_dialog_title : jQuery(window.modal).find('.modal-title'),
+            new_dialog_update = options.new_dialog_update,
+            data_dialog_width = (window.data_dialog_width) ? window.data_dialog_width : "default";
+            if(jQuery(to_update_selector).find('.js-thfloat-foot').size() > 0){
+                jQuery('.thfloat-table').remove();
+            }
+            if(new_dialog_title === undefined) {
+                new_dialog_title = default_dialog_title;
+            }
+        // Check if we are supposed to redirect the user to a new page
+        if (xhr.getResponseHeader('requestAction')) {
+            window.location = xhr.getResponseHeader('requestAction');
+            return;
+        }
+        if (data.size() > 0) {
+            var focus_elt = jQuery(':focus'),
+            focus_elt_id = focus_elt.attr('id');
+
+            if (to_update.size() === 1 && new_dialog_update === undefined) {
+                // We have exactly one element on the page to drop the data received
+                if (anim_method === undefined) {
+                    if (data.filter(to_update_selector).size() > 0) {
+                        data = data.html();
+                    }
+                    jQuery(to_update).html(data);
+                }
+                // Close any open dialogs, so that user can see the results we just updated
+                if (window.modal !== undefined) {
+                    jQuery(window.modal).modal('hide');
+                }
+                rebindContainer(to_update);
+                if (focus_elt_id !== undefined) {
+                    var element = jQuery('#'+focus_elt_id);
+                    element.focus().val(element.val());
+                }
+            }
+            jQuery(scripts).appendTo('body');
+        } else if (to_update.size() === 0 && window.modal !== undefined) {
+            jQuery(window.modal).modal('hide');
+        }
+    }
+    function rebindContainer(elt) {
+        if (elt === undefined) {
+            elt = jQuery('body');
+        }
+        jQuery(".chosen-select").chosen();
+    }
 });
