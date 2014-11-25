@@ -837,11 +837,16 @@ public class MagentoHelper {
 
         try {
             condMap.put("serviceName", "importPendingOrdersFromMagento");
-            condMap.put("statusId", "SERVICE_FINISHED");
-            GenericValue ipoJob = EntityUtil.getFirst(delegator.findList("JobSandbox", EntityCondition.makeCondition(condMap), null, UtilMisc.toList("-finishDateTime"), null, false));
-
+            condMap.put("statusId", "SERVICE_PENDING");
+            GenericValue ipoJob = EntityUtil.getFirst(delegator.findList("JobSandbox", EntityCondition.makeCondition(condMap), UtilMisc.toSet("parentJobId"), null, null, false));
+            if (UtilValidate.isNotEmpty(ipoJob) && UtilValidate.isNotEmpty(ipoJob.getString("parentJobId"))) {
+                ipoJob = delegator.findOne("JobSandbox", false, UtilMisc.toMap("jobId", ipoJob.getString("parentJobId")));
+            }
             condMap.put("serviceName", "importCancelledOrdersFromMagento");
-            GenericValue icoJob = EntityUtil.getFirst(delegator.findList("JobSandbox", EntityCondition.makeCondition(condMap), null, UtilMisc.toList("-finishDateTime"), null, false));
+            GenericValue icoJob = EntityUtil.getFirst(delegator.findList("JobSandbox", EntityCondition.makeCondition(condMap), UtilMisc.toSet("parentJobId"), null, null, false));
+            if (UtilValidate.isNotEmpty(icoJob) && UtilValidate.isNotEmpty(icoJob.getString("parentJobId"))) {
+                icoJob = delegator.findOne("JobSandbox", false, UtilMisc.toMap("jobId", icoJob.getString("parentJobId")));
+            }
             if (UtilValidate.isNotEmpty(ipoJob) || UtilValidate.isNotEmpty(icoJob)) {
                 Timestamp ipoJobFinishDateTime = ipoJob.getTimestamp("finishDateTime");
                 Timestamp icoJobFinishDateTime = icoJob.getTimestamp("finishDateTime");
