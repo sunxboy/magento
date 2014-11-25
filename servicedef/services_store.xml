@@ -119,7 +119,7 @@ under the License.
         <attribute name="productStoreShipMethId"  type="String" mode="IN" optional="true"/>
         <override name="shipmentMethodTypeId" type="List" mode="IN" optional="true"/>
     </service>
-    <service name="createShipmentGatewayConfig" engine="entity-auto" invoke="create" auth="true">
+    <service name="createShipmentGatewayConfig" engine="entity-auto" default-entity-name="ShipmentGatewayConfig" invoke="create" auth="true">
         <description>Create Shipment Gateway Config</description>
         <auto-attributes entity-name="ShipmentGatewayConfig" include="pk" mode="INOUT" optional="true"/>
         <auto-attributes entity-name="ShipmentGatewayConfig" include="nonpk" mode="IN" optional="true"/>
