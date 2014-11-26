@@ -39,8 +39,8 @@
     <property key="MagentoMagentoConfiguration">
         <value xml:lang="en">Magento Configuration</value>
     </property>
-    <property key="MagentoMagentoWsdlLocationUrl">
-        <value xml:lang="en">Magento Wsdl Location Url</value>
+    <property key="MagentoMagentoConnectUrl">
+        <value xml:lang="en">Magento Connect Url</value>
     </property>
     <property key="MagentoPhone">
         <value xml:lang="en">Phone</value>

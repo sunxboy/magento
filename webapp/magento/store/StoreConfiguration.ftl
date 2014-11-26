@@ -19,7 +19,8 @@
     </div>
     <div class="form-group row">
       <div class="col-lg-6 col-md-6">
-        <label for="serverUrl">${uiLabelMap.MagentoMagentoWsdlLocationUrl}</label>
+        <label for="serverUrl">${uiLabelMap.MagentoMagentoConnectUrl}</label>
+        <small class="text-muted">(eg. http://magentohost/soap/api/?wsdl)</small>
         <input type="text" id="serverUrl" name="serverUrl" class="required form-control" data-label="${uiLabelMap.MagentoMagentoWsdlLocationUrl}" value="${(magentoConfiguration.serverUrl)!}"/>
       </div>
     </div>
