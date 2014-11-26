@@ -1,4 +1,9 @@
 jQuery(function() {
+    jQuery.validator.setDefaults({
+        // Note: Here we are allowing chosen-select to run validation as by default select or input having either of this classes marked as hidden.
+        ignore: ':hidden:not(.chosen-select)'
+    });
+
     jQuery.validator.addMethod('req', function(v, e, p) {
         switch(e.nodeName.toLowerCase()) {
             case 'select':
@@ -70,9 +75,12 @@ jQuery(function() {
             });
         }
     }());
-    jQuery('body').find('form div.form-group .required:input').each(function() {
-        if (!jQuery(this).closest('div.form-group').find('span.asterisk').size() > 0) {
-            jQuery(this).closest('div.form-group > div').children('label').append('<span class="asterisk"> *</span>');
+    jQuery('body').on('keyup change', '.chosen-select', function(){
+        var elt = jQuery(this);
+        if (elt.attr('value') === '') {
+            elt.siblings('label.error').show();
+        } else {
+            elt.siblings('label.error').hide();
         }
     });
     jQuery('body').find('[data-dependent]').each(function() {
@@ -146,7 +154,8 @@ jQuery(function() {
         e.preventDefault();
         jQuery.proxy(ajaxUpdater, {elt: this})();
     });
-
+    rebindContainer();
+});
     function ajaxUpdater() {
         var options = this,
             elt = jQuery(options.elt),
@@ -246,5 +255,10 @@ jQuery(function() {
             elt = jQuery('body');
         }
         jQuery(".chosen-select").chosen();
+        initValidations(elt)
+    jQuery(elt).find('form div.form-group .required:input').each(function() {
+        if (!jQuery(this).closest('div.form-group').find('span.asterisk').size() > 0) {
+            jQuery(this).closest('div.form-group > div').children('label').append('<span class="asterisk"> *</span>');
+        }
+    });
     }
-});
