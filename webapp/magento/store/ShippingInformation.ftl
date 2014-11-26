@@ -56,7 +56,7 @@
                   </table>
                 <#else>
                   <div>
-                    There is no shipping method. To add click <a href="" data-toggle-display="#shipingMethod_${carrier.partyId}" data-toggle-hide=".hideShipMeth_${carrier.partyId}" data-toggle-effect="slide">here</a>.
+                    There is no shipping method. To add click <a href="" data-ajax-update="#shipping_${carrier.partyId}" data-update-url="<@ofbizUrl>AddShippingMethod?carrierPartyId=${(carrier.partyId)!}</@ofbizUrl>">here</a>.
                   </div>
                 </#if>
               </div>
