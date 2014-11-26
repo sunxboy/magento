@@ -91,8 +91,12 @@ under the License.
     <request-map uri="createUpdateShipmentGatewayConfig">
         <security https="true" auth="true"/>
         <event type="service" invoke="createUpdateShipmentGatewayConfig"/>
-        <response name="success" type="view" value="ShippingInformation"/>
-        <response name="error" type="view" value="ShippingInformation"/>
+        <response name="success" type="request-redirect" value="ShippingInformation">
+            <redirect-parameter name="partyId" from="carrierPartyId"/>
+        </response>
+        <response name="error" type="request-redirect" value="ShippingInformation">
+            <redirect-parameter name="partyId" from="carrierPartyId"/>
+        </response>
     </request-map>
 
     <view-map name="StoreConfiguration" type="screen" page="component://magento/widget/magento/MagentoScreens.xml#StoreConfiguration"/>
