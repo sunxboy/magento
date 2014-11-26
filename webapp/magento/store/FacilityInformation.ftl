@@ -16,7 +16,7 @@
         <div class="form-group row">
           <div class="col-lg-8 col-md-8">
             <label for="contactNumber">${uiLabelMap.MagentoPhone}</label>
-            <input type="text" name="contactNumber" id="contactNumber" class="form-control validate-phone" value="${(warehouseTelecomNumber.contactNumber)!}">
+            <input type="text" name="contactNumber" id="contactNumber" class="form-control validate-phone" value="${(companyMap.telecomNumber.countryCode)!}${(companyMap.telecomNumber.areaCode)!}${(companyMap.telecomNumber.contactNumber)!}">
           </div>
         </div>
         <div class="form-group row">
