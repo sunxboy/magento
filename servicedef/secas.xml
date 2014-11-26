@@ -13,6 +13,6 @@
         <action service="updateInventoryCountInMagento" mode="async" run-as-user="system"/>
     </eca>
     <eca service="createItemIssuance" event="invoke" run-on-error="false">
-        <action service="checkOrderStatusInMagento" mode="sync" run-as-user="system"/>
+        <action service="checkOrderStatusInMagento" mode="async" run-as-user="system"/>
     </eca>
 </service-eca>
