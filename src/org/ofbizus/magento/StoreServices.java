@@ -260,6 +260,9 @@ public class StoreServices {
                 serviceCtx.put("balanceResOnOrderCreation", "N");
                 serviceCtx.put("payToPartyId", partyId);
                 serviceCtx.put("defaultCurrencyUomId", "USD");
+                serviceCtx.put("defaultCurrencyUomId", "USD");
+                serviceCtx.put("reserveInventory", "Y");
+                
                 result = dispatcher.runSync("createProductStore", serviceCtx);
                 if (!ServiceUtil.isSuccess(result)) {
                     Debug.logError(ServiceUtil.getErrorMessage(result), module);
