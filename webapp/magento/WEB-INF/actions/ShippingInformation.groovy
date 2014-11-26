@@ -5,7 +5,7 @@ if (productStore) {
     exprBldr = new EntityConditionBuilder();
     expr = exprBldr.AND() {
         EQUALS(roleTypeId: "CARRIER")
-        NOT_EQUALS(partyId: '_NA_')
+        IN(partyId: ["DHL", "FEDEX", "UPS", "USPS"])
     }
     carrierParties = delegator.findList("PartyRoleAndPartyDetail", expr,
             null, ["groupName"], null, false);
@@ -15,19 +15,22 @@ if (productStore) {
         shippingServiceNameMap = [:];
         carrierParties.each { carrier ->
             expr = exprBldr.AND() {
+                EQUALS(productStoreId: productStore.productStoreId);
+                EQUALS(partyId: carrier.partyId);
+            }
+            existingStoreShipMethList = delegator.findList("ProductStoreShipmentMeth", expr, null, ["includeGeoId", "shipmentMethodTypeId"], null, false);
+            expr = exprBldr.AND() {
                 EQUALS(roleTypeId: "CARRIER");
                 EQUALS(partyId: carrier.partyId);
+                if (existingStoreShipMethList) {
+                    NOT_IN(shipmentMethodTypeId : existingStoreShipMethList.shipmentMethodTypeId);
+                }
             }
             carrierAndShipmentMethodList = delegator.findList("CarrierAndShipmentMethod", expr, null, null, null, false);
             if (carrierAndShipmentMethodList) {
                 carrierAndShipmentMethod.(carrier.partyId) = carrierAndShipmentMethodList;
             }
 
-            expr = exprBldr.AND() {
-                EQUALS(productStoreId: productStore.productStoreId);
-                EQUALS(partyId: carrier.partyId);
-            }
-            existingStoreShipMethList = delegator.findList("ProductStoreShipmentMeth", expr, null, ["includeGeoId", "shipmentMethodTypeId"], null, false);
             storeShipMethList = [];
             existingStoreShipMethMap = [:];
             existingStoreShipMethList.each { existingStoreShipMeth ->
