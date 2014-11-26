@@ -35,8 +35,8 @@ under the License.
     <request-map uri="createUpdateMagentoConfiguration">
         <security https="true" auth="true"/>
         <event type="service" invoke="createUpdateMagentoConfiguration"/>
-        <response name="success" type="view" value="StoreConfiguration"/>
-        <response name="error" type="view" value="StoreConfiguration"/>
+        <response name="success" type="request-redirect" value="StoreConfiguration"/>
+        <response name="error" type="request-redirect" value="StoreConfiguration"/>
     </request-map>
     <request-map uri="FacilityInformation">
         <security https="true" auth="true"/>
@@ -45,14 +45,14 @@ under the License.
     <request-map uri="createFacilityInformation">
         <security https="true" auth="true"/>
         <event type="service" invoke="createWarehouse"/>
-        <response name="success" type="view" value="FacilityInformation"/>
-        <response name="error" type="view" value="FacilityInformation"/>
+        <response name="success" type="request-redirect" value="FacilityInformation"/>
+        <response name="error" type="request-redirect" value="FacilityInformation"/>
     </request-map>
     <request-map uri="updateFacilityInformation">
         <security https="true" auth="true"/>
         <event type="service" invoke="updateWarehouse"/>
-        <response name="success" type="view" value="FacilityInformation"/>
-        <response name="error" type="view" value="FacilityInformation"/>
+        <response name="success" type="request-redirect" value="FacilityInformation"/>
+        <response name="error" type="request-redirect" value="FacilityInformation"/>
     </request-map>
     <request-map uri="StoreInformation">
         <security https="true" auth="true"/>
@@ -61,8 +61,8 @@ under the License.
     <request-map uri="createUpdateStoreInformation">
         <security https="true" auth="true"/>
         <event type="service" invoke="createUpdateStoreInformation"/>
-        <response name="success" type="view" value="StoreInformation"/>
-        <response name="error" type="view" value="StoreInformation"/>
+        <response name="success" type="request-redirect" value="StoreInformation"/>
+        <response name="error" type="request-redirect" value="StoreInformation"/>
     </request-map>
     <request-map uri="ShippingInformation">
         <security https="true" auth="true"/>
@@ -71,8 +71,12 @@ under the License.
     <request-map uri="createRemoveProductStoreShipMeth">
         <security https="true" auth="true"/>
         <event type="service" invoke="createRemoveProductStoreShipMeth"/>
-        <response name="success" type="view" value="ShippingInformation"/>
-        <response name="error" type="view" value="ShippingInformation"/>
+        <response name="success" type="request-redirect" value="ShippingInformation">
+            <redirect-parameter name="partyId"/>
+        </response>
+        <response name="error" type="request-redirect" value="ShippingInformation">
+            <redirect-parameter name="partyId"/>
+        </response>
     </request-map>
     <request-map uri="ShippingGatewayConfiguration">
         <security https="true" auth="true"/>
