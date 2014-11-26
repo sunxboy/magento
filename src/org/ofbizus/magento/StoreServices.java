@@ -612,6 +612,10 @@ public class StoreServices {
                         serviceName = "updateShipmentGatewayConfigUsps";
                     }
                     serviceCtx = dctx.getModelService(serviceName).makeValid(context, ModelService.IN_PARAM);
+                    if ("FEDEX".equalsIgnoreCase(carrierPartyId)) {
+                        serviceCtx.put("accessUserKey", (String) context.get("accessUserId"));
+                        serviceCtx.put("accessUserPwd", (String) context.get("accessPassword"));
+                    }
                     result = dispatcher.runSync(serviceName, serviceCtx);
                 }
             } else {
@@ -644,6 +648,10 @@ public class StoreServices {
                         serviceCtx.clear();
                         serviceCtx = dctx.getModelService(serviceName).makeValid(context, ModelService.IN_PARAM);
                         serviceCtx.put("shipmentGatewayConfigId", shipmentGatewayConfigId);
+                        if ("FEDEX".equalsIgnoreCase(carrierPartyId)) {
+                            serviceCtx.put("accessUserKey", (String) context.get("accessUserId"));
+                            serviceCtx.put("accessUserPwd", (String) context.get("accessPassword"));
+                        }
                         result = dispatcher.runSync(serviceName, serviceCtx);
                     }
                 }
