@@ -362,6 +362,8 @@ public class StoreServices {
                 return ServiceUtil.returnError(ServiceUtil.getErrorMessage(result));
             }
 
+            serviceCtx.clear();
+            result.clear();
             serviceCtx.put("productStoreId", productStoreId);
             serviceCtx.put("inventoryFacilityId", facilityId);
             serviceCtx.put("userLogin", userLogin);
