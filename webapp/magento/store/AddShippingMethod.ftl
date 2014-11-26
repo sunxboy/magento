@@ -4,15 +4,15 @@
       <a class="btn btn-default pull-right" href="<@ofbizUrl>ShippingInformation?partyId=${(parameters.carrierPartyId)!}</@ofbizUrl>"><i class="fa fa-times"></i></a>
     </div>
   </div>
-  <form method="post" action="<@ofbizUrl>createRemoveProductStoreShipMeth</@ofbizUrl>">
+  <form method="post" action="<@ofbizUrl>createRemoveProductStoreShipMeth</@ofbizUrl>" class="requireValidation">
     <input type="hidden" name="productStoreId" value="${(productStore.productStoreId)!}"/>
     <input type="hidden" name="partyId" value="${(parameters.carrierPartyId)!}"/>
     <input type="hidden" name="roleTypeId" value="CARRIER"/>
     <input type="hidden" name="serviceName" value="${(shippingServiceNameMap[parameters.carrierPartyId])!}"/>
     <div class="form-group row">
       <div class="col-lg-3 col-md-3">
-        <label for="countryGeoId">Shipping Method</label>
-        <select name="shipmentMethodTypeId" multiple="multiple" class="form-control chosen-select">
+        <label for="countryGeoId">${uiLabelMap.MagentoShippingMethod}</label>
+        <select name="shipmentMethodTypeId" multiple="multiple" class="form-control chosen-select required" data-label="${uiLabelMap.MagentoShippingMethod}">
           <#if carrierAndShipmentMethod?has_content>
             <#assign shipmentMethodList = carrierAndShipmentMethod[parameters.carrierPartyId]>
             <#list shipmentMethodList as shipmentMethod>
