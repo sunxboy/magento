@@ -106,8 +106,8 @@ public class MagentoClient {
             LoginResponseParam loginResponseParam = port.login(loginParams);
 
             this.sessionId = loginResponseParam.getResult();
+            Debug.logInfo("Got Magento session  with sessionId:" +this.sessionId, module);
         }
-        Debug.logInfo("Got Magento session  with sessionId:" +this.sessionId, module);
         return this.sessionId;
     }
 
