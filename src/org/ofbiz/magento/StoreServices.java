@@ -1,4 +1,4 @@
-package org.ofbizus.magento;
+package org.ofbiz.magento;
 
 import java.io.File;
 import java.net.URL;

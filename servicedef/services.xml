@@ -22,36 +22,36 @@ under the License.
         xsi:noNamespaceSchemaLocation="http://ofbiz.apache.org/dtds/services.xsd">
         
     <service name="importPendingOrdersFromMagento" engine="java" auth="true" transaction-timeout="7200"
-            location="org.ofbizus.magento.MagentoServices" invoke="importPendingOrdersFromMagento">
+            location="org.ofbiz.magento.MagentoServices" invoke="importPendingOrdersFromMagento">
         <description></description>
         <attribute name="externalId" mode="IN" type="String" optional="true"/>
         <attribute name="fromDate" type="java.sql.Timestamp" mode="IN" optional="true"/>
         <attribute name="thruDate" type="java.sql.Timestamp" mode="IN" optional="true"/>
     </service>
     <service name="createOrderFromMagento" engine="java" auth="true"
-            location="org.ofbizus.magento.MagentoServices" invoke="createOrderFromMagento">
+            location="org.ofbiz.magento.MagentoServices" invoke="createOrderFromMagento">
         <description></description>
         <attribute name="orderInfo" mode="IN" type="Object"/>
     </service>
     <service name="importCancelledOrdersFromMagento" engine="java" auth="true"
-            location="org.ofbizus.magento.MagentoServices" invoke="importCancelledOrdersFromMagento">
+            location="org.ofbiz.magento.MagentoServices" invoke="importCancelledOrdersFromMagento">
         <description></description>
         <attribute name="externalId" mode="IN" type="String" optional="true"/>
         <attribute name="fromDate" type="java.sql.Timestamp" mode="IN" optional="true"/>
         <attribute name="thruDate" type="java.sql.Timestamp" mode="IN" optional="true"/>
     </service>
     <service name="cancelOrderInMagento" engine="java" auth="true"
-            location="org.ofbizus.magento.MagentoServices" invoke="cancelOrderInMagento">
+            location="org.ofbiz.magento.MagentoServices" invoke="cancelOrderInMagento">
         <description>Cancel order in magento.</description>
         <attribute name="orderId" mode="IN" type="String"/>
     </service>
     <service name="completeOrderInMagento" engine="java" auth="true"
-            location="org.ofbizus.magento.MagentoServices" invoke="completeOrderInMagento">
+            location="org.ofbiz.magento.MagentoServices" invoke="completeOrderInMagento">
         <description>Complete order in magento.</description>
         <attribute name="orderId" mode="IN" type="String"/>
     </service>
     <service name="updateInventoryCountInMagento" engine="java" export="true" validate="false"
-            location="org.ofbizus.magento.MagentoServices" invoke="updateInventoryCountInMagento">
+            location="org.ofbiz.magento.MagentoServices" invoke="updateInventoryCountInMagento">
         <description>Srvice used to update inventory count in magento.</description>
         <attribute name="productId" mode="IN" type="String" optional="false"/>
     </service>
@@ -66,23 +66,23 @@ under the License.
         <auto-attributes mode="IN" entity-name="MagentoConfiguration" include="nonpk" optional="true"/>
     </service>
     <service name="createUpdateMagentoConfiguration" engine="java" auth="true"
-            location="org.ofbizus.magento.MagentoServices" invoke="createUpdateMagentoConfiguration">
+            location="org.ofbiz.magento.MagentoServices" invoke="createUpdateMagentoConfiguration">
         <description>Create Update Magento Configuration</description>
         <implements service="createMagentoConfiguration"/>
         <implements service="updateMagentoConfiguration"/>
         <override name="magentoConfigurationId" optional="true"/>
     </service>
     <service name="checkOrderStatusInMagento" engine="java" auth="true"
-            location="org.ofbizus.magento.MagentoServices" invoke="checkOrderStatusInMagento">
+            location="org.ofbiz.magento.MagentoServices" invoke="checkOrderStatusInMagento">
         <description>Check if order is cancelled in Magento.</description>
         <attribute name="orderId" type="String" mode="IN"/>
     </service>
     <service name="magentoIntegrationConciliation" engine="java" auth="true"
-            location="org.ofbizus.magento.MagentoServices" invoke="magentoIntegrationConciliation">
+            location="org.ofbiz.magento.MagentoServices" invoke="magentoIntegrationConciliation">
         <description>Check the consistency of Magento integration.</description>
     </service>
     <service name="sendMagentoIntegrationConciliationMail" engine="java" auth="true"
-            location="org.ofbizus.magento.MagentoServices" invoke="sendMagentoIntegrationConciliationMail">
+            location="org.ofbiz.magento.MagentoServices" invoke="sendMagentoIntegrationConciliationMail">
         <description>Send Magento integration conciliation mail.</description>
         <attribute name="sendTo"  type="String" mode="IN"/>
         <attribute name="sendFrom"  type="String" mode="IN" optional="true"/>

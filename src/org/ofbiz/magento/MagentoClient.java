@@ -1,4 +1,4 @@
-package org.ofbizus.magento;
+package org.ofbiz.magento;
 
 import java.net.MalformedURLException;
 import java.net.URL;

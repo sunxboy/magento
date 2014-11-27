@@ -1,4 +1,4 @@
-package org.ofbizus.magento;
+package org.ofbiz.magento;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;

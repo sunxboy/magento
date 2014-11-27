@@ -21,7 +21,7 @@ under the License.
 <services xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
         xsi:noNamespaceSchemaLocation="http://ofbiz.apache.org/dtds/services.xsd">
     <service name="createUpdateCompany" engine="java" auth="true" 
-            location="org.ofbizus.magento.StoreServices" invoke="createUpdateCompany">
+            location="org.ofbiz.magento.StoreServices" invoke="createUpdateCompany">
         <description>Creates Company, it's postal address, email address and contact number</description>
         <attribute name="partyId" mode="INOUT" type="String" optional="true"/>
         <attribute name="groupName" mode="IN" type="String" optional="false">
@@ -66,21 +66,21 @@ under the License.
         <attribute name="telecomContactMechId" mode="IN" type="String" optional="true"/>
     </service>
     <service name="createUpdateProductStore" engine="java" auth="true"
-            location="org.ofbizus.magento.StoreServices" invoke="createUpdateProductStore">
+            location="org.ofbiz.magento.StoreServices" invoke="createUpdateProductStore">
         <description>Create store</description>
         <implements service="createProductStore"/>
         <attribute name="partyId" mode="INOUT" type="String" optional="false"/>
         <override name="productStoreId" mode="INOUT" optional="true"/>
     </service>
     <service name="createUpdateStoreInformation" engine="java" auth="true"
-            location="org.ofbizus.magento.StoreServices" invoke="createUpdateStoreInformation">
+            location="org.ofbiz.magento.StoreServices" invoke="createUpdateStoreInformation">
         <description>Create or update store information</description>
         <implements service="createUpdateProductStore"/>
         <implements service="createUpdateCompany"/>
         <override name="partyId" type="String" mode="IN" optional="true"/>
     </service>
     <service name="createWarehouse" engine="java" auth="true"
-            location="org.ofbizus.magento.StoreServices" invoke="createWarehouse">
+            location="org.ofbiz.magento.StoreServices" invoke="createWarehouse">
         <description>Creates warehouse, its contact number and email address. Associates it to its product store.</description>
         <implements service="createFacility"/>
         <implements service="updateProductStore"/>
@@ -98,7 +98,7 @@ under the License.
         <override name="facilityTypeId" optional="true"/>
     </service>
     <service name="updateWarehouse" engine="java" auth="true"
-            location="org.ofbizus.magento.StoreServices" invoke="updateWarehouse">
+            location="org.ofbiz.magento.StoreServices" invoke="updateWarehouse">
         <description>Updates warehouse, its contact information.</description>
         <implements service="updateFacility"/>
         <implements service="updateProductStore"/>
@@ -113,7 +113,7 @@ under the License.
         <override name="facilityName" optional="false"/>
     </service>
     <service name="createRemoveProductStoreShipMeth" engine="java" auth="true"
-            location="org.ofbizus.magento.StoreServices" invoke="createRemoveProductStoreShipMeth">
+            location="org.ofbiz.magento.StoreServices" invoke="createRemoveProductStoreShipMeth">
         <description>Create or Remove product store shipping method.</description>
         <implements service="createProductStoreShipMeth"/>
         <attribute name="productStoreShipMethId"  type="String" mode="IN" optional="true"/>
@@ -145,7 +145,7 @@ under the License.
         <auto-attributes entity-name="ShipmentGatewayUsps" include="nonpk" mode="IN" optional="true"/>
     </service>
     <service name="createUpdateShipmentGatewayConfig" engine="java" auth="true"
-            location="org.ofbizus.magento.StoreServices" invoke="createUpdateShipmentGatewayConfig">
+            location="org.ofbiz.magento.StoreServices" invoke="createUpdateShipmentGatewayConfig">
         <description>Create Update Shipment Gateway Configuration</description>
         <attribute name="shipmentGatewayConfigId" mode="IN" type="String" optional="true"/>
         <attribute name="connectUrl" mode="IN" type="String"/>
@@ -154,7 +154,7 @@ under the License.
         <attribute name="carrierPartyId" mode="IN" type="String"/>
     </service>
     <service name="setupDefaultGeneralLedger" engine="java" auth="true"
-            location="org.ofbizus.magento.StoreServices" invoke="setupDefaultGeneralLedger">
+            location="org.ofbiz.magento.StoreServices" invoke="setupDefaultGeneralLedger">
         <attribute name="partyId" mode="IN" type="String" optional="true"/>
     </service>
 </services>
