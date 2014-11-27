@@ -22,6 +22,11 @@ jQuery(function() {
         return 'Please enter ' + label_text;
     }
 );
+    jQuery.validator.addMethod('phone', function(v, e, p) {
+        return /^(\d{0,3}[ .-]?\d{3}[ .-]?\d{3}[ .-]?\d{4})?$/.test(v); 
+        },
+        'Please enter a valid phone number. Example: 123-123-123-1234.'
+    );
 
     function getValidateElementLabel(v, e) {
         jQuery(e).siblings('label[class="error"]').remove();
@@ -36,6 +41,9 @@ jQuery(function() {
     jQuery.validator.addClassRules({
         'required': {
             req: true
+        },
+        'validate-phone': {
+            phone: true
         }
     });
 

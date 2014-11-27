@@ -22,13 +22,13 @@
         <div class="form-group row">
           <div class="col-lg-8 col-md-8">
             <label for="contactNumber">${uiLabelMap.MagentoPhone}</label>
-            <input type="text" name="contactNumber" id="contactNumber" class="form-control validate-phone" value="${(companyMap.telecomNumber.countryCode)!}${(companyMap.telecomNumber.areaCode)!}${(companyMap.telecomNumber.contactNumber)!}">
+            <input type="tel" name="contactNumber" id="contactNumber" class="form-control validate-phone" value="${(companyMap.telecomNumber.countryCode)!}${(companyMap.telecomNumber.areaCode)!}${(companyMap.telecomNumber.contactNumber)!}">
           </div>
         </div>
         <div class="form-group row">
           <div class="col-lg-8 col-md-8">
             <label class="control-label" for="infoString">${uiLabelMap.CommonEmail}</label>
-            <input type="text" name="infoString" id="infoString" data-label="${uiLabelMap.CommonEmail}" class="required validate-email form-control" value="${(companyMap.companyEmail.emailAddress)!}">
+            <input type="email" name="infoString" id="infoString" data-label="${uiLabelMap.CommonEmail}" class="required validate-email form-control" value="${(companyMap.companyEmail.emailAddress)!}">
           </div>
         </div>
         <div class="form-group row">
