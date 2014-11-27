@@ -8,4 +8,9 @@
     <RecurrenceInfo recurrenceInfoId="MAGENTO_2000" recurrenceRuleId="MAGENTO_2000" recurrenceCount="0" startDateTime="2014-10-30 01:00:00.000"/>
     <JobSandbox jobId="MAGENTO_2000" recurrenceInfoId="MAGENTO_2000" jobName="Pull Cancelled Orders From Magento" 
             poolId="pool" runAsUser="system" runTime="2013-08-16 01:00:00.000" serviceName="importCancelledOrdersFromMagento"/>
+
+    <RecurrenceRule recurrenceRuleId="MAGENTO_2001" frequency="DAILY" intervalNumber="1" countNumber="-1"/>
+    <RecurrenceInfo recurrenceInfoId="MAGENTO_2001" recurrenceRuleId="MAGENTO_2001" recurrenceCount="0" startDateTime="2014-10-30 12:00:00.000"/>
+    <JobSandbox jobId="MAGENTO_2001" recurrenceInfoId="MAGENTO_2001" jobName="Magento integration conciliation" 
+            poolId="pool" runAsUser="system" runTime="2014-10-30 12:00:00.000" serviceName="magentoIntegrationConciliation"/>
 </entity-engine-xml>

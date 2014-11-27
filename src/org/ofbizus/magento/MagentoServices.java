@@ -318,7 +318,7 @@ public class MagentoServices {
                         Map <String, Object> serviceCtx = new HashMap<String, Object>();
                         serviceCtx.put("orderId", orderId);
                         serviceCtx.put("statusId", "ORDER_CANCELLED");
-                        serviceCtx.put("setItemStatus", "ITEM_CANCELLED");
+                        serviceCtx.put("setItemStatus", "Y");
                         serviceCtx.put("userLogin", system);
                         dispatcher.runSync("changeOrderStatus", serviceCtx, 0, true);
 
