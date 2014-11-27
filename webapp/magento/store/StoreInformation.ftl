@@ -10,37 +10,37 @@
         <div class="form-group row">
           <div class="col-lg-8 col-md-8">
             <label for="groupName">${uiLabelMap.MagentoCompanyName}</label>
-            <input type="text" name="groupName" id="groupName" form="companyInfo" class="required form-control" data-label="${uiLabelMap.MagentoCompanyName}" value="${(companyMap.groupName)!}" maxLength="100">
+            <input type="text" name="groupName" id="groupName" class="required form-control" data-label="${uiLabelMap.MagentoCompanyName}" value="${(companyMap.groupName)!}" maxLength="100">
           </div>
         </div>
         <div class="form-group row">
           <div class="col-lg-8 col-md-8">
             <label for="storeName">${uiLabelMap.MagentoStoreName}</label>
-            <input type="text" name="storeName" id="storeName" form="companyInfo" class="required form-control" data-label="${uiLabelMap.MagentoStoreName}" value="${(productStore.storeName)!}" maxLength="100">
+            <input type="text" name="storeName" id="storeName" class="required form-control" data-label="${uiLabelMap.MagentoStoreName}" value="${(productStore.storeName)!}" maxLength="100">
           </div>
         </div>
         <div class="form-group row">
           <div class="col-lg-8 col-md-8">
             <label for="contactNumber">${uiLabelMap.MagentoPhone}</label>
-            <input type="text" name="contactNumber" form="companyInfo" id="contactNumber" class="form-control validate-phone" value="${(companyMap.telecomNumber.countryCode)!}${(companyMap.telecomNumber.areaCode)!}${(companyMap.telecomNumber.contactNumber)!}">
+            <input type="text" name="contactNumber" id="contactNumber" class="form-control validate-phone" value="${(companyMap.telecomNumber.countryCode)!}${(companyMap.telecomNumber.areaCode)!}${(companyMap.telecomNumber.contactNumber)!}">
           </div>
         </div>
         <div class="form-group row">
           <div class="col-lg-8 col-md-8">
             <label class="control-label" for="infoString">${uiLabelMap.CommonEmail}</label>
-            <input type="text" name="infoString" form="companyInfo" id="infoString" data-label="${uiLabelMap.CommonEmail}" class="required validate-email form-control" value="${(companyMap.companyEmail.emailAddress)!}">
+            <input type="text" name="infoString" id="infoString" data-label="${uiLabelMap.CommonEmail}" class="required validate-email form-control" value="${(companyMap.companyEmail.emailAddress)!}">
           </div>
         </div>
         <div class="form-group row">
           <div class="col-lg-8 col-md-8">
             <label for="address1">${uiLabelMap.CommonAddress1}</label>
-            <input type="text" name="address1" id="address1" form="companyInfo" data-label="${uiLabelMap.CommonAddress1}" class="required form-control" value="${(companyMap.postalAddress.address1)!}">
+            <input type="text" name="address1" id="address1" data-label="${uiLabelMap.CommonAddress1}" class="required form-control" value="${(companyMap.postalAddress.address1)!}">
           </div>
         </div>
         <div class="form-group row">
           <div class="col-lg-8 col-md-8">
             <label for="address2">${uiLabelMap.CommonAddress2}</label>
-            <input type="text" name="address2" form="companyInfo" id="address2" class="form-control" value="${(companyMap.postalAddress.address2)!}">
+            <input type="text" name="address2" id="address2" class="form-control" value="${(companyMap.postalAddress.address2)!}">
           </div>
         </div>
       </div>
@@ -48,7 +48,7 @@
         <div class="form-group row">
           <div class="col-lg-8 col-md-8">
             <label for="city">${uiLabelMap.CommonCity}</label>
-            <input type="text" name="city" form="companyInfo" id="city" class="required form-control" data-label="${uiLabelMap.CommonCity}" value="${(companyMap.postalAddress.city)!}">
+            <input type="text" name="city" id="city" class="required form-control" data-label="${uiLabelMap.CommonCity}" value="${(companyMap.postalAddress.city)!}">
           </div>
         </div>
         <div class="form-group row">
