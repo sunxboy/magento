@@ -3,12 +3,12 @@
     <a href="<@ofbizUrl>StoreConfiguration</@ofbizUrl>"><i class="fa fa-cog"></i> ${uiLabelMap.CommonConfiguration}</a>
   </li>
   <li <#if step == "2"> class="active" </#if>>
-    <a href="<@ofbizUrl>StoreInformation</@ofbizUrl>"><i class="fa fa-cog"></i> ${uiLabelMap.MagentoStore}</a>
+    <a href="<@ofbizUrl>StoreInformation</@ofbizUrl>"><i class="fa fa-home"></i> ${uiLabelMap.MagentoStore}</a>
   </li>
   <li <#if step == "3"> class="active" </#if>>
-    <a href="<@ofbizUrl>FacilityInformation</@ofbizUrl>" <#if !productStore?has_content>class="disabled"</#if>><i class="fa fa-cog"></i> ${uiLabelMap.Facility}</a>
+    <a href="<@ofbizUrl>FacilityInformation</@ofbizUrl>" <#if !productStore?has_content>class="disabled"</#if>><i class="fa fa-cubes"></i> ${uiLabelMap.Facility}</a>
   </li>
   <li <#if step == "4"> class="active" </#if>>
-    <a href="<@ofbizUrl>ShippingInformation</@ofbizUrl>" <#if !productStore?has_content>class="disabled"</#if>><i class="fa fa-cog"></i> ${uiLabelMap.CommonShipping}</a>
+    <a href="<@ofbizUrl>ShippingInformation</@ofbizUrl>" <#if !productStore?has_content>class="disabled"</#if>><i class="fa fa-truck"></i> ${uiLabelMap.CommonShipping}</a>
   </li>
 </ul>

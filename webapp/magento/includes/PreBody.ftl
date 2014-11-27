@@ -25,7 +25,7 @@
         <div class="container-fluid">
           <div class="navbar-header">
             <a class="navbar-brand" href="#">
-              Magento Store Setup
+              <i class="fa fa-gears fa-lg"></i>  Magento Store Setup
             </a>
           </div>
           <p class="navbar-text navbar-right"><a href="<@ofbizUrl>logout</@ofbizUrl>" title="${uiLabelMap.CommonLogout}"><i class="fa fa-sign-out fa-lg"></i></a></p>
