@@ -22,7 +22,7 @@
     <div class="form-group row">
       <div class="col-lg-6 col-md-6">
         <label for="connectUrl">${uiLabelMap.MagentoConnectUrl}</label>
-        <input type="text" id="connectUrl" name="connectUrl" class="required form-control" data-label="${uiLabelMap.MagentoConnectUrl}" value="${(shipmentGatewayConfiguration.connectUrl)!}"/>
+        <input type="url" id="connectUrl" name="connectUrl" class="required form-control" data-label="${uiLabelMap.MagentoConnectUrl}" value="${(shipmentGatewayConfiguration.connectUrl)!}"/>
       </div>
     </div>
     <div class="row">
