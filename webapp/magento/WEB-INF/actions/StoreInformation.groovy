@@ -23,5 +23,10 @@ if (productStore) {
         }
         context.companyMap = companyMap;
         context.partyId = partyId;
+    } 
+} else {
+    productStoreList = delegator.findList("ProductStore", null, null, null, null, false);
+    if (productStoreList) {
+        context.productStoreList = productStoreList;
     }
 }

@@ -98,9 +98,20 @@ under the License.
             <redirect-parameter name="partyId" from="carrierPartyId"/>
         </response>
     </request-map>
+    <request-map uri="addMagentoProductStore">
+        <security https="true" auth="true"/>
+        <event type="service" invoke="createUpdateMagentoConfiguration"/>
+        <response name="success" type="request-redirect" value="StoreInformation"/>
+        <response name="error" type="request-redirect" value="StoreInformation"/>
+    </request-map>
+    <request-map uri="CreateNewProductStoreAndCompany">
+        <security https="true" auth="true"/>
+        <response name="success" type="view" value="CreateNewProductStoreAndCompany"/>
+    </request-map>
 
     <view-map name="StoreConfiguration" type="screen" page="component://magento/widget/magento/MagentoScreens.xml#StoreConfiguration"/>
     <view-map name="StoreInformation" type="screen" page="component://magento/widget/magento/MagentoScreens.xml#StoreInformation"/>
+    <view-map name="CreateNewProductStoreAndCompany" type="screen" page="component://magento/widget/magento/MagentoScreens.xml#CreateNewProductStoreAndCompany"/>
     <view-map name="FacilityInformation" type="screen" page="component://magento/widget/magento/MagentoScreens.xml#FacilityInformation"/>
     <view-map name="ShippingInformation" type="screen" page="component://magento/widget/magento/MagentoScreens.xml#ShippingInformation"/>
     <view-map name="ShippingGatewayConfiguration" type="screen" page="component://magento/widget/magento/MagentoScreens.xml#ShippingGatewayConfiguration"/>

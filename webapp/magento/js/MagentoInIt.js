@@ -91,27 +91,6 @@ jQuery(function() {
             elt.siblings('label.error').hide();
         }
     });
-    jQuery('body').find('[data-dependent]').each(function() {
-        var parent_elt = jQuery(this),
-            child_elt = jQuery(parent_elt.data('dependent'));
-        parent_elt.data('child-clone', child_elt.clone());
-        jQuery('body').on('change', '[data-dependent]', function() {
-            var parent_elt = jQuery(this),
-                child_elt = jQuery(parent_elt.data('dependent')),
-                child_clone = parent_elt.data('child-clone'),
-                selected_title = jQuery(parent_elt).find(':selected').attr('title');
-            jQuery(child_elt).empty();
-            child_clone.children().each(function() {
-                if (jQuery(this).attr('value') === '') {
-                    jQuery(child_elt).append(jQuery(this).clone());
-                }
-                if (selected_title !== '' && (jQuery(this).attr('label') === selected_title || jQuery(this).hasClass(selected_title))) {
-                    jQuery(child_elt).append(jQuery(this).clone());
-                }
-            });
-        });
-        jQuery(this).change();
-    });
 
     function toggleDisplay(target, state, effect) {
         if (jQuery(target) !== undefined) {
@@ -269,4 +248,26 @@ jQuery(function() {
             jQuery(this).closest('div.form-group > div').children('label').append('<span class="asterisk"> *</span>');
         }
     });
+        jQuery('body').find('[data-dependent]').each(function() {
+            var parent_elt = jQuery(this),
+                child_elt = jQuery(parent_elt.data('dependent'));
+            parent_elt.data('child-clone', child_elt.clone());
+            jQuery('body').on('change', '[data-dependent]', function() {
+                var parent_elt = jQuery(this),
+                    child_elt = jQuery(parent_elt.data('dependent')),
+                    child_clone = parent_elt.data('child-clone'),
+                    selected_title = jQuery(parent_elt).find(':selected').attr('title');
+                jQuery(child_elt).empty();
+                child_clone.children().each(function() {
+                    if (jQuery(this).attr('value') === '') {
+                        jQuery(child_elt).append(jQuery(this).clone());
+                    }
+                    if (selected_title !== '' && (jQuery(this).attr('label') === selected_title || jQuery(this).hasClass(selected_title))) {
+                        jQuery(child_elt).append(jQuery(this).clone());
+                    }
+                });
+            });
+            jQuery(this).change();
+        });
+
     }
