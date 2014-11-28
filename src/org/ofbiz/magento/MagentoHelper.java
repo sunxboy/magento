@@ -324,7 +324,7 @@ public class MagentoHelper {
                     Debug.logInfo("Magento ShipmentMethodTypeId :"+magShipmentMethodTypeId, module);
                     shipmentMethodTypeId = EntityUtilProperties.getPropertyValue("Magento", magShipmentMethodTypeId, delegator);
                     if (UtilValidate.isEmpty(shipmentMethodTypeId)) {
-                        shipmentMethodTypeId = magShipmentMethodTypeId;
+                        shipmentMethodTypeId = "FLAT_RATE";
                     }
                 }
                 Debug.logInfo("Setting ShipmentMethodTypeId to order:"+shipmentMethodTypeId, module);

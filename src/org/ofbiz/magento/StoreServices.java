@@ -280,6 +280,16 @@ public class StoreServices {
                         Debug.logError(ServiceUtil.getErrorMessage(result), module);
                         return ServiceUtil.returnError(ServiceUtil.getErrorMessage(result));
                     }
+                    serviceCtx.clear();
+                    serviceCtx.put("productStoreId", productStoreId);
+                    serviceCtx.put("partyId", "_NA_");
+                    serviceCtx.put("shipmentMethodTypeId", "FLAT_RATE");
+                    serviceCtx.put("userLogin", userLogin);
+                    result = dispatcher.runSync("createProductStoreShipMeth", serviceCtx);
+                    if (!ServiceUtil.isSuccess(result)) {
+                        Debug.logError(ServiceUtil.getErrorMessage(result), module);
+                        return ServiceUtil.returnError(ServiceUtil.getErrorMessage(result));
+                    }
                 }
                 result = ServiceUtil.returnSuccess(UtilProperties.getMessage(resource, "MagentoStoreIsCreatedSuccessfully", locale));
                 result.put("partyId", partyId);
