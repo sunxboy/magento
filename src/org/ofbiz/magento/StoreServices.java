@@ -283,6 +283,7 @@ public class StoreServices {
                     serviceCtx.clear();
                     serviceCtx.put("productStoreId", productStoreId);
                     serviceCtx.put("partyId", "_NA_");
+                    serviceCtx.put("roleTypeId", "CARRIER");
                     serviceCtx.put("shipmentMethodTypeId", "FLAT_RATE");
                     serviceCtx.put("userLogin", userLogin);
                     result = dispatcher.runSync("createProductStoreShipMeth", serviceCtx);
