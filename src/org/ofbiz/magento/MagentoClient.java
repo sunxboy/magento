@@ -29,6 +29,8 @@ import magento.OrderItemIdQtyArray;
 import magento.SalesOrderCancelRequestParam;
 import magento.SalesOrderCancelResponseParam;
 import magento.SalesOrderEntity;
+import magento.SalesOrderHoldRequestParam;
+import magento.SalesOrderHoldResponseParam;
 import magento.SalesOrderInfoRequestParam;
 import magento.SalesOrderInfoResponseParam;
 import magento.SalesOrderInvoiceCreateRequestParam;
@@ -193,6 +195,23 @@ public class MagentoClient {
         isCancelled = salesOrderCancelResponseParam.getResult();
 
         return isCancelled;
+    }
+    public int holdSalesOrder(String orderIncrementId) {
+        if (UtilValidate.isEmpty(orderIncrementId)) {
+            Debug.logInfo("Empty orderIncrementId.", module);
+            return 0;
+        }
+        int isMarkedHold = 0;
+        String magentoSessionId = getMagentoSession();
+        SalesOrderHoldRequestParam requestParam = new SalesOrderHoldRequestParam();
+        requestParam.setSessionId(magentoSessionId);
+        requestParam.setOrderIncrementId(orderIncrementId);
+
+        MageApiModelServerWsiHandlerPortType port = getPort();
+        SalesOrderHoldResponseParam responseParam = port.salesOrderHold(requestParam);
+        isMarkedHold = responseParam.getResult();
+
+        return isMarkedHold;
     }
     public String createShipment(String orderIncrementId, Map<Integer, Double> orderItemQtyMap) {
         if (UtilValidate.isEmpty(orderIncrementId)) {

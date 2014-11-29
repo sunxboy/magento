@@ -9,6 +9,10 @@
         <condition operator="equals" field-name="statusId" value="ORDER_COMPLETED"/>
         <action service="completeOrderInMagento" mode="async" run-as-user="system"/>
     </eca>
+    <eca service="changeOrderStatus" event="commit" run-on-error="false">
+        <condition operator="equals" field-name="statusId" value="ORDER_HOLD"/>
+        <action service="holdOrderInMagento" mode="async" run-as-user="system"/>
+    </eca>
     <eca service="receiveInventoryProduct" event="commit" run-on-error="false">
         <action service="updateInventoryCountInMagento" mode="async" run-as-user="system"/>
     </eca>

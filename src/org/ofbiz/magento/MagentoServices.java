@@ -178,6 +178,32 @@ public class MagentoServices {
         }
         return response;
     }
+    public static Map<String, Object> holdOrderInMagento(DispatchContext dctx, Map<String, ?> context) {
+        Map<String, Object> response = ServiceUtil.returnSuccess();
+        Delegator delegator = dctx.getDelegator();
+        LocalDispatcher dispatcher = dctx.getDispatcher();
+        String orderIncrementId = null;
+        String orderId = (String) context.get("orderId");
+        try {
+            GenericValue orderHeader = delegator.findOne("OrderHeader", false, UtilMisc.toMap("orderId", orderId));
+            if (UtilValidate.isNotEmpty(orderHeader) && !"ORDER_HOLD".equals(orderHeader.getString("syncStatusId")) && UtilValidate.isNotEmpty(orderHeader.getString("externalId"))) {
+                orderIncrementId = orderHeader.getString("externalId");
+                MagentoClient magentoClient = new MagentoClient(dispatcher, delegator);
+                int isMarkedHold = magentoClient.holdSalesOrder(orderIncrementId);
+                if (UtilValidate.isNotEmpty(isMarkedHold) && isMarkedHold == 1) {
+                    Debug.log("Magento Order #"+ orderIncrementId+ " is marked hold successfully.");
+                }
+            }
+        } catch (GenericEntityException gee) {
+            Debug.logError(gee.getMessage(), module);
+            return ServiceUtil.returnError(gee.getMessage());
+        }  catch (Exception e) {
+            Debug.logError("Error in marking order status hold in Magento. Error Message: " +e.getMessage(), module);
+            e.printStackTrace();
+            return ServiceUtil.returnError("Error in marking order status hold in Magento. Error Message:" +e.getMessage());
+        }
+        return response;
+    }
     public static Map<String, Object> completeOrderInMagento(DispatchContext dctx, Map<String, ?> context) {
         Map<String, Object> response = ServiceUtil.returnSuccess();
         Delegator delegator = dctx.getDelegator();
@@ -301,6 +327,8 @@ public class MagentoServices {
         Delegator delegator = dctx.getDelegator();
         LocalDispatcher dispatcher = dctx.getDispatcher();
         String orderId = (String) context.get("orderId");
+        String statusId = null;
+        String message = null;
         try {
             if (UtilValidate.isNotEmpty(orderId)) {
                 GenericValue system = delegator.findOne("UserLogin", false, UtilMisc.toMap("userLoginId", "system"));
@@ -312,18 +340,26 @@ public class MagentoServices {
                     if ("canceled".equalsIgnoreCase(salesOrder.getStatus())) {
 
                         if (!"ORDER_CANCELLED".equals(orderHeader.getString("syncStatusId"))) {
-                            dispatcher.runSync("updateOrderHeader", UtilMisc.toMap("orderId", orderId, "syncStatusId", "ORDER_CANCELLED", "userLogin", system), 0, true);
+                            statusId = "ORDER_CANCELLED";
+                            message = "The order with magento orderId #"+orderIncrementId+" is cancelled in Magento. So cancelling the order.";
                         }
-
+                    } else if ("holded".equalsIgnoreCase(salesOrder.getStatus())) {
+                        if (!"ORDER_HOLD".equals(orderHeader.getString("syncStatusId"))) {
+                            statusId = "ORDER_HOLD";
+                            message = "The order with magento orderId #"+orderIncrementId+" is on hold in Magento. So holding the order.";
+                        }
+                    }
+                    if (UtilValidate.isNotEmpty(statusId)) {
+                            dispatcher.runSync("updateOrderHeader", UtilMisc.toMap("orderId", orderId, "syncStatusId", statusId, "userLogin", system), 0, true);
                         Map <String, Object> serviceCtx = new HashMap<String, Object>();
                         serviceCtx.put("orderId", orderId);
-                        serviceCtx.put("statusId", "ORDER_CANCELLED");
+                        serviceCtx.put("statusId", statusId);
                         serviceCtx.put("setItemStatus", "Y");
                         serviceCtx.put("userLogin", system);
                         dispatcher.runSync("changeOrderStatus", serviceCtx, 0, true);
 
-                        Debug.logError("The order with magento orderId #"+orderIncrementId+" is cancelled in Magento.", module);
-                        result = ServiceUtil.returnError("The order with magento orderId #"+orderIncrementId+" is cancelled in Magento. So cancelling the order.");
+                        Debug.logError("The order with magento orderId #"+orderIncrementId+" is marked "+statusId+ ".", module);
+                        result = ServiceUtil.returnError(message);
                     }
                 }
             }

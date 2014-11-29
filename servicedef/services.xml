@@ -45,6 +45,11 @@ under the License.
         <description>Cancel order in magento.</description>
         <attribute name="orderId" mode="IN" type="String"/>
     </service>
+    <service name="holdOrderInMagento" engine="java" auth="true"
+            location="org.ofbiz.magento.MagentoServices" invoke="holdOrderInMagento">
+        <description>Hold order in magento.</description>
+        <attribute name="orderId" mode="IN" type="String"/>
+    </service>
     <service name="completeOrderInMagento" engine="java" auth="true"
             location="org.ofbiz.magento.MagentoServices" invoke="completeOrderInMagento">
         <description>Complete order in magento.</description>
