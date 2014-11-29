@@ -28,7 +28,21 @@ jQuery(function() {
         },
         'Please enter a valid phone number. Example: 123-123-123-1234.'
     );
-
+    jQuery.validator.addMethod('usCanadaZip', function(v, e, p) {
+            var form = jQuery(e).closest('form'),
+                country_box = jQuery(e).data("country-box"),
+                country_name = jQuery(country_box).val();
+            if ((jQuery(form).find('.countryGeoId').val() === "USA") || (country_name === "USA")) {
+                return (this.getLength(jQuery.trim(v), e) <= 5 && (/^[0-9]{5}$/).test(v));
+            } else if ((jQuery(form).find('.countryGeoId').val() === "CAN") || (country_name === "CAN")) {
+                return (this.getLength(jQuery.trim(v), e) <= 7 && (/^[A-z][0-9][A-z][ .-]?[0-9][A-z][0-9]$/).test(v));
+                /* TODO: For now we are validating to true all zip codes for countries other than US and Canada. Validations for other countries will be added on requirement*/ 
+            } else {
+                return (/^[A-Za-z0-9]?[A-Za-z0-9 ]*$/).test(v);
+            }
+        },
+        'Please enter a valid zip code.'
+    );
     function getValidateElementLabel(v, e) {
         jQuery(e).siblings('label[class="error"]').remove();
         var label_text = jQuery(e).data('label') || jQuery(e).siblings('label:first').text();
@@ -45,6 +59,9 @@ jQuery(function() {
         },
         'validate-phone': {
             phone: true
+        },
+        'validate-usCanadaZip': {
+            usCanadaZip: true
         }
     });
 

@@ -74,7 +74,7 @@
         <div class="form-group row">
           <div class="col-lg-8 col-md-8">
             <label for="">${uiLabelMap.CommonZipPostalCode}</label>
-            <input type="text" name="postalCode" id="postalCode" class="required form-control" data-label="${uiLabelMap.CommonZipPostalCode}" value="${(warehousePostalAddress.postalCode)!}" maxLength="60"/>
+            <input type="text" name="postalCode" id="postalCode" class="required form-control validate-usCanadaZip" data-label="${uiLabelMap.CommonZipPostalCode}" data-country-box="#countryGeoId" value="${(warehousePostalAddress.postalCode)!}" maxLength="60"/>
           </div>
         </div>
         <div class="row">
