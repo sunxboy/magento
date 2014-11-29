@@ -287,6 +287,7 @@ public class MagentoClient {
 
         CatalogInventoryStockItemUpdateEntity catalogInventoryStockItemUpdateEntity = new CatalogInventoryStockItemUpdateEntity();
         catalogInventoryStockItemUpdateEntity.setQty(inventoryCount);
+        catalogInventoryStockItemUpdateEntity.setIsInStock(1);
         requestParam.setData(catalogInventoryStockItemUpdateEntity);
 
         MageApiModelServerWsiHandlerPortType port = getPort();
