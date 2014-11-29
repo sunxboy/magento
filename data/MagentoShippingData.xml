@@ -79,6 +79,7 @@
     <ShipmentMethodType description="Express 10.30 AM" shipmentMethodTypeId="EXP_10_30_AM"/>
 
     <!-- Local options -->
+    <ShipmentMethodType description="No Shipping" shipmentMethodTypeId="NO_SHIPPING"/>
     <CarrierShipmentMethod partyId="_NA_" roleTypeId="CARRIER" shipmentMethodTypeId="STANDARD" sequenceNumber="5"/>
     <CarrierShipmentMethod partyId="_NA_" roleTypeId="CARRIER" shipmentMethodTypeId="NO_SHIPPING" sequenceNumber="5"/>
 
