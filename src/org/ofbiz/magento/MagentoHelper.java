@@ -192,7 +192,7 @@ public class MagentoHelper {
                     continue;
                 } else if ("simple".equals(item.getProductType()) && (UtilValidate.isEmpty(items) || UtilValidate.isEmpty(items.get(item.getSku())))) {
                     price =  new BigDecimal(item.getPrice());
-                } else {
+                } else if ("grouped".equals(item.getProductType())) {
                     price =  new BigDecimal(item.getPrice());
                 }
                 if (UtilValidate.isNotEmpty(goodIdentification) && "configurable".equals(item.getProductType())) {
