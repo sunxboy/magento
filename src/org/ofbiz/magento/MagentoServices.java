@@ -344,8 +344,8 @@ public class MagentoServices {
                             dispatcher.runSync("updateOrderHeader", UtilMisc.toMap("orderId", orderId, "syncStatusId", statusId, "userLogin", system), 0, true);
                         }
                     } else if ("holded".equalsIgnoreCase(salesOrder.getStatus())) {
-                            statusId = "ORDER_HOLD";
-                            message = "The order with magento orderId #"+orderIncrementId+" is on hold in Magento. So holding the order.";
+                        statusId = "ORDER_HOLD";
+                        message = "The order with magento orderId #"+orderIncrementId+" is on hold in Magento. So holding the order.";
                     }
                     if (UtilValidate.isNotEmpty(statusId)) {
                         Map <String, Object> serviceCtx = new HashMap<String, Object>();
