@@ -179,11 +179,12 @@ public class MagentoServices {
         return response;
     }
     public static Map<String, Object> holdOrderInMagento(DispatchContext dctx, Map<String, ?> context) {
-        Map<String, Object> response = ServiceUtil.returnSuccess();
+        Map<String, Object> result = ServiceUtil.returnSuccess();
         Delegator delegator = dctx.getDelegator();
         LocalDispatcher dispatcher = dctx.getDispatcher();
         String orderIncrementId = null;
         String orderId = (String) context.get("orderId");
+        GenericValue userLogin = (GenericValue) context.get("userLogin");
         try {
             GenericValue orderHeader = delegator.findOne("OrderHeader", false, UtilMisc.toMap("orderId", orderId));
             if (UtilValidate.isNotEmpty(orderHeader) && !"ORDER_HOLD".equals(orderHeader.getString("syncStatusId")) && UtilValidate.isNotEmpty(orderHeader.getString("externalId"))) {
@@ -192,6 +193,11 @@ public class MagentoServices {
                 int isMarkedHold = magentoClient.holdSalesOrder(orderIncrementId);
                 if (UtilValidate.isNotEmpty(isMarkedHold) && isMarkedHold == 1) {
                     Debug.log("Magento Order #"+ orderIncrementId+ " is marked hold successfully.");
+                    result = dispatcher.runSync("updateOrderHeader", UtilMisc.toMap("orderId", orderId, "syncStatusId", "ORDER_HOLD", "userLogin", userLogin));
+                    if (!ServiceUtil.isSuccess(result)) {
+                        Debug.logError(ServiceUtil.getErrorMessage(result), module);
+                        return ServiceUtil.returnError((ServiceUtil.getErrorMessage(result)));
+                    }
                 }
             }
         } catch (GenericEntityException gee) {
@@ -202,7 +208,39 @@ public class MagentoServices {
             e.printStackTrace();
             return ServiceUtil.returnError("Error in marking order status hold in Magento. Error Message:" +e.getMessage());
         }
-        return response;
+        return result;
+    }
+    public static Map<String, Object> unholdOrderInMagento(DispatchContext dctx, Map<String, ?> context) {
+        Map<String, Object> result = ServiceUtil.returnSuccess();
+        Delegator delegator = dctx.getDelegator();
+        LocalDispatcher dispatcher = dctx.getDispatcher();
+        String orderIncrementId = null;
+        String orderId = (String) context.get("orderId");
+        GenericValue userLogin = (GenericValue) context.get("userLogin");
+        try {
+            GenericValue orderHeader = delegator.findOne("OrderHeader", false, UtilMisc.toMap("orderId", orderId));
+            if (UtilValidate.isNotEmpty(orderHeader) && "ORDER_HOLD".equals(orderHeader.getString("syncStatusId")) && UtilValidate.isNotEmpty(orderHeader.getString("externalId"))) {
+                orderIncrementId = orderHeader.getString("externalId");
+                MagentoClient magentoClient = new MagentoClient(dispatcher, delegator);
+                int isunholded = magentoClient.unholdSalesOrder(orderIncrementId);
+                if (UtilValidate.isNotEmpty(isunholded) && isunholded == 1) {
+                    Debug.log("Magento Order #"+ orderIncrementId+ " is unholded successfully.");
+                    result = dispatcher.runSync("updateOrderHeader", UtilMisc.toMap("orderId", orderId, "syncStatusId", "ORDER_APPROVED", "userLogin", userLogin));
+                    if (!ServiceUtil.isSuccess(result)) {
+                        Debug.logError(ServiceUtil.getErrorMessage(result), module);
+                        return ServiceUtil.returnError((ServiceUtil.getErrorMessage(result)));
+                    }
+                }
+            }
+        } catch (GenericEntityException gee) {
+            Debug.logError(gee.getMessage(), module);
+            return ServiceUtil.returnError(gee.getMessage());
+        }  catch (Exception e) {
+            Debug.logError("Error in unholding order in Magento. Error Message: " +e.getMessage(), module);
+            e.printStackTrace();
+            return ServiceUtil.returnError("Error in unholding order in Magento. Error Message:" +e.getMessage());
+        }
+        return result;
     }
     public static Map<String, Object> completeOrderInMagento(DispatchContext dctx, Map<String, ?> context) {
         Map<String, Object> response = ServiceUtil.returnSuccess();

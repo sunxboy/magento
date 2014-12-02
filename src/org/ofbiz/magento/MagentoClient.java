@@ -43,6 +43,8 @@ import magento.SalesOrderShipmentAddTrackRequestParam;
 import magento.SalesOrderShipmentAddTrackResponseParam;
 import magento.SalesOrderShipmentCreateRequestParam;
 import magento.SalesOrderShipmentCreateResponseParam;
+import magento.SalesOrderUnholdRequestParam;
+import magento.SalesOrderUnholdResponseParam;
 
 import org.ofbiz.base.util.Debug;
 import org.ofbiz.base.util.UtilValidate;
@@ -212,6 +214,23 @@ public class MagentoClient {
         isMarkedHold = responseParam.getResult();
 
         return isMarkedHold;
+    }
+    public int unholdSalesOrder(String orderIncrementId) {
+        if (UtilValidate.isEmpty(orderIncrementId)) {
+            Debug.logInfo("Empty orderIncrementId.", module);
+            return 0;
+        }
+        int isMarkedUnhold = 0;
+        String magentoSessionId = getMagentoSession();
+        SalesOrderUnholdRequestParam requestParam = new SalesOrderUnholdRequestParam();
+        requestParam.setSessionId(magentoSessionId);
+        requestParam.setOrderIncrementId(orderIncrementId);
+
+        MageApiModelServerWsiHandlerPortType port = getPort();
+        SalesOrderUnholdResponseParam responseParam = port.salesOrderUnhold(requestParam);
+        isMarkedUnhold = responseParam.getResult();
+
+        return isMarkedUnhold;
     }
     public String createShipment(String orderIncrementId, Map<Integer, Double> orderItemQtyMap) {
         if (UtilValidate.isEmpty(orderIncrementId)) {

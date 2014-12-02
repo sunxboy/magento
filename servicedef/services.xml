@@ -50,6 +50,11 @@ under the License.
         <description>Hold order in magento.</description>
         <attribute name="orderId" mode="IN" type="String"/>
     </service>
+    <service name="unholdOrderInMagento" engine="java" auth="true"
+            location="org.ofbiz.magento.MagentoServices" invoke="unholdOrderInMagento">
+        <description>Unhold order in magento.</description>
+        <attribute name="orderId" mode="IN" type="String"/>
+    </service>
     <service name="completeOrderInMagento" engine="java" auth="true"
             location="org.ofbiz.magento.MagentoServices" invoke="completeOrderInMagento">
         <description>Complete order in magento.</description>
