@@ -1,0 +1,5 @@
+label.error {color:#FF0000;}
+.asterisk {color: #FF0000;}
+.chosen-container.chosen-container-multi, .search-field .default {width: 100% !important;}
+a.disabled {cursor: not-allowed;opacity: 0.65;pointer-events: none;}
+.navbar-brand .fa-gears {color:red;}

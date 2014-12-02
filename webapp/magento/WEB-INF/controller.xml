@@ -26,19 +26,95 @@ under the License.
 
     <request-map uri="main">
         <security https="true" auth="true"/>
-        <response name="success" type="view" value="MagentoConfiguration"/>
+        <response name="success" type="view" value="StoreConfiguration"/>
     </request-map>
-    <request-map uri="MagentoConfiguration">
+    <request-map uri="StoreConfiguration">
         <security https="true" auth="true"/>
-        <response name="success" type="view" value="MagentoConfiguration"/>
+        <response name="success" type="view" value="StoreConfiguration"/>
     </request-map>
     <request-map uri="createUpdateMagentoConfiguration">
         <security https="true" auth="true"/>
         <event type="service" invoke="createUpdateMagentoConfiguration"/>
-        <response name="success" type="view" value="MagentoConfiguration"/>
-        <response name="error" type="view" value="MagentoConfiguration"/>
+        <response name="success" type="request-redirect" value="StoreConfiguration"/>
+        <response name="error" type="request-redirect" value="StoreConfiguration"/>
+    </request-map>
+    <request-map uri="FacilityInformation">
+        <security https="true" auth="true"/>
+        <response name="success" type="view" value="FacilityInformation"/>
+    </request-map>
+    <request-map uri="createFacilityInformation">
+        <security https="true" auth="true"/>
+        <event type="service" invoke="createWarehouse"/>
+        <response name="success" type="request-redirect" value="FacilityInformation"/>
+        <response name="error" type="request-redirect" value="FacilityInformation"/>
+    </request-map>
+    <request-map uri="updateFacilityInformation">
+        <security https="true" auth="true"/>
+        <event type="service" invoke="updateWarehouse"/>
+        <response name="success" type="request-redirect" value="FacilityInformation"/>
+        <response name="error" type="request-redirect" value="FacilityInformation"/>
+    </request-map>
+    <request-map uri="StoreInformation">
+        <security https="true" auth="true"/>
+        <response name="success" type="view" value="StoreInformation"/>
+    </request-map>
+    <request-map uri="createUpdateStoreInformation">
+        <security https="true" auth="true"/>
+        <event type="service" invoke="createUpdateStoreInformation"/>
+        <response name="success" type="request-redirect" value="StoreInformation"/>
+        <response name="error" type="request-redirect" value="StoreInformation"/>
+    </request-map>
+    <request-map uri="ShippingInformation">
+        <security https="true" auth="true"/>
+        <response name="success" type="view" value="ShippingInformation" />
+    </request-map>
+    <request-map uri="createRemoveProductStoreShipMeth">
+        <security https="true" auth="true"/>
+        <event type="service" invoke="createRemoveProductStoreShipMeth"/>
+        <response name="success" type="request-redirect" value="ShippingInformation">
+            <redirect-parameter name="partyId"/>
+        </response>
+        <response name="error" type="request-redirect" value="ShippingInformation">
+            <redirect-parameter name="partyId"/>
+        </response>
+    </request-map>
+    <request-map uri="ShippingGatewayConfiguration">
+        <security https="true" auth="true"/>
+        <response name="success" type="view" value="ShippingGatewayConfiguration"/>
+        <response name="error" type="view" value="ShippingInformation"/>
+    </request-map>
+    <request-map uri="AddShippingMethod">
+        <security https="true" auth="true"/>
+        <response name="success" type="view" value="AddShippingMethod"/>
+        <response name="error" type="view" value="ShippingInformation"/>
+    </request-map>
+    <request-map uri="createUpdateShipmentGatewayConfig">
+        <security https="true" auth="true"/>
+        <event type="service" invoke="createUpdateShipmentGatewayConfig"/>
+        <response name="success" type="request-redirect" value="ShippingInformation">
+            <redirect-parameter name="partyId" from="carrierPartyId"/>
+        </response>
+        <response name="error" type="request-redirect" value="ShippingInformation">
+            <redirect-parameter name="partyId" from="carrierPartyId"/>
+        </response>
+    </request-map>
+    <request-map uri="addMagentoProductStore">
+        <security https="true" auth="true"/>
+        <event type="service" invoke="createUpdateMagentoConfiguration"/>
+        <response name="success" type="request-redirect" value="StoreInformation"/>
+        <response name="error" type="request-redirect" value="StoreInformation"/>
+    </request-map>
+    <request-map uri="CreateNewProductStoreAndCompany">
+        <security https="true" auth="true"/>
+        <response name="success" type="view" value="CreateNewProductStoreAndCompany"/>
     </request-map>
 
-    <view-map name="MagentoConfiguration" type="screen" page="component://magento/widget/magento/MagentoScreens.xml#MagentoConfiguration"/>
-
+    <view-map name="StoreConfiguration" type="screen" page="component://magento/widget/magento/MagentoScreens.xml#StoreConfiguration"/>
+    <view-map name="StoreInformation" type="screen" page="component://magento/widget/magento/MagentoScreens.xml#StoreInformation"/>
+    <view-map name="CreateNewProductStoreAndCompany" type="screen" page="component://magento/widget/magento/MagentoScreens.xml#CreateNewProductStoreAndCompany"/>
+    <view-map name="FacilityInformation" type="screen" page="component://magento/widget/magento/MagentoScreens.xml#FacilityInformation"/>
+    <view-map name="ShippingInformation" type="screen" page="component://magento/widget/magento/MagentoScreens.xml#ShippingInformation"/>
+    <view-map name="ShippingGatewayConfiguration" type="screen" page="component://magento/widget/magento/MagentoScreens.xml#ShippingGatewayConfiguration"/>
+    <view-map name="AddShippingMethod" type="screen" page="component://magento/widget/magento/MagentoScreens.xml#AddShippingMethod"/>
+    <view-map name="login" type="screen" page="component://magento/widget/magento/CommonScreens.xml#Login"/>
 </site-conf>

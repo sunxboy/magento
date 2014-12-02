@@ -17,20 +17,161 @@ under the License.
 -->
 <screens xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:noNamespaceSchemaLocation="http://ofbiz.apache.org/dtds/widget-screen.xsd">
-    <screen name="MagentoConfiguration">
+    <screen name="StoreConfiguration">
         <section>
             <actions>
                 <set field="titleProperty" value="CommonConfiguration"/>
-                <set field="headerItem" value="magentoConfiguration"/>
-                <entity-and entity-name="ProductStore" list="productStoreList"/>
+                <set field="step" value="1"/>
                 <entity-and entity-name="MagentoConfiguration" list="magentoConfiguration"/>
                 <set field="magentoConfiguration" value="${groovy: org.ofbiz.entity.util.EntityUtil.getFirst(magentoConfiguration)}"/>
+                <set field="productStore" value="${groovy: org.ofbiz.magento.MagentoHelper.getMagentoProductStore(delegator)}"/>
             </actions>
             <widgets>
                 <decorator-screen name="MagentoCommonDecorator" location="${parameters.mainDecoratorLocation}">
                     <decorator-section name="body">
-                        <label style="h1" text="${uiLabelMap.MagentoMagentoConfiguration}"></label>
-                        <include-form location="component://magento/widget/magento/MagentoForms.xml" name="CreateUpdateMagentoConfiguration"/>
+                        <platform-specific>
+                            <html>
+                                <html-template location="component://magento/webapp/magento/store/StoreContainer.ftl"/>
+                            </html>
+                        </platform-specific>
+                    </decorator-section>
+                </decorator-screen>
+            </widgets>
+        </section>
+    </screen>
+    <screen name="StoreInformation">
+        <section>
+            <actions>
+                <set field="titleProperty" value="MagentoStore"/>
+                <set field="step" value="2"/>
+                <entity-and entity-name="MagentoConfiguration" list="magentoConfiguration"/>
+                <set field="magentoConfiguration" value="${groovy: org.ofbiz.entity.util.EntityUtil.getFirst(magentoConfiguration)}"/>
+                <set field="productStore" value="${groovy: org.ofbiz.magento.MagentoHelper.getMagentoProductStore(delegator)}"/>
+                <entity-and entity-name="Geo" list="countryList">
+                    <field-map field-name="geoTypeId" value="COUNTRY"/>
+                    <order-by field-name="geoName"/>
+                </entity-and>
+                <script location="component://magento/webapp/magento/WEB-INF/actions/StoreInformation.groovy"/>
+            </actions>
+            <widgets>
+                <decorator-screen name="MagentoCommonDecorator" location="${parameters.mainDecoratorLocation}">
+                    <decorator-section name="body">
+                        <platform-specific>
+                            <html>
+                                <html-template location="component://magento/webapp/magento/store/StoreContainer.ftl"/>
+                            </html>
+                        </platform-specific>
+                    </decorator-section>
+                </decorator-screen>
+            </widgets>
+        </section>
+    </screen>
+    <screen name="CreateNewProductStoreAndCompany">
+        <section>
+            <actions>
+                <set field="titleProperty" value="MagentoStore"/>
+                <entity-and entity-name="Geo" list="countryList">
+                    <field-map field-name="geoTypeId" value="COUNTRY"/>
+                    <order-by field-name="geoName"/>
+                </entity-and>
+            </actions>
+            <widgets>
+                <decorator-screen name="MagentoCommonDecorator" location="${parameters.mainDecoratorLocation}">
+                    <decorator-section name="body">
+                        <platform-specific>
+                            <html>
+                                <html-template location="component://magento/webapp/magento/store/ProductStoreAndCompany.ftl"/>
+                            </html>
+                        </platform-specific>
+                    </decorator-section>
+                </decorator-screen>
+            </widgets>
+        </section>
+    </screen>
+
+    <screen name="FacilityInformation">
+        <section>
+            <actions>
+                <set field="titleProperty" value="Facility"/>
+                <set field="step" value="3"/>
+                <set field="productStore" value="${groovy: org.ofbiz.magento.MagentoHelper.getMagentoProductStore(delegator)}"/>
+                <entity-and entity-name="Geo" list="countryList">
+                    <field-map field-name="geoTypeId" value="COUNTRY"/>
+                    <order-by field-name="geoName"/>
+                </entity-and>
+                <script location="component://magento/webapp/magento/WEB-INF/actions/FacilityInformation.groovy"/>
+            </actions>
+            <widgets>
+                <decorator-screen name="MagentoCommonDecorator" location="${parameters.mainDecoratorLocation}">
+                    <decorator-section name="body">
+                        <platform-specific>
+                            <html>
+                                <html-template location="component://magento/webapp/magento/store/StoreContainer.ftl"/>
+                            </html>
+                        </platform-specific>
+                    </decorator-section>
+                </decorator-screen>
+            </widgets>
+        </section>
+    </screen>
+    <screen name="ShippingInformation">
+        <section>
+            <actions>
+                <set field="titleProperty" value="CommonShipping"/>
+                <set field="step" value="4"/>
+                <set field="productStore" value="${groovy: org.ofbiz.magento.MagentoHelper.getMagentoProductStore(delegator)}"/>
+                <script location="component://magento/webapp/magento/WEB-INF/actions/ShippingInformation.groovy"/>
+            </actions>
+            <widgets>
+                <decorator-screen name="MagentoCommonDecorator" location="${parameters.mainDecoratorLocation}">
+                    <decorator-section name="body">
+                        <platform-specific>
+                            <html>
+                                <html-template location="component://magento/webapp/magento/store/StoreContainer.ftl"/>
+                            </html>
+                        </platform-specific>
+                    </decorator-section>
+                </decorator-screen>
+            </widgets>
+        </section>
+    </screen>
+    <screen name="ShippingGatewayConfiguration">
+        <section>
+            <actions>
+                <set field="titleProperty" value="CommonShipping"/>
+                <set field="step" value="4"/>
+                <set field="productStore" value="${groovy: org.ofbiz.magento.MagentoHelper.getMagentoProductStore(delegator)}"/>
+                <script location="component://magento/webapp/magento/WEB-INF/actions/ShippingGatewayConfiguration.groovy"/>
+            </actions>
+            <widgets>
+                <decorator-screen name="MagentoCommonDecorator" location="${parameters.mainDecoratorLocation}">
+                    <decorator-section name="body">
+                        <platform-specific>
+                            <html>
+                                <html-template location="component://magento/webapp/magento/store/ShippingGatewayConfiguration.ftl"/>
+                            </html>
+                        </platform-specific>
+                    </decorator-section>
+                </decorator-screen>
+            </widgets>
+        </section>
+    </screen>
+    <screen name="AddShippingMethod">
+        <section>
+            <actions>
+                <set field="titleProperty" value="CommonShipping"/>
+                <set field="step" value="4"/>
+                <set field="productStore" value="${groovy: org.ofbiz.magento.MagentoHelper.getMagentoProductStore(delegator)}"/>
+                <script location="component://magento/webapp/magento/WEB-INF/actions/ShippingInformation.groovy"/>
+            </actions>
+            <widgets>
+                <decorator-screen name="MagentoCommonDecorator" location="${parameters.mainDecoratorLocation}">
+                    <decorator-section name="body">
+                        <platform-specific>
+                            <html>
+                                <html-template location="component://magento/webapp/magento/store/AddShippingMethod.ftl"/>
+                            </html>
+                        </platform-specific>
                     </decorator-section>
                 </decorator-screen>
             </widgets>

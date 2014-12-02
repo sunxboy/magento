@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+-->
+
+<services xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+        xsi:noNamespaceSchemaLocation="http://ofbiz.apache.org/dtds/services.xsd">
+    <service name="createUpdateCompany" engine="java" auth="true" 
+            location="org.ofbiz.magento.StoreServices" invoke="createUpdateCompany">
+        <description>Creates Company, it's postal address, email address and contact number</description>
+        <attribute name="partyId" mode="INOUT" type="String" optional="true"/>
+        <attribute name="groupName" mode="IN" type="String" optional="false">
+            <type-validate>
+                <fail-property resource="PartyUiLabels" property="PartyCompanyNameMissingError"/>
+            </type-validate>
+        </attribute>
+        <attribute name="address1" mode="IN" type="String" optional="false">
+            <type-validate>
+                <fail-property resource="PartyUiLabels" property="PartyAddressLine1Missing"/>
+            </type-validate>
+        </attribute>
+        <attribute name="address2" mode="IN" type="String" optional="true"/>
+        <attribute name="city" mode="IN" type="String" optional="false">
+            <type-validate>
+                <fail-property resource="PartyUiLabels" property="PartyCityMissing"/>
+            </type-validate>
+        </attribute>
+        <attribute name="countryGeoId" mode="IN" type="String" optional="false">
+            <type-validate>
+                <fail-property resource="PartyUiLabels" property="PartyCountryMissing"/>
+            </type-validate>
+        </attribute>
+        <attribute name="stateProvinceGeoId" mode="IN" type="String" optional="false">
+            <type-validate>
+                <fail-property resource="PartyUiLabels" property="PartyProvinceMissing"/>
+            </type-validate>
+        </attribute>
+        <attribute name="postalCode" mode="IN" type="String" optional="false">
+            <type-validate>
+                <fail-property resource="PartyUiLabels" property="PartyZipCodeMissing"/>
+            </type-validate>
+        </attribute>
+        <attribute name="contactNumber" mode="IN" type="String" optional="true"/>
+        <attribute name="infoString" mode="IN" type="String" optional="false">
+            <type-validate>
+                <fail-property resource="PartyUiLabels" property="PartyEmailAddressMissing"/>
+            </type-validate>
+        </attribute>
+        <attribute name="postalContactMechId" mode="IN" type="String" optional="true"/>
+        <attribute name="emailContactMechId" mode="IN" type="String" optional="true"/>
+        <attribute name="telecomContactMechId" mode="IN" type="String" optional="true"/>
+    </service>
+    <service name="createUpdateProductStore" engine="java" auth="true"
+            location="org.ofbiz.magento.StoreServices" invoke="createUpdateProductStore">
+        <description>Create store</description>
+        <implements service="createProductStore"/>
+        <attribute name="partyId" mode="INOUT" type="String" optional="false"/>
+        <override name="productStoreId" mode="INOUT" optional="true"/>
+    </service>
+    <service name="createUpdateStoreInformation" engine="java" auth="true"
+            location="org.ofbiz.magento.StoreServices" invoke="createUpdateStoreInformation">
+        <description>Create or update store information</description>
+        <implements service="createUpdateProductStore"/>
+        <implements service="createUpdateCompany"/>
+        <override name="partyId" type="String" mode="IN" optional="true"/>
+    </service>
+    <service name="createWarehouse" engine="java" auth="true"
+            location="org.ofbiz.magento.StoreServices" invoke="createWarehouse">
+        <description>Creates warehouse, its contact number and email address. Associates it to its product store.</description>
+        <implements service="createFacility"/>
+        <implements service="updateProductStore"/>
+        <attribute name="address1" mode="IN" type="String" optional="true"/>
+        <attribute name="address2" mode="IN" type="String" optional="true"/>
+        <attribute name="city" mode="IN" type="String" optional="true"/>
+        <attribute name="countryGeoId" mode="IN" type="String" optional="true"/>
+        <attribute name="stateProvinceGeoId" mode="IN" type="String" optional="true"/>
+        <attribute name="postalCode" mode="IN" type="String" optional="true"/>
+        <attribute name="contactNumber" mode="IN" type="String" optional="true"/>
+        <attribute name="isWarehoueAddressSameAsCompanyAddress" mode="IN" type="String" optional="true"/>
+        <attribute name="partyId" mode="INOUT" type="String" optional="false"/>
+        <override name="productStoreId" mode="INOUT" optional="false"/>
+        <override name="ownerPartyId" optional="true"/>
+        <override name="facilityTypeId" optional="true"/>
+    </service>
+    <service name="updateWarehouse" engine="java" auth="true"
+            location="org.ofbiz.magento.StoreServices" invoke="updateWarehouse">
+        <description>Updates warehouse, its contact information.</description>
+        <implements service="updateFacility"/>
+        <implements service="updateProductStore"/>
+        <implements service="updateFacilityPostalAddress"/>
+        <attribute name="contactNumber" mode="IN" type="String" optional="true"/>
+        <attribute name="partyId" mode="INOUT" type="String" optional="false"/>
+        <attribute name="facilityPostalContactMechId" mode="IN" type="String" optional="true"/>
+        <attribute name="facilityTelecomContactMechId" mode="IN" type="String" optional="true"/>
+        <override name="facilityId" mode="INOUT"/>
+        <override name="productStoreId" mode="INOUT" optional="false"/>
+        <override name="contactMechId" optional="true"/>
+        <override name="facilityName" optional="false"/>
+    </service>
+    <service name="createRemoveProductStoreShipMeth" engine="java" auth="true"
+            location="org.ofbiz.magento.StoreServices" invoke="createRemoveProductStoreShipMeth">
+        <description>Create or Remove product store shipping method.</description>
+        <implements service="createProductStoreShipMeth"/>
+        <attribute name="productStoreShipMethId"  type="String" mode="IN" optional="true"/>
+        <override name="shipmentMethodTypeId" type="List" mode="IN" optional="true"/>
+    </service>
+    <service name="createShipmentGatewayConfig" engine="entity-auto" default-entity-name="ShipmentGatewayConfig" invoke="create" auth="true">
+        <description>Create Shipment Gateway Config</description>
+        <auto-attributes entity-name="ShipmentGatewayConfig" include="pk" mode="INOUT" optional="true"/>
+        <auto-attributes entity-name="ShipmentGatewayConfig" include="nonpk" mode="IN" optional="true"/>
+    </service>
+    <service name="createShipmentGatewayConfigDhl" engine="entity-auto" default-entity-name="ShipmentGatewayDhl" invoke="create" auth="false">
+        <description>Create Shipment Gateway Config DHL</description>
+        <auto-attributes entity-name="ShipmentGatewayDhl" include="pk" mode="IN" optional="true"/>
+        <auto-attributes entity-name="ShipmentGatewayDhl" include="nonpk" mode="IN" optional="true"/>
+    </service>
+    <service name="createShipmentGatewayConfigFedex" engine="entity-auto" default-entity-name="ShipmentGatewayFedex" invoke="create" auth="true">
+        <description>Create Shipment Gateway Config FedEx</description>
+        <auto-attributes entity-name="ShipmentGatewayFedex" include="pk" mode="IN" optional="true"/>
+        <auto-attributes entity-name="ShipmentGatewayFedex" include="nonpk" mode="IN" optional="true"/>
+    </service>
+    <service name="createShipmentGatewayConfigUps" engine="entity-auto" default-entity-name="ShipmentGatewayUps" invoke="create" auth="true">
+        <description>Create Shipment Gateway Config UPS</description>
+        <auto-attributes entity-name="ShipmentGatewayUps" include="pk" mode="IN" optional="true"/>
+        <auto-attributes entity-name="ShipmentGatewayUps" include="nonpk" mode="IN" optional="true"/>
+    </service>
+    <service name="createShipmentGatewayConfigUsps" engine="entity-auto" default-entity-name="ShipmentGatewayUsps" invoke="create" auth="true">
+        <description>Create Shipment Gateway Config USPS</description>
+        <auto-attributes entity-name="ShipmentGatewayUsps" include="pk" mode="IN" optional="true"/>
+        <auto-attributes entity-name="ShipmentGatewayUsps" include="nonpk" mode="IN" optional="true"/>
+    </service>
+    <service name="createUpdateShipmentGatewayConfig" engine="java" auth="true"
+            location="org.ofbiz.magento.StoreServices" invoke="createUpdateShipmentGatewayConfig">
+        <description>Create Update Shipment Gateway Configuration</description>
+        <attribute name="shipmentGatewayConfigId" mode="IN" type="String" optional="true"/>
+        <attribute name="connectUrl" mode="IN" type="String"/>
+        <attribute name="accessUserId" mode="IN" type="String"/>
+        <attribute name="accessPassword" mode="IN" type="String"/>
+        <attribute name="carrierPartyId" mode="IN" type="String"/>
+    </service>
+    <service name="setupDefaultGeneralLedger" engine="java" auth="true"
+            location="org.ofbiz.magento.StoreServices" invoke="setupDefaultGeneralLedger">
+        <attribute name="partyId" mode="IN" type="String" optional="true"/>
+    </service>
+</services>
