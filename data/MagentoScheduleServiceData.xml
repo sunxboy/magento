@@ -13,4 +13,10 @@
     <RecurrenceInfo recurrenceInfoId="MAGENTO_2001" recurrenceRuleId="MAGENTO_2001" recurrenceCount="0" startDateTime="2014-10-30 12:00:00.000"/>
     <JobSandbox jobId="MAGENTO_2001" recurrenceInfoId="MAGENTO_2001" jobName="Magento integration conciliation" 
             poolId="pool" runAsUser="system" runTime="2014-10-30 12:00:00.000" serviceName="magentoIntegrationConciliation"/>
+
+    <RecurrenceRule recurrenceRuleId="MAGENTO_2002" frequency="DAILY" intervalNumber="1" countNumber="-1"/>
+    <RecurrenceInfo recurrenceInfoId="MAGENTO_2002" recurrenceRuleId="MAGENTO_2002" recurrenceCount="0" startDateTime="2014-10-30 12:00:00.000"/>
+    <JobSandbox jobId="MAGENTO_2002" recurrenceInfoId="MAGENTO_2002" jobName="Pull Held  Orders From Magento" 
+            poolId="pool" runAsUser="system" runTime="2014-10-30 12:00:00.000" serviceName="importHeldOrdersFromMagento"/>
+
 </entity-engine-xml>

@@ -40,6 +40,12 @@ under the License.
         <attribute name="fromDate" type="java.sql.Timestamp" mode="IN" optional="true"/>
         <attribute name="thruDate" type="java.sql.Timestamp" mode="IN" optional="true"/>
     </service>
+    <service name="importHeldOrdersFromMagento" engine="java" auth="true"
+            location="org.ofbiz.magento.MagentoServices" invoke="importHeldOrdersFromMagento">
+        <description>Import held orders from Magento for status synchronization.</description>
+        <attribute name="externalId" mode="IN" type="String" optional="true"/>
+        <attribute name="fromDate" type="java.sql.Timestamp" mode="IN" optional="true"/>
+    </service>
     <service name="cancelOrderInMagento" engine="java" auth="true"
             location="org.ofbiz.magento.MagentoServices" invoke="cancelOrderInMagento">
         <description>Cancel order in magento.</description>
