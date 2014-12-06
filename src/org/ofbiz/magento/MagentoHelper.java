@@ -830,29 +830,47 @@ public class MagentoHelper {
         int mageTotalOrders = 0;
         int mageTotalCompletedOrders = 0;
         int mageTotalCancelledOrders = 0;
+        int mageTotalHeldOrders = 0;
 
         int ofbizTotalOrders = 0;
         int ofbizTotalCancelledOrders = 0;
         int ofbizTotalCompletedOrders = 0;
+        int ofbizTotalHeldOrders = 0;
         List<Map<String, Object>> varianceList  = new ArrayList<Map<String, Object>>();
         Map<String, Object> condMap = new HashMap<String, Object>();
 
         try {
             condMap.put("serviceName", "importPendingOrdersFromMagento");
             condMap.put("statusId", "SERVICE_PENDING");
-            GenericValue ipoJob = EntityUtil.getFirst(delegator.findList("JobSandbox", EntityCondition.makeCondition(condMap), UtilMisc.toSet("parentJobId"), null, null, false));
-            if (UtilValidate.isNotEmpty(ipoJob) && UtilValidate.isNotEmpty(ipoJob.getString("parentJobId"))) {
-                ipoJob = delegator.findOne("JobSandbox", false, UtilMisc.toMap("jobId", ipoJob.getString("parentJobId")));
+            GenericValue ipoJob = EntityUtil.getFirst(delegator.findList("JobSandbox", EntityCondition.makeCondition(condMap), UtilMisc.toSet("previousJobId"), null, null, false));
+            if (UtilValidate.isNotEmpty(ipoJob) && UtilValidate.isNotEmpty(ipoJob.getString("previousJobId"))) {
+                ipoJob = delegator.findOne("JobSandbox", false, UtilMisc.toMap("jobId", ipoJob.getString("previousJobId")));
             }
             condMap.put("serviceName", "importCancelledOrdersFromMagento");
-            GenericValue icoJob = EntityUtil.getFirst(delegator.findList("JobSandbox", EntityCondition.makeCondition(condMap), UtilMisc.toSet("parentJobId"), null, null, false));
-            if (UtilValidate.isNotEmpty(icoJob) && UtilValidate.isNotEmpty(icoJob.getString("parentJobId"))) {
-                icoJob = delegator.findOne("JobSandbox", false, UtilMisc.toMap("jobId", icoJob.getString("parentJobId")));
+            GenericValue icoJob = EntityUtil.getFirst(delegator.findList("JobSandbox", EntityCondition.makeCondition(condMap), UtilMisc.toSet("previousJobId"), null, null, false));
+            if (UtilValidate.isNotEmpty(icoJob) && UtilValidate.isNotEmpty(icoJob.getString("previousJobId"))) {
+                icoJob = delegator.findOne("JobSandbox", false, UtilMisc.toMap("jobId", icoJob.getString("previousJobId")));
             }
-            if (UtilValidate.isNotEmpty(ipoJob) || UtilValidate.isNotEmpty(icoJob)) {
-                Timestamp ipoJobFinishDateTime = ipoJob.getTimestamp("finishDateTime");
-                Timestamp icoJobFinishDateTime = icoJob.getTimestamp("finishDateTime");
-                Timestamp fromDate = UtilDateTime.getDayStart(ipoJobFinishDateTime);
+            condMap.put("serviceName", "importHeldOrdersFromMagento");
+            GenericValue ihoJob = EntityUtil.getFirst(delegator.findList("JobSandbox", EntityCondition.makeCondition(condMap), UtilMisc.toSet("previousJobId"), null, null, false));
+            if (UtilValidate.isNotEmpty(ihoJob) && UtilValidate.isNotEmpty(ihoJob.getString("previousJobId"))) {
+                ihoJob = delegator.findOne("JobSandbox", false, UtilMisc.toMap("jobId", ihoJob.getString("previousJobId")));
+            }
+            if (UtilValidate.isNotEmpty(ipoJob) || UtilValidate.isNotEmpty(icoJob) || UtilValidate.isNotEmpty(ihoJob)) {
+                Timestamp fromDate = null;
+                Timestamp ipoJobFinishDateTime = null;
+                Timestamp icoJobFinishDateTime = null;
+                Timestamp ihoJobFinishDateTime = null;
+                if (UtilValidate.isNotEmpty(ipoJob) && UtilValidate.isNotEmpty(ipoJob.getTimestamp("finishDateTime"))) {
+                ipoJobFinishDateTime = ipoJob.getTimestamp("finishDateTime");
+                fromDate = UtilDateTime.getDayStart(ipoJobFinishDateTime);
+                }
+                if (UtilValidate.isNotEmpty(icoJob) && UtilValidate.isNotEmpty(icoJob.getTimestamp("finishDateTime"))) {
+                icoJobFinishDateTime = icoJob.getTimestamp("finishDateTime");
+                }
+                if (UtilValidate.isNotEmpty(ihoJob) && UtilValidate.isNotEmpty(ihoJob.getTimestamp("finishDateTime"))) {
+                ihoJobFinishDateTime = ihoJob.getTimestamp("finishDateTime");
+                }
                 MagentoClient magentoClient = new MagentoClient(dispatcher, delegator);
                 Filters filters = MagentoHelper.prepareSalesOrderFilters(null, null, fromDate, null);
                 List<SalesOrderListEntity> salesOrders = magentoClient.getSalesOrderList(filters);
@@ -860,18 +878,22 @@ public class MagentoHelper {
                     for (SalesOrderListEntity salesOrder : salesOrders) {
                         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                         dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+                        if (UtilValidate.isNotEmpty(salesOrder.getCreatedAt())) {
                         Date date = dateFormat.parse(salesOrder.getCreatedAt());
                         dateFormat.setTimeZone(TimeZone.getDefault());
                         date = dateFormat.parse(dateFormat.format(date));
                         Timestamp createdAt = UtilDateTime.toTimestamp(date);
-                        if (ipoJobFinishDateTime.after(createdAt)) {
+                        if (UtilValidate.isNotEmpty(ipoJobFinishDateTime) && ipoJobFinishDateTime.after(createdAt)) {
                             if ("completed".equals(salesOrder.getStatus())) {
                                 mageTotalCompletedOrders++;
                             }
                             mageTotalOrders++;
                         }
-                        if ("canceled".equals(salesOrder.getStatus()) && icoJobFinishDateTime.after(createdAt)) {
+                        if ("canceled".equals(salesOrder.getStatus()) && UtilValidate.isNotEmpty(icoJobFinishDateTime) && icoJobFinishDateTime.after(createdAt)) {
                             mageTotalCancelledOrders++;
+                        } else if ("holded".equals(salesOrder.getStatus()) && UtilValidate.isNotEmpty(ihoJobFinishDateTime) && ihoJobFinishDateTime.after(createdAt)) {
+                            mageTotalHeldOrders++;
+                        }
                         }
                     }
 
@@ -881,23 +903,29 @@ public class MagentoHelper {
                             );
                     List<GenericValue> allOrderList = delegator.findList("OrderHeader", cond, null, null, null, false);
                     List<GenericValue> completedOrderList = EntityUtil.filterByAnd(allOrderList, UtilMisc.toMap("statusId", "ORDER_COMPLETED"));
-
                     cond = EntityCondition.makeCondition(
-                            EntityCondition.makeCondition("statusId", EntityOperator.GREATER_THAN_EQUAL_TO, "ORDER_CANCELLED"),
+                            EntityCondition.makeCondition("statusId", EntityOperator.EQUALS, "ORDER_HOLD"),
+                            EntityCondition.makeCondition("orderDate", EntityOperator.GREATER_THAN_EQUAL_TO, fromDate),
+                            EntityCondition.makeCondition("orderDate", EntityOperator.LESS_THAN_EQUAL_TO, ihoJobFinishDateTime)
+                            );
+                    List<GenericValue> heldOrderList = delegator.findList("OrderHeader", cond, null, null, null, false);
+                    cond = EntityCondition.makeCondition(
+                            EntityCondition.makeCondition("statusId", "ORDER_CANCELLED"),
                             EntityCondition.makeCondition("orderDate", EntityOperator.GREATER_THAN_EQUAL_TO, fromDate),
                             EntityCondition.makeCondition("orderDate", EntityOperator.LESS_THAN_EQUAL_TO, icoJobFinishDateTime)
                             );
                     List<GenericValue> cancelledOrderList = delegator.findList("OrderHeader", cond, null, null, null, false);
-
                     ofbizTotalCompletedOrders = completedOrderList.size();
                     ofbizTotalCancelledOrders = cancelledOrderList.size();
+                    ofbizTotalHeldOrders = heldOrderList.size();
                     ofbizTotalOrders = allOrderList.size();
 
-                    if ((ofbizTotalOrders != mageTotalOrders) || (ofbizTotalCancelledOrders != mageTotalCancelledOrders) || (ofbizTotalCompletedOrders != mageTotalCompletedOrders)) {
+                    if ((ofbizTotalOrders != mageTotalOrders) || (ofbizTotalCancelledOrders != mageTotalCancelledOrders) || (ofbizTotalCompletedOrders != mageTotalCompletedOrders) || (ofbizTotalHeldOrders != mageTotalHeldOrders)) {
                         Debug.logInfo("Sales order synchronization process is inconsistent.", module);
                         Debug.logInfo("Total orders created in Magento: "+mageTotalOrders+" in OFBiz "+ofbizTotalOrders, module);
                         Debug.logInfo("Total completed orders in Magento: "+mageTotalCompletedOrders+" in OFBiz "+ofbizTotalCompletedOrders, module);
                         Debug.logInfo("Total cancelled order in Magento: "+mageTotalCancelledOrders+" in OFBiz "+ofbizTotalCancelledOrders, module);
+                        Debug.logInfo("Total held order in Magento: "+mageTotalHeldOrders+" in OFBiz "+ofbizTotalHeldOrders, module);
 
                         int variance = 0;
                         variance = ofbizTotalOrders - mageTotalOrders;
@@ -917,6 +945,12 @@ public class MagentoHelper {
                             variance = -variance;
                         }
                         varianceList.add(UtilMisc.<String, Object>toMap("order", "Cancelled Orders", "inOfbiz", ofbizTotalCancelledOrders, "inMagento", mageTotalCancelledOrders, "variance", variance));
+
+                        variance = ofbizTotalHeldOrders - mageTotalHeldOrders;
+                        if (variance < 0) {
+                            variance = -variance;
+                        }
+                        varianceList.add(UtilMisc.<String, Object>toMap("order", "Held Orders", "inOfbiz", ofbizTotalHeldOrders, "inMagento", mageTotalHeldOrders, "variance", variance));
                     }
                 }
             }
