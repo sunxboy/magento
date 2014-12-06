@@ -18,6 +18,7 @@ import magento.SalesOrderListEntity;
 import org.ofbiz.base.util.Debug;
 import org.ofbiz.base.util.GeneralException;
 import org.ofbiz.base.util.ObjectType;
+import org.ofbiz.base.util.UtilDateTime;
 import org.ofbiz.base.util.UtilMisc;
 import org.ofbiz.base.util.UtilValidate;
 import org.ofbiz.entity.Delegator;
@@ -26,6 +27,7 @@ import org.ofbiz.entity.GenericValue;
 import org.ofbiz.entity.condition.EntityCondition;
 import org.ofbiz.entity.condition.EntityOperator;
 import org.ofbiz.entity.util.EntityUtil;
+import org.ofbiz.minilang.method.entityops.EntityOperation;
 import org.ofbiz.service.DispatchContext;
 import org.ofbiz.service.GenericServiceException;
 import org.ofbiz.service.LocalDispatcher;
@@ -177,6 +179,66 @@ public class MagentoServices {
             return ServiceUtil.returnError("Error in cancelling order in Magento. Error Message:" +e.getMessage());
         }
         return response;
+    }
+    public static Map<String, Object> importHeldOrdersFromMagento(DispatchContext dctx, Map<String, ?> context) {
+        LocalDispatcher dispatcher = dctx.getDispatcher();
+        Delegator delegator = dctx.getDelegator();
+        Map<String, Object> result = ServiceUtil.returnSuccess();
+        Map <String, Object> serviceCtx = new HashMap<String, Object>();
+        EntityCondition cond = null;
+        String magOrderId = (String) context.get("orderId");
+        Timestamp fromDate = (Timestamp) context.get("fromDate");
+
+        try {
+            Filters filters = MagentoHelper.prepareSalesOrderFilters(magOrderId, "holded", fromDate, null);
+            MagentoClient magentoClient = new MagentoClient(dispatcher, delegator);
+            List<SalesOrderListEntity> salesOrderList = magentoClient.getSalesOrderList(filters);
+            GenericValue system = delegator.findOne("UserLogin", false, UtilMisc.toMap("userLoginId", "system"));
+            for (SalesOrderListEntity salesOrder : salesOrderList) {
+                String externalId = salesOrder.getIncrementId();
+                if (UtilValidate.isNotEmpty(externalId)) {
+                    cond = EntityCondition.makeCondition(
+                                EntityCondition.makeCondition("externalId", externalId),
+                                EntityCondition.makeCondition("salesChannelEnumId", "MAGENTO_SALE_CHANNEL"),
+                                EntityCondition.makeCondition("orderTypeId", "SALES_ORDER"),
+                                EntityCondition.makeCondition("statusId", EntityOperator.NOT_IN, UtilMisc.toList("ORDER_COMPLETED", "ORDER_CANCELLED"))
+                            );
+                    GenericValue orderHeader = EntityUtil.getFirst(delegator.findList("OrderHeader", cond, null, null, null, false));
+                    if (UtilValidate.isNotEmpty(orderHeader)) {
+                        if ("ORDER_HOLD".equals(orderHeader.get("statusId"))) {
+                            continue;
+                        } else {
+                            String orderId = orderHeader.getString("orderId");
+                            result = dispatcher.runSync("updateOrderHeader", UtilMisc.toMap("orderId", orderId, "syncStatusId", "ORDER_HOLD", "userLogin", system));
+                            if (!ServiceUtil.isSuccess(result)) {
+                                Debug.logError(ServiceUtil.getErrorMessage(result), module);
+                                return ServiceUtil.returnError((ServiceUtil.getErrorMessage(result)));
+                            }
+                            serviceCtx.put("orderId", orderId);
+                            serviceCtx.put("statusId", "ORDER_HOLD");
+                            serviceCtx.put("userLogin", system);
+                            result = dispatcher.runSync("changeOrderStatus", serviceCtx);
+                            if (!ServiceUtil.isSuccess(result)) {
+                                Debug.logError(ServiceUtil.getErrorMessage(result), module);
+                                return ServiceUtil.returnError((ServiceUtil.getErrorMessage(result)));
+                            }
+                            result.clear();
+                        }
+                    }
+                }
+            }
+        } catch (GenericEntityException gee) {
+            gee.printStackTrace();
+            Debug.logError("Error in improting held orders from Magento. Error Message: "+ gee.getMessage(), module);
+        } catch (GenericServiceException gse) {
+            gse.printStackTrace();
+            Debug.logError("Error in improting held orders from Magento. Error Message: "+gse.getMessage(), module);
+        } catch (Exception e) {
+            Debug.logError("Error in improting held orders from Magento. Error Message: " +e.getMessage(), module);
+            e.printStackTrace();
+            return ServiceUtil.returnError("Error in improting held orders from Magento. Error Message:" +e.getMessage());
+        }
+        return ServiceUtil.returnSuccess();
     }
     public static Map<String, Object> holdOrderInMagento(DispatchContext dctx, Map<String, ?> context) {
         Map<String, Object> result = ServiceUtil.returnSuccess();
